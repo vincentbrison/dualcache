@@ -34,7 +34,7 @@ Setup
    VBLibCacheContextUtils.setContext(getApplicationContext());
   ```  
   
-  - You are good to go !
+ - You are good to go !
   
 Put
 ---
@@ -47,7 +47,7 @@ Put
     CacheWrapper wrapper = new CacheWrapper("object10sec", date);
     CacheManager cache = CacheManager.getCacheManager("mycache");
     cache.put("object10sec", wrapper);
-    ```
+  ```
     
 Get
 ---
