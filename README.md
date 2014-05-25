@@ -42,19 +42,20 @@ Put
  - You have to use a CacheWrapper object to cache an object. With the CacheWrapper you can set a expiry date to your object. If you set null as the expiry date, the object
  will remain in the cache until the end of times.
  - Basic example :
-  ```java
-   //String is serializable so can be cached.
-   CacheWrapper wrapper = new CacheWrapper("object10sec", date);
-   CacheManager cache = CacheManager.getCacheManager("mycache");
-   cache.put("object10sec", wrapper);
-  ```
+ ```java
+ //String is serializable so can be cached.
+ CacheWrapper wrapper = new CacheWrapper("object10sec", date);
+ CacheManager cache = CacheManager.getCacheManager("mycache");
+ cache.put("object10sec", wrapper);
+ ```
+
     
 Get
 ---
  - Basic example :
-   ```java
-    CacheManager cache = CacheManager.getCacheManager("mycache");
-    String object = null;
-    object = cache.get("object10sec", String.class);
-   ```
+ ```java
+ CacheManager cache = CacheManager.getCacheManager("mycache");
+ String object = null;
+ object = cache.get("object10sec", String.class);
+  ```
  
