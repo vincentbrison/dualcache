@@ -28,7 +28,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         VBLibCacheLogUtils.enableLog();
-        VBLibCacheContextUtils.setContext(this);
+        VBLibCacheContextUtils.setContext(getApplicationContext());
 
         mButtonAddObject10Sec = (Button) findViewById(R.id.buttonAddObject10ToCache);
         mButtonAddObjectInfinite = (Button) findViewById(R.id.buttonAddObjectInfiniteLifetime);
