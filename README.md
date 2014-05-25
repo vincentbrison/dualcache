@@ -14,20 +14,24 @@ Setup
  - [Download the .aar](aar/vb-android-library-cache.aar).
  - Put it into your /libs folder.
  - Add to your repositories :
-   ```flatDir {
+   ```gradle
+   flatDir {
               dirs 'libs'
           }
    ```
    and to your dependencies :
-   ``` compile (name:'vb-android-library-cache', ext:'aar')
+   ```gradle
+    compile (name:'vb-android-library-cache', ext:'aar')
    ```
 
  - If you want activate the log of this library :
-  ``` VBLibCacheLogUtils.enableLog();
+  ```java
+   VBLibCacheLogUtils.enableLog();
   ```
  - You have to provide a Context to the cache. Please use the [application context] (developer.android.com/reference/android/content/Context.html#getApplicationContext())
  to avoid ugly memory leak : 
-  ``` VBLibCacheContextUtils.setContext(getApplicationContext());
+  ```java
+   VBLibCacheContextUtils.setContext(getApplicationContext());
   ```  
   
   - You are good to go !
@@ -38,8 +42,8 @@ Put
  - You have to use a CacheWrapper object to cache an object. With the CacheWrapper you can set a expiry date to your object. If you set null as the expiry date, the object
  will remain in the cache until the end of times.
  - Basic example :
- ```
- // String is serializable so can be cached.
+ ```java
+  //String is serializable so can be cached.
     CacheWrapper wrapper = new CacheWrapper("object10sec", date);
     CacheManager cache = CacheManager.getCacheManager("mycache");
     cache.put("object10sec", wrapper);
@@ -47,7 +51,8 @@ Put
     
 Get
 ---
- ```
+ - Basic example :
+ ```java
  CacheManager cache = CacheManager.getCacheManager("mycache");
  String object = null;
  object = cache.get("object10sec", String.class);
