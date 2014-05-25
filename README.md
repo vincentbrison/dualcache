@@ -1,7 +1,7 @@
 CAUTION
 =======
  - This project is in alpha state. You should not used it except for experimental purposes.
- - This project is only supported for Gradle build system 5if you use an IDE, only Android Studio is supported).
+ - This project is only supported for Gradle build system (if you use an IDE, only Android Studio is supported).
 
 vb-android-library-cache
 ========================
@@ -44,11 +44,11 @@ Put
 ---
  - You can only cache Serializable object.
  - You have to use a CacheWrapper object to cache an object. With the CacheWrapper you can set a expiry date to your object. If you set null as the expiry date, the object
- will remain in the cache until the end of times.
+ will remain in the cache until the end times.
  - Basic example :
  
  ```Java
- //String is serializable so can be cached.
+ // Strings are serializable so they can be cached.
  CacheWrapper wrapper = new CacheWrapper("object10sec", date);
  CacheManager cache = CacheManager.getCacheManager("mycache");
  cache.put("object10sec", wrapper);
