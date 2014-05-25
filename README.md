@@ -28,7 +28,7 @@ Setup
   ```java
    VBLibCacheLogUtils.enableLog();
   ```
- - You have to provide a Context to the cache. Please use the [application context] (http://developer.android.com/reference/android/content/Context.html)
+ - You have to provide a Context to the cache. Please use the [application context] (http://developer.android.com/reference/android/content/Context.html#getApplicationContext())
  to avoid ugly memory leak : 
   ```java
    VBLibCacheContextUtils.setContext(getApplicationContext());
@@ -43,17 +43,17 @@ Put
  will remain in the cache until the end of times.
  - Basic example :
   ```java
-  //String is serializable so can be cached.
-  CacheWrapper wrapper = new CacheWrapper("object10sec", date);
-  CacheManager cache = CacheManager.getCacheManager("mycache");
-  cache.put("object10sec", wrapper);
+   //String is serializable so can be cached.
+   CacheWrapper wrapper = new CacheWrapper("object10sec", date);
+   CacheManager cache = CacheManager.getCacheManager("mycache");
+   cache.put("object10sec", wrapper);
   ```
     
 Get
 ---
  - Basic example :
   ```java
-  CacheManager cache = CacheManager.getCacheManager("mycache");
-  String object = null;
-  object = cache.get("object10sec", String.class);
+   CacheManager cache = CacheManager.getCacheManager("mycache");
+   String object = null;
+   object = cache.get("object10sec", String.class);
   ```
