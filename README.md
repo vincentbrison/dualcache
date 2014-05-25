@@ -52,6 +52,12 @@ Put
 Get
 ---
  - Basic example :
+   ```java
+    teqs();
+    VBLibCacheLogUtils.enableLog();
+   ```
+ 
+ 
   ```java
    CacheManager cache = CacheManager.getCacheManager("mycache");
    String object = null;
