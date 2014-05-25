@@ -53,13 +53,8 @@ Get
 ---
  - Basic example :
    ```java
-    teqs();
-    VBLibCacheLogUtils.enableLog();
+    CacheManager cache = CacheManager.getCacheManager("mycache");
+    String object = null;
+    object = cache.get("object10sec", String.class);
    ```
  
- 
-  ```java
-   CacheManager cache = CacheManager.getCacheManager("mycache");
-   String object = null;
-   object = cache.get("object10sec", String.class);
-  ```
