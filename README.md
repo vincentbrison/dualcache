@@ -11,21 +11,19 @@ The particularity of this cache is to provide an expiry date for the cached obje
 
 Setup
 -----
- - [Download the .aar](aar/vb-android-library-cache.aar).
- - Put it into your /libs folder.
- - Add to your repositories :
+ - Add to your repositories the following url :
  
    ```gradle
-   flatDir {
-              dirs 'libs'
-          }
+   maven{
+               url 'https://github.com/vincentbrison/vb-maven/raw/master/release/'
+        }
    ```
    and to your dependencies :
    
    ```gradle
-    compile (name:'vb-android-library-cache', ext:'aar')
+     compile 'vb.android.library.cache.lib:vbcache:0.0.+@aar'
    ```
-
+    The alpha releases will use 0.0.+, the beta releases 0.1.+, the stables releases 1.+.+.
  - If you want activate the log of this library :
  
   ```Java

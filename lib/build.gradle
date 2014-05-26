@@ -1,4 +1,9 @@
 apply plugin: 'android-library'
+apply plugin: 'maven'
+
+artifacts {
+    archives file('build/libs/lib.aar')
+}
 
 android {
     compileSdkVersion 19
@@ -14,6 +19,18 @@ android {
         release {
             runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            // You luckily want that this path leads to my maven hosted here https://github.com/vincentbrison/vb-maven/
+            repository(url: "file:../../vb-maven/release/")
+            pom.groupId = 'vb.android.library.cache.lib'
+            pom.artifactId = 'vbcache'
+            pom.version = '0.0.1'
         }
     }
 }
