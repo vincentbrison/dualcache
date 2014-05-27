@@ -14,9 +14,9 @@ Setup
  - Add to your repositories the following url :
  
    ```gradle
-   maven{
-               url 'https://github.com/vincentbrison/vb-maven/raw/master/release/'
-        }
+   maven {
+       url 'https://github.com/vincentbrison/vb-maven/raw/master/release/'
+   }
    ```
    and to your dependencies :
    
@@ -49,7 +49,7 @@ Put
  // Strings are serializable so they can be cached.
  CacheWrapper wrapper = new CacheWrapper("object10sec", date);
  CacheManager cache = CacheManager.getCacheManager("mycache");
- cache.put("object10sec", wrapper);
+ cache.put("mykey", wrapper);
  ```
 
     
@@ -60,6 +60,24 @@ Get
  ```Java
  CacheManager cache = CacheManager.getCacheManager("mycache");
  String object = null;
- object = cache.get("object10sec", String.class);
+ object = cache.get("mykey", String.class);
   ```
+  
+License
+=======
+
+    Copyright 2013 Vincent Brison.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
  
