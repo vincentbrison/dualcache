@@ -8,7 +8,7 @@ import android.widget.Toast;
 
 import java.util.Date;
 
-import vb.android.library.cache.lib.CacheManager;
+import vb.android.library.cache.lib.SimpleCache;
 import vb.android.library.cache.lib.CacheWrapper;
 import vb.android.library.cache.lib.VBLibCacheContextUtils;
 import vb.android.library.cache.lib.VBLibCacheLogUtils;
@@ -44,7 +44,7 @@ public class MainActivity extends Activity {
 
                 // String is serializable so can be cached.
                 CacheWrapper wrapper = new CacheWrapper("object10sec", date);
-                CacheManager cache = CacheManager.getCacheManager("mycache");
+                SimpleCache cache = SimpleCache.getCacheManager("mycache");
                 cache.put("object10sec", wrapper);
             }
         });
@@ -55,7 +55,7 @@ public class MainActivity extends Activity {
 
                 // String is serializable so can be cached.
                 CacheWrapper wrapper = new CacheWrapper("objectInfinite", null);
-                CacheManager cache = CacheManager.getCacheManager("mycache");
+                SimpleCache cache = SimpleCache.getCacheManager("mycache");
                 cache.put("objectInfinite", wrapper);
             }
         });
@@ -63,7 +63,7 @@ public class MainActivity extends Activity {
         mButtonDisplayObject10Sec.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                CacheManager cache = CacheManager.getCacheManager("mycache");
+                SimpleCache cache = SimpleCache.getCacheManager("mycache");
                 String object = null;
                 object = cache.get("object10sec", String.class);
                 if (object != null) {
@@ -76,7 +76,7 @@ public class MainActivity extends Activity {
         mButtonDisplayObjectInfinite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                CacheManager cache = CacheManager.getCacheManager("mycache");
+                SimpleCache cache = SimpleCache.getCacheManager("mycache");
                 String object = null;
                 object = cache.get("objectInfinite", String.class);
                 if (object != null) {
@@ -89,8 +89,8 @@ public class MainActivity extends Activity {
         mButtonClearCache.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                CacheManager cache = CacheManager.getCacheManager("mycache");
-                cache.deleteCache();
+                SimpleCache cache = SimpleCache.getCacheManager("mycache");
+                cache.invalidate();
             }
         });
 
