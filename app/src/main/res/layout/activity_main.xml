@@ -1,65 +1,63 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
->
+    android:paddingTop="@dimen/activity_vertical_margin">
 
 
     <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Add object to cache with 10 sec lifetime"
-            android:id="@+id/buttonAddObject10ToCache"
-            android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
-    <Button
+        android:id="@+id/buttonAddObjectAToCache"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add object with infinite lifetime in cache"
-        android:id="@+id/buttonAddObjectInfiniteLifetime"
-        android:layout_below="@+id/buttonAddObject10ToCache"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:text="Add object A to cache." />
 
     <Button
+        android:id="@+id/buttonAddObjectBToCache"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Display object with 10 sec. lifetime from cache"
-        android:id="@+id/buttonDisplayObject10Sec"
-        android:layout_below="@+id/buttonAddObjectInfiniteLifetime"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/buttonAddObjectAToCache"
+        android:text="Add object B to cache." />
 
     <Button
+        android:id="@+id/buttonDisplayObjectA"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Display object with infinite lifetime from cache"
-        android:id="@+id/buttonDisplayObjectInfiniteLifetime"
-        android:layout_below="@+id/buttonDisplayObject10Sec"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/buttonAddObjectBToCache"
+        android:text="Display object A from cache." />
 
     <Button
+        android:id="@+id/buttonDisplayObjectB"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Clear cache"
-        android:id="@+id/buttonClearCache"
-        android:layout_below="@+id/buttonDisplayObjectInfiniteLifetime"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/buttonDisplayObjectA"
+        android:text="Display object B from cache" />
+
+    <Button
+        android:id="@+id/buttonInvalidateCache"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/buttonDisplayObjectB"
+        android:text="Invalidate cache" />
 
 </RelativeLayout>
