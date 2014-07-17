@@ -1,0 +1,139 @@
+package vb.android.library.cache.app;
+
+import android.app.Activity;
+import android.os.Bundle;
+import android.os.Handler;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.UUID;
+
+import vb.android.library.cache.lib.DualCache;
+import vb.android.library.cache.lib.VBLibCacheContextUtils;
+import vb.android.library.cache.lib.VBLibCacheLogUtils;
+
+
+public class DemoActivity extends Activity {
+
+    public final static String EXTRA_DISK_CACHE_SIZE = "EXTRA_DISK_CACHE_SIZE";
+    public final static String EXTRA_RAM_CACHE_SIZE = "EXTRA_RAM_CACHE_SIZE";
+    public final static String EXTRA_ID_CACHE = "EXTRA_ID_CACHE";
+
+    private int mDiskCacheSize;
+    private int mRamCacheSize;
+    private String mCacheId;
+    private DualCache<String> mCache;
+
+    private Handler mHandler;
+
+    private Button mButtonAddObjectA;
+    private Button mButtonAddObjectB;
+    private Button mButtonAddRandomObject;
+    private Button mButtonDisplayObjectB;
+    private Button mButtonDisplayObjectA;
+    private Button mButtonDisplayRandomObject;
+    private Button mButtonInvalidateCache;
+    private TextView mTextViewDataRam;
+    private TextView mTextViewDataDisk;
+    private TextView mTextViewDataTime;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mCacheId = getIntent().getStringExtra(EXTRA_ID_CACHE);
+        mDiskCacheSize = getIntent().getIntExtra(EXTRA_DISK_CACHE_SIZE, 100);
+        mRamCacheSize = getIntent().getIntExtra(EXTRA_RAM_CACHE_SIZE, 50);
+
+        setContentView(R.layout.activity_demo);
+
+        VBLibCacheLogUtils.enableLog();
+        VBLibCacheContextUtils.setContext(getApplicationContext());
+
+        mCache = new DualCache<String>(mCacheId, 1, mRamCacheSize, mDiskCacheSize, String.class);
+
+        mButtonAddObjectA = (Button) findViewById(R.id.buttonAddObjectAToCache);
+        mButtonAddObjectB = (Button) findViewById(R.id.buttonAddObjectBToCache);
+        mButtonAddRandomObject = (Button) findViewById(R.id.buttonAddRandomObjectToCache);
+        mButtonInvalidateCache = (Button) findViewById(R.id.buttonInvalidateCache);
+        mButtonDisplayObjectA = (Button) findViewById(R.id.buttonDisplayObjectA);
+        mButtonDisplayObjectB = (Button) findViewById(R.id.buttonDisplayObjectB);
+        mButtonDisplayRandomObject = (Button) findViewById(R.id.buttonDisplayRandomObject);
+        mTextViewDataDisk = (TextView) findViewById(R.id.textViewDataSizeDisk);
+        mTextViewDataRam = (TextView) findViewById(R.id.textViewDataSizeRam);
+        mTextViewDataTime = (TextView) findViewById(R.id.textViewDataTime);
+
+        mHandler = new Handler();
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                refreshCacheSize();
+                mHandler.postDelayed(this, 500);
+            }
+        });
+
+        mButtonAddObjectA.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mCache.put("A", "objectA");
+            }
+        });
+
+        mButtonAddObjectB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mCache.put("B", "objectB");
+            }
+        });
+
+        mButtonAddRandomObject.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mCache.put(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+            }
+        });
+
+        mButtonDisplayObjectB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String result = mCache.get("B");
+                if (result != null) {
+                    Toast.makeText(DemoActivity.this, result, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        mButtonDisplayObjectA.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String result = mCache.get("A");
+                if (result != null) {
+                    Toast.makeText(DemoActivity.this, result, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        mButtonDisplayRandomObject.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        mButtonInvalidateCache.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mCache.invalidate();
+            }
+        });
+
+    }
+
+    private void refreshCacheSize() {
+        mTextViewDataRam.setText("Ram : " + mCache.getRamSize() + "/" + mRamCacheSize + " B");
+        mTextViewDataDisk.setText("Disk : " + mCache.getDiskSize() + "/" + mDiskCacheSize + " B");
+    }
+}
+

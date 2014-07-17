@@ -20,6 +20,8 @@ public class DualCache<T> {
     private Class<T> mClazz;
 
     private String mId;
+    private int mDiskCacheSizeinBytes;
+    private int mAppVersion;
 
     private static ObjectMapper mMapper = new ObjectMapper();
 
@@ -27,6 +29,8 @@ public class DualCache<T> {
         mRamCacheLru = new StringCacheLru(ramCacheSizeInBytes);
         mId = id;
         mClazz = clazz;
+        mAppVersion = appVersion;
+        mDiskCacheSizeinBytes = diskCacheSizeInBytes;
         File folder = new File(VBLibCacheContextUtils.getContext().getCacheDir().getPath() + "/" + CACHE_FILE_PREFIX + "/" + mId);
         try {
             mDiskLruCache = DiskLruCache.open(folder, appVersion, 1, diskCacheSizeInBytes);
@@ -40,6 +44,7 @@ public class DualCache<T> {
     public void put(String key, T object) {
         VBLibCacheLogUtils.logInfo("Object " + key + " is saved in cache.");
         String stringObject = null;
+
         try {
             stringObject = mMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
@@ -107,6 +112,8 @@ public class DualCache<T> {
     public void invalidate() {
         try {
             mDiskLruCache.delete();
+            File folder = new File(VBLibCacheContextUtils.getContext().getCacheDir().getPath() + "/" + CACHE_FILE_PREFIX + "/" + mId);
+            mDiskLruCache = DiskLruCache.open(folder, mAppVersion, 1, mDiskCacheSizeinBytes);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -115,17 +122,25 @@ public class DualCache<T> {
 
     private String getDiskFileNameFromKey(String key) {
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            MessageDigest md = MessageDigest.getInstance("MD5");
             md.update(key.getBytes());
             byte byteData[] = md.digest();
             StringBuilder sb = new StringBuilder();
-            for (byte aByteData : byteData) {
-                sb.append(Integer.toString((aByteData & 0xff) + 0x100, 16).substring(1));
+            for (byte b : byteData) {
+                sb.append(String.format("%02x", b&0xff));
             }
             return CACHE_FILE_PREFIX + "-" + mId + "-" + sb;
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public long getRamSize() {
+        return mRamCacheLru.size();
+    }
+
+    public long getDiskSize() {
+        return mDiskLruCache.size();
     }
 }
