@@ -104,7 +104,11 @@
         android:layout_height="wrap_content"
         android:text="Last access time"
         android:id="@+id/textViewDataTime"
+        android:gravity="center"
+        android:maxLines="2"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_toRightOf="@+id/textViewDataSizeRam"
+        android:layout_toLeftOf="@id/textViewDataSizeDisk"
+        />
 
 </RelativeLayout>

@@ -77,8 +77,16 @@
         android:id="@+id/activity_settings_button_demo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/activity_settings_textview_cache_id"
         android:layout_margin="10dp"
         android:text="Start demo" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Start bench"
+        android:layout_margin="10dp"
+        android:id="@+id/activity_settings_button_bench"
+        android:layout_below="@+id/activity_settings_button_demo" />
 
 </RelativeLayout>

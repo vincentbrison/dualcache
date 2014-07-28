@@ -1,5 +1,7 @@
 package vb.android.library.cache.lib;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jakewharton.disklrucache.DiskLruCache;
@@ -83,6 +85,7 @@ public class DualCache<T> {
      * @param clazz is the class of object to cache.
      */
     public DualCache(String id, int appVersion, int ramCacheSizeInBytes, int diskCacheSizeInBytes, Class<T> clazz) {
+        mMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         mRamCacheLru = new StringCacheLru(ramCacheSizeInBytes);
         mId = id;
         mClazz = clazz;
@@ -153,9 +156,9 @@ public class DualCache<T> {
 
                     // Refresh object in ram.
                     try {
-                        mRamCacheLru.put(key, snapshotObject.getString(0));
-
-                        return mMapper.readValue(snapshotObject.getString(0), mClazz);
+                        String snapshotObjectAsString = snapshotObject.getString(0);
+                        mRamCacheLru.put(key, snapshotObjectAsString);
+                        return mMapper.readValue(snapshotObjectAsString, mClazz);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -196,6 +199,23 @@ public class DualCache<T> {
      * Remove all objects from cache (both RAM and disk).
      */
     public void invalidate() {
+        if (mMode == DualCacheMode.BOTH_RAM_AND_DISK) {
+            invalidateDisk();
+        }
+        invalidateRAM();
+    }
+
+    /**
+     * Remove all objects from RAM.
+     */
+    public void invalidateRAM() {
+        mRamCacheLru.evictAll();
+    }
+
+    /**
+     * Remove all objects from Disk.
+     */
+    public void invalidateDisk() {
         try {
             mDiskLruCache.delete();
             File folder = new File(VBLibCacheContextUtils.getContext().getCacheDir().getPath() + "/" + CACHE_FILE_PREFIX + "/" + mId);
@@ -203,7 +223,6 @@ public class DualCache<T> {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        mRamCacheLru.evictAll();
     }
 
     /**

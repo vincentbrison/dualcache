@@ -49,9 +49,6 @@ public class DemoActivity extends Activity {
 
         setContentView(R.layout.activity_demo);
 
-        VBLibCacheLogUtils.enableLog();
-        VBLibCacheContextUtils.setContext(getApplicationContext());
-
         mCache = new DualCache<String>(mCacheId, 1, mRamCacheSize, mDiskCacheSize, String.class);
 
         mButtonAddObjectA = (Button) findViewById(R.id.buttonAddObjectAToCache);
@@ -98,20 +95,28 @@ public class DemoActivity extends Activity {
         mButtonDisplayObjectB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                long start = System.currentTimeMillis();
                 String result = mCache.get("B");
+                long end = System.currentTimeMillis();
+                long time = end - start;
                 if (result != null) {
                     Toast.makeText(DemoActivity.this, result, Toast.LENGTH_SHORT).show();
                 }
+                mTextViewDataTime.setText("Last access time : " + time + " ms");
             }
         });
 
         mButtonDisplayObjectA.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                long start = System.currentTimeMillis();
                 String result = mCache.get("A");
+                long end = System.currentTimeMillis();
+                long time = end - start;
                 if (result != null) {
                     Toast.makeText(DemoActivity.this, result, Toast.LENGTH_SHORT).show();
                 }
+                mTextViewDataTime.setText("Last access time : " + time + " ms");
             }
         });
 
