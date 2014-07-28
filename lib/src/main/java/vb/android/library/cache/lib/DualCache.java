@@ -13,24 +13,81 @@ import java.security.MessageDigest;
  */
 public class DualCache<T> {
 
+    /**
+     * Define the general behaviour of the cache.
+     */
+    public enum DualCacheMode {
+        /**
+        * ONLY_RAM means only RAM must be used (no disk used).
+         */
+        ONLY_RAM,
+
+        /**
+         * BOTH_RAM_AND_DISK is the default behaviour where both RAM and dik are used for cache.
+         */
+        BOTH_RAM_AND_DISK
+    }
+
+    /**
+     * Defined the sub folder from {@link android.content.Context#getCacheDir()} used to store all
+     * the data generated from the use of this class.
+     */
     private static String CACHE_FILE_PREFIX = "dualcache";
 
+    /**
+     * Unique ID which define a cache.
+     */
+    private String mId;
+
+    /**
+     * RAM cache.
+     */
     private StringCacheLru mRamCacheLru;
+
+    /**
+     * Disk cache.
+     */
     private DiskLruCache mDiskLruCache;
+
+    /**
+     * Define the class store in this cache.
+     */
     private Class<T> mClazz;
 
-    private String mId;
-    private int mDiskCacheSizeinBytes;
+    /**
+     * Hold the max size in bytes of the disk cache.
+     */
+    private int mDiskCacheSizeInBytes;
+
+    /**
+     * Define the app version of the application (allow you to automatically invalidate data from different app version on disk).
+     */
     private int mAppVersion;
 
+    /**
+     * The default behaviour use both RAM and disk fro cache.
+     */
+    private DualCacheMode mMode = DualCacheMode.BOTH_RAM_AND_DISK;
+
+    /**
+     * Gson serializer used to save data and load data. Can be used by multiple threads.
+     */
     private static ObjectMapper mMapper = new ObjectMapper();
 
+    /**
+     * Construct a DualCache object. The #DualCacheMode is set to BOTH_RAM_AND_DISK by default.
+     * @param id is the unique id of this cache.
+     * @param appVersion is the app version of the application.
+     * @param ramCacheSizeInBytes is the max size of the ram to use.
+     * @param diskCacheSizeInBytes is the max size of disk to use.
+     * @param clazz is the class of object to cache.
+     */
     public DualCache(String id, int appVersion, int ramCacheSizeInBytes, int diskCacheSizeInBytes, Class<T> clazz) {
         mRamCacheLru = new StringCacheLru(ramCacheSizeInBytes);
         mId = id;
         mClazz = clazz;
         mAppVersion = appVersion;
-        mDiskCacheSizeinBytes = diskCacheSizeInBytes;
+        mDiskCacheSizeInBytes = diskCacheSizeInBytes;
         File folder = new File(VBLibCacheContextUtils.getContext().getCacheDir().getPath() + "/" + CACHE_FILE_PREFIX + "/" + mId);
         try {
             mDiskLruCache = DiskLruCache.open(folder, appVersion, 1, diskCacheSizeInBytes);
@@ -40,7 +97,11 @@ public class DualCache<T> {
 
     }
 
-
+    /**
+     * Put an object in cache.
+     * @param key is the key of the object.
+     * @param object is the object to put in cache.
+     */
     public void put(String key, T object) {
         VBLibCacheLogUtils.logInfo("Object " + key + " is saved in cache.");
         String stringObject = null;
@@ -52,16 +113,23 @@ public class DualCache<T> {
         }
 
         mRamCacheLru.put(key, stringObject);
-        try {
-            DiskLruCache.Editor editor = mDiskLruCache.edit(getDiskFileNameFromKey(key));
-            editor.set(0, stringObject);
-            editor.commit();
-        } catch (IOException e) {
-            e.printStackTrace();
+
+        if (mMode == DualCacheMode.BOTH_RAM_AND_DISK) {
+            try {
+                DiskLruCache.Editor editor = mDiskLruCache.edit(getDiskFileNameFromKey(key));
+                editor.set(0, stringObject);
+                editor.commit();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-
+    /**
+     * Return the object of the corresponding key from the cache. In no object is available, return null.
+     * @param key is the key of the object.
+     * @return the object of the corresponding key from the cache. In no object is available, return null.
+     */
     public T get(String key) {
 
         String stringObject;
@@ -71,30 +139,30 @@ public class DualCache<T> {
         stringObject = mRamCacheLru.get(key);
 
         if (stringObject == null) {
-            // Try to get the cached object from disk.
-            VBLibCacheLogUtils
-                    .logInfo("Object " + key + " is not in the RAM. Try to get it from disk.");
-            try {
-                snapshotObject = mDiskLruCache.get(getDiskFileNameFromKey(key));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if (snapshotObject != null) {
-                VBLibCacheLogUtils.logInfo("Object " + key + " is on disk.");
-
-                // Refresh object in ram.
+            if (mMode == DualCacheMode.BOTH_RAM_AND_DISK) {
+                // Try to get the cached object from disk.
+                VBLibCacheLogUtils
+                        .logInfo("Object " + key + " is not in the RAM. Try to get it from disk.");
                 try {
-                    mRamCacheLru.put(key, snapshotObject.getString(0));
-
-                    //JavaType type = mMapper.getTypeFactory().constructType(Type)
-                    return mMapper.readValue(snapshotObject.getString(0), mClazz);
+                    snapshotObject = mDiskLruCache.get(getDiskFileNameFromKey(key));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                if (snapshotObject != null) {
+                    VBLibCacheLogUtils.logInfo("Object " + key + " is on disk.");
 
-            } else
-                VBLibCacheLogUtils.logInfo("Object " + key + " is not on disk.");
+                    // Refresh object in ram.
+                    try {
+                        mRamCacheLru.put(key, snapshotObject.getString(0));
 
+                        return mMapper.readValue(snapshotObject.getString(0), mClazz);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                } else
+                    VBLibCacheLogUtils.logInfo("Object " + key + " is not on disk.");
+            }
         } else {
             VBLibCacheLogUtils.logInfo("Object " + key + " is in the RAM.");
             try {
@@ -104,22 +172,45 @@ public class DualCache<T> {
             }
         }
 
-
         // No data are available.
         return null;
     }
 
+    /**
+     * Delete the corresponding object in cache.
+     * @param key is the key of the object.
+     */
+    public void delete(String key) {
+        mRamCacheLru.remove(key);
+
+        if (mMode == DualCacheMode.BOTH_RAM_AND_DISK) {
+            try {
+                mDiskLruCache.remove(key);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Remove all objects from cache (both RAM and disk).
+     */
     public void invalidate() {
         try {
             mDiskLruCache.delete();
             File folder = new File(VBLibCacheContextUtils.getContext().getCacheDir().getPath() + "/" + CACHE_FILE_PREFIX + "/" + mId);
-            mDiskLruCache = DiskLruCache.open(folder, mAppVersion, 1, mDiskCacheSizeinBytes);
+            mDiskLruCache = DiskLruCache.open(folder, mAppVersion, 1, mDiskCacheSizeInBytes);
         } catch (IOException e) {
             e.printStackTrace();
         }
         mRamCacheLru.evictAll();
     }
 
+    /**
+     * Return a hashed name for the file to use for disk cache from a key.
+     * @param key is the key to hash.
+     * @return a hashed name for the file to use for disk cache from a key.
+     */
     private String getDiskFileNameFromKey(String key) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
@@ -127,7 +218,7 @@ public class DualCache<T> {
             byte byteData[] = md.digest();
             StringBuilder sb = new StringBuilder();
             for (byte b : byteData) {
-                sb.append(String.format("%02x", b&0xff));
+                sb.append(String.format("%02x", b & 0xff));
             }
             return CACHE_FILE_PREFIX + "-" + mId + "-" + sb;
         } catch (Exception e) {
@@ -136,11 +227,35 @@ public class DualCache<T> {
         return null;
     }
 
+    /**
+     * Return the size used in bytes of the RAM cache.
+     * @return the size used in bytes of the RAM cache.
+     */
     public long getRamSize() {
         return mRamCacheLru.size();
     }
 
+    /**
+     * Return the size used in bytes of the disk cache.
+     * @return the size used in bytes of the disk cache.
+     */
     public long getDiskSize() {
         return mDiskLruCache.size();
+    }
+
+    /**
+     * Return the DualCacheMode in used from this instance of cache.
+     * @return the DualCacheMode in used from this instance of cache.
+     */
+    public DualCacheMode getMode() {
+        return mMode;
+    }
+
+    /**
+     * Set the DualCacheMode in used from this instance of cache.
+     * mMode is the mode to use in this instance of cache.
+     */
+    public void setMode(DualCacheMode mMode) {
+        this.mMode = mMode;
     }
 }
