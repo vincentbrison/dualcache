@@ -9,6 +9,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import vb.android.library.cache.lib.DualCache;
@@ -52,7 +54,7 @@ public class SettingsActivity extends Activity {
         mButtonBench.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*
+
                 Log.i("Bench", "Start bench");
 
                 int maxRamSize = Integer.parseInt(mEditTextSizeRam.getText().toString());
@@ -63,14 +65,18 @@ public class SettingsActivity extends Activity {
                 Log.i("Bench", "Bench using dummy object");
                 LruCache<String, DummyClass> lruCacheTest = new LruCache<String, DummyClass>(maxRamSize);
                 DualCache<DummyClass> dualCacheTest = new DualCache<DummyClass>("bench", 1, maxRamSize, maxDiskSize, DummyClass.class);
-                //dualCacheTest.setMode(DualCache.DualCacheMode.ONLY_RAM);
-                DummyClass dummyObject = new DummyClass();
-                int numberOfActions = 50;
+
+                int numberOfActions = 100;
+                List<DummyClass> dummyObjects = new ArrayList<DummyClass>();
+                for (int i = 0; i < numberOfActions; i++) {
+                        dummyObjects.add(new DummyClass());
+                }
+
                 long start, end, time;
                 start = System.currentTimeMillis();
                 for (int i = 0; i < numberOfActions; i++) {
-                    lruCacheTest.put(UUID.randomUUID().toString(), dummyObject);
-                    lruCacheTest.get(UUID.randomUUID().toString());
+                    lruCacheTest.put("" + numberOfActions, dummyObjects.get(i));
+                    lruCacheTest.get("" + numberOfActions);
                 }
                 end = System.currentTimeMillis();
                 time = end - start;
@@ -78,17 +84,12 @@ public class SettingsActivity extends Activity {
 
                 start = System.currentTimeMillis();
                 for (int i = 0; i < numberOfActions; i++) {
-                    dualCacheTest.put(UUID.randomUUID().toString(), dummyObject);
-                    dualCacheTest.get(UUID.randomUUID().toString());
+                    dualCacheTest.put("" + numberOfActions, dummyObjects.get(i));
+                    dualCacheTest.get("" + numberOfActions);
                 }
                 end = System.currentTimeMillis();
                 time = end - start;
-                Log.i("Bench", "DualCacheTest time for " + numberOfActions + " randoms puts and gets : " + time + " ms.");*/
-
-                DualCache<Object> dualCacheTest = new DualCache<Object>("bench", 1, 500, 1000, Object.class);
-                dualCacheTest.put("A", "test");
-                dualCacheTest.invalidateRAM();
-                Log.i("bench", (String)dualCacheTest.get("A"));
+                Log.i("Bench", "DualCacheTest time for " + numberOfActions + " randoms puts and gets : " + time + " ms.");
             }
         });
 
