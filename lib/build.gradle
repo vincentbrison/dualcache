@@ -38,7 +38,7 @@ uploadArchives {
             repository(url: "file:../vb-maven/release/")
             pom.groupId = 'vb.android.library.cache.lib'
             pom.artifactId = 'vbcache'
-            pom.version = '0.0.1'
+            pom.version = '0.0.2'
         }
     }
 }

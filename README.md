@@ -7,8 +7,15 @@ vb-android-library-cache
 ========================
 
 This android library provide a cache with 2 layers, one in RAM in top of one on local storage.
-The particularity of this cache is to provide an expiry date for the cached object.
-
+This library will convert each object into a String to be able to measure the size in byte of each cached object.
+You have to be aware that the default implementation of [LruCache] (http://developer.android.com/reference/android/util/LruCache.html) does not fulfill this feature.
+This library includes the following features :
+ - A RAM cache layer.
+ - A disk cache layer ([based on the awesome work of Jake Wharton] (https://github.com/JakeWharton/DiskLruCache)).
+ - Whatever object you choose to put in cache, its size is automatically calculated, to ensure a limited used space by the cache (with LRU policy).
+ - You can choose to use only the RAM layer or the RAM layer with the disk layer, to save data among different executions for example.
+ - Limited size of the RAM and the disk layer.
+ 
 Setup
 -----
  - Add to your repositories the following url :
@@ -40,16 +47,14 @@ Setup
   
 Put
 ---
- - You can only cache Serializable object.
- - You have to use a CacheWrapper object to cache an object. With the CacheWrapper you can set a expiry date to your object. If you set null as the expiry date, the object
- will remain in the cache until the end times.
+ - You can cache whatever object. Be aware that each object will be convert to String in cache, so do not use this cache with Bitmap for example.
  - Basic example :
  
  ```Java
  // Strings are serializable so they can be cached.
- CacheWrapper wrapper = new CacheWrapper("object10sec", date);
- CacheManager cache = CacheManager.getCacheManager("mycache");
- cache.put("mykey", wrapper);
+ DualCache<DummyClass> dualCache = new DualCache<DummyClass>("myCache", 1, maxRamSize, maxDiskSize, DummyClass.class);
+ DummyClass object = new DummyClass();
+ cache.put("mykey", object);
  ```
 
     
@@ -58,9 +63,8 @@ Get
  - Basic example :
  
  ```Java
- CacheManager cache = CacheManager.getCacheManager("mycache");
- String object = null;
- object = cache.get("mykey", String.class);
+ DummyClass object = null;
+ object = cache.get("mykey");
   ```
   
 License
