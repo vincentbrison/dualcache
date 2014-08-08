@@ -74,7 +74,7 @@ public class DualCache<T> {
     /**
      * Gson serializer used to save data and load data. Can be used by multiple threads.
      */
-    private static ObjectMapper mMapper = new ObjectMapper();
+    private static ObjectMapper sMapper = new ObjectMapper();
 
     /**
      * Construct a DualCache object. The #DualCacheMode is set to BOTH_RAM_AND_DISK by default.
@@ -85,7 +85,9 @@ public class DualCache<T> {
      * @param clazz is the class of object to cache.
      */
     public DualCache(String id, int appVersion, int ramCacheSizeInBytes, int diskCacheSizeInBytes, Class<T> clazz) {
-        mMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+        sMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
+        sMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+        sMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         mRamCacheLru = new StringCacheLru(ramCacheSizeInBytes);
         mId = id;
         mClazz = clazz;
@@ -110,7 +112,7 @@ public class DualCache<T> {
         String stringObject = null;
 
         try {
-            stringObject = mMapper.writeValueAsString(object);
+            stringObject = sMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -158,7 +160,7 @@ public class DualCache<T> {
                     try {
                         String snapshotObjectAsString = snapshotObject.getString(0);
                         mRamCacheLru.put(key, snapshotObjectAsString);
-                        return mMapper.readValue(snapshotObjectAsString, mClazz);
+                        return sMapper.readValue(snapshotObjectAsString, mClazz);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -169,7 +171,7 @@ public class DualCache<T> {
         } else {
             VBLibCacheLogUtils.logInfo("Object " + key + " is in the RAM.");
             try {
-                return mMapper.readValue(stringObject, mClazz);
+                return sMapper.readValue(stringObject, mClazz);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -244,6 +246,14 @@ public class DualCache<T> {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * Return the mapper if you want to do more configuration on it.
+     * @return the mapper if you want to do more configuration on it.
+     */
+    public static ObjectMapper getMapper() {
+        return sMapper;
     }
 
     /**
