@@ -1,4 +1,4 @@
-package vb.android.library.cache.lib;
+package com.vb.openlibraries.android.dualcache.lib;
 
 import android.content.Context;
 
@@ -6,7 +6,7 @@ import android.content.Context;
  * Created by Vincent Brison.
  * This class provide a context to the library.
  */
-public class VBLibCacheContextUtils {
+public class DualCacheContextUtils {
     private static Context mContext = null;
 
     public static void setContext(Context context) {
@@ -15,7 +15,7 @@ public class VBLibCacheContextUtils {
 
     public static Context getContext() {
         if (mContext == null)
-            VBLibCacheLogUtils.logInfo("The context provided to this library is null. Please provide"
+            DualCacheLogUtils.logInfo("The context provided to this library is null. Please provide"
                     + " a proper context according the lifecycle of the application.");
         return mContext;
     }

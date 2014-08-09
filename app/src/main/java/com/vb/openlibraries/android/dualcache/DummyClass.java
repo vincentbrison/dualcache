@@ -1,4 +1,4 @@
-package vb.android.library.cache.app;
+package com.vb.openlibraries.android.dualcache;
 
 import java.io.Serializable;
 import java.util.ArrayList;

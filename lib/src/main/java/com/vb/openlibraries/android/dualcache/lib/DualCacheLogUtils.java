@@ -1,4 +1,4 @@
-package vb.android.library.cache.lib;
+package com.vb.openlibraries.android.dualcache.lib;
 
 import android.util.Log;
 
@@ -6,7 +6,7 @@ import android.util.Log;
  * Created by Vincent Brison.
  * This class provide a log utility to the library.
  */
-public class VBLibCacheLogUtils {
+public class DualCacheLogUtils {
 
     private static boolean isLogEnabled = false;
 
@@ -45,6 +45,6 @@ public class VBLibCacheLogUtils {
      * @param msg is the msg to log.
      */
     public static void logInfo(String msg) {
-        log(Log.INFO, "bfi.lib.cache", msg);
+        log(Log.INFO, "dualcache", msg);
     }
 }

@@ -28,19 +28,23 @@ Setup
    and to your dependencies :
    
    ```gradle
-     compile 'vb.android.library.cache.lib:vbcache:0.0.+@aar'
+     compile 'com.vb.openlibraries.android.dualcache.lib:dualcache:0.0.+@aar'
+     compile 'com.android.support:support-v4:19.1.+'
+     compile 'com.jakewharton:disklrucache:2.0.+'
+     compile 'com.fasterxml.jackson.core:jackson-databind:2.4.+'
+
    ```
     The alpha releases will use 0.0.+, the beta releases 0.1.+, the stables releases 1.+.+.
  - If you want activate the log of this library :
  
   ```Java
-   VBLibCacheLogUtils.enableLog();
+   DualCacheLogUtils.enableLog();
   ```
  - You have to provide a Context to the cache. Please use the [application context] (http://developer.android.com/reference/android/content/Context.html#getApplicationContext())
  to avoid ugly memory leak : 
  
   ```Java
-   VBLibCacheContextUtils.setContext(getApplicationContext());
+  DualCacheContextUtils.setContext(getApplicationContext());
   ```
   
  - You are good to go !
@@ -51,7 +55,7 @@ Put
  - Basic example :
  
  ```Java
- // Strings are serializable so they can be cached.
+ // Whatever object can be cached, polymorphism is fully supported.
  DualCache<DummyClass> dualCache = new DualCache<DummyClass>("myCache", 1, maxRamSize, maxDiskSize, DummyClass.class);
  DummyClass object = new DummyClass();
  cache.put("mykey", object);

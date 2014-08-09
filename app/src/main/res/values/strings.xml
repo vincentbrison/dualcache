@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">vb-android-library-cache</string>
+    <string name="app_name">DualCacheDemo</string>
     <string name="title_activity_activity_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>

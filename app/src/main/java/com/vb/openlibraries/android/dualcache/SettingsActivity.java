@@ -1,4 +1,4 @@
-package vb.android.library.cache.app;
+package com.vb.openlibraries.android.dualcache;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -9,13 +9,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.vb.openlibraries.android.dualcache.lib.DualCache;
+import com.vb.openlibraries.android.dualcache.lib.DualCacheContextUtils;
+import com.vb.openlibraries.android.dualcache.lib.DualCacheLogUtils;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-import vb.android.library.cache.lib.DualCache;
-import vb.android.library.cache.lib.VBLibCacheContextUtils;
-import vb.android.library.cache.lib.VBLibCacheLogUtils;
 
 public class SettingsActivity extends Activity {
 
@@ -36,16 +36,16 @@ public class SettingsActivity extends Activity {
         mButtonDemo = (Button) findViewById(R.id.activity_settings_button_demo);
         mButtonBench = (Button) findViewById(R.id.activity_settings_button_bench);
 
-        //VBLibCacheLogUtils.enableLog();
-        VBLibCacheContextUtils.setContext(getApplicationContext());
+        DualCacheLogUtils.enableLog();
+        DualCacheContextUtils.setContext(getApplicationContext());
 
         mButtonDemo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(SettingsActivity.this, DemoActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                intent.putExtra(DemoActivity.EXTRA_DISK_CACHE_SIZE, Integer.getInteger(mEditTextSizeDisk.getText().toString(), 100));
-                intent.putExtra(DemoActivity.EXTRA_RAM_CACHE_SIZE, Integer.getInteger(mEditTextSizeRam.getText().toString(), 50));
+                intent.putExtra(DemoActivity.EXTRA_DISK_CACHE_SIZE, Integer.parseInt(mEditTextSizeDisk.getText().toString()));
+                intent.putExtra(DemoActivity.EXTRA_RAM_CACHE_SIZE, Integer.parseInt(mEditTextSizeRam.getText().toString()));
                 intent.putExtra(DemoActivity.EXTRA_ID_CACHE, mEditTextIdCache.getText().toString());
                 startActivity(intent);
             }
@@ -64,7 +64,7 @@ public class SettingsActivity extends Activity {
 
                 Log.i("Bench", "Bench using dummy object");
                 LruCache<String, DummyClass> lruCacheTest = new LruCache<String, DummyClass>(maxRamSize);
-                DualCache<DummyClass> dualCacheTest = new DualCache<DummyClass>("bench", 1, maxRamSize, maxDiskSize, DummyClass.class);
+                DualCache<DummyClass> dualCacheTest = new DualCache<DummyClass>("bench", 1, maxRamSize, maxDiskSize, true, true, DummyClass.class);
 
                 int numberOfActions = 100;
                 List<DummyClass> dummyObjects = new ArrayList<DummyClass>();

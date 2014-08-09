@@ -1,4 +1,4 @@
-package vb.android.library.cache.lib;
+package com.vb.openlibraries.android.dualcache.lib;
 
 import android.support.v4.util.LruCache;
 

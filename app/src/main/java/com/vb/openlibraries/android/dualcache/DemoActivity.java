@@ -1,4 +1,4 @@
-package vb.android.library.cache.app;
+package com.vb.openlibraries.android.dualcache;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -8,11 +8,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.UUID;
+import com.vb.openlibraries.android.dualcache.lib.DualCache;
 
-import vb.android.library.cache.lib.DualCache;
-import vb.android.library.cache.lib.VBLibCacheContextUtils;
-import vb.android.library.cache.lib.VBLibCacheLogUtils;
+import java.util.UUID;
 
 
 public class DemoActivity extends Activity {
@@ -49,7 +47,7 @@ public class DemoActivity extends Activity {
 
         setContentView(R.layout.activity_demo);
 
-        mCache = new DualCache<String>(mCacheId, 1, mRamCacheSize, mDiskCacheSize, String.class);
+        mCache = new DualCache<String>(mCacheId, 1, mRamCacheSize, mDiskCacheSize, true, true, String.class);
 
         mButtonAddObjectA = (Button) findViewById(R.id.buttonAddObjectAToCache);
         mButtonAddObjectB = (Button) findViewById(R.id.buttonAddObjectBToCache);

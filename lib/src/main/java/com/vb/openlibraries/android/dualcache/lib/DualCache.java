@@ -1,4 +1,6 @@
-package vb.android.library.cache.lib;
+package com.vb.openlibraries.android.dualcache.lib;
+
+import android.content.Context;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -29,6 +31,16 @@ public class DualCache<T> {
          */
         BOTH_RAM_AND_DISK
     }
+
+    /**
+     * Is true if you want hash the key used by the disk cache (could be useful if you use meanful keys...).
+     */
+    private boolean mHashDiskKeys = false;
+
+    /**
+     * Is true if you want use {@link android.content.Context#MODE_PRIVATE} as policy for the disk files used by this cache. Otherwise {@link android.content.Context#getCacheDir()} are used.
+     */
+    private boolean mUsePrivateFiles = false;
 
     /**
      * Defined the sub folder from {@link android.content.Context#getCacheDir()} used to store all
@@ -81,19 +93,35 @@ public class DualCache<T> {
      * @param id is the unique id of this cache.
      * @param appVersion is the app version of the application.
      * @param ramCacheSizeInBytes is the max size of the ram to use.
-     * @param diskCacheSizeInBytes is the max size of disk to use.
+     * @param diskCacheSizeInBytes is the max size of disk to use, 0 for unlimited size.
+     * @param usePrivateFiles is true if you want use {@link android.content.Context#MODE_PRIVATE} as policy for the disk files used by this cache. Otherwise {@link android.content.Context#getCacheDir()} are used.
+     * @param hashDiskKeys is true if you want hash the key used by the disk cache (could be useful if you use meanful keys...).
      * @param clazz is the class of object to cache.
      */
-    public DualCache(String id, int appVersion, int ramCacheSizeInBytes, int diskCacheSizeInBytes, Class<T> clazz) {
+    public DualCache(String id, int appVersion, int ramCacheSizeInBytes, int diskCacheSizeInBytes, boolean usePrivateFiles, boolean hashDiskKeys, Class<T> clazz) {
+
+        // Set params
+        mId = id;
+        mAppVersion = appVersion;
+        mClazz = clazz;
+        mDiskCacheSizeInBytes = diskCacheSizeInBytes;
+        mUsePrivateFiles = usePrivateFiles;
+        mHashDiskKeys = hashDiskKeys;
+
+        // Configure mapper
         sMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
         sMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         sMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+
+        // Build caches
         mRamCacheLru = new StringCacheLru(ramCacheSizeInBytes);
-        mId = id;
-        mClazz = clazz;
-        mAppVersion = appVersion;
-        mDiskCacheSizeInBytes = diskCacheSizeInBytes;
-        File folder = new File(VBLibCacheContextUtils.getContext().getCacheDir().getPath() + "/" + CACHE_FILE_PREFIX + "/" + mId);
+
+        File folder = null;
+        if (mUsePrivateFiles) {
+            folder = DualCacheContextUtils.getContext().getDir(CACHE_FILE_PREFIX + mId, Context.MODE_PRIVATE);
+        } else {
+            folder = new File(DualCacheContextUtils.getContext().getCacheDir().getPath() + "/" + CACHE_FILE_PREFIX + "/" + mId);
+        }
         try {
             mDiskLruCache = DiskLruCache.open(folder, appVersion, 1, diskCacheSizeInBytes);
         } catch (IOException e) {
@@ -108,7 +136,7 @@ public class DualCache<T> {
      * @param object is the object to put in cache.
      */
     public void put(String key, T object) {
-        VBLibCacheLogUtils.logInfo("Object " + key + " is saved in cache.");
+        DualCacheLogUtils.logInfo("Object " + key + " is saved in cache.");
         String stringObject = null;
 
         try {
@@ -146,7 +174,7 @@ public class DualCache<T> {
         if (stringObject == null) {
             if (mMode == DualCacheMode.BOTH_RAM_AND_DISK) {
                 // Try to get the cached object from disk.
-                VBLibCacheLogUtils
+                DualCacheLogUtils
                         .logInfo("Object " + key + " is not in the RAM. Try to get it from disk.");
                 try {
                     snapshotObject = mDiskLruCache.get(getDiskFileNameFromKey(key));
@@ -154,7 +182,7 @@ public class DualCache<T> {
                     e.printStackTrace();
                 }
                 if (snapshotObject != null) {
-                    VBLibCacheLogUtils.logInfo("Object " + key + " is on disk.");
+                    DualCacheLogUtils.logInfo("Object " + key + " is on disk.");
 
                     // Refresh object in ram.
                     try {
@@ -166,10 +194,10 @@ public class DualCache<T> {
                     }
 
                 } else
-                    VBLibCacheLogUtils.logInfo("Object " + key + " is not on disk.");
+                    DualCacheLogUtils.logInfo("Object " + key + " is not on disk.");
             }
         } else {
-            VBLibCacheLogUtils.logInfo("Object " + key + " is in the RAM.");
+            DualCacheLogUtils.logInfo("Object " + key + " is in the RAM.");
             try {
                 return sMapper.readValue(stringObject, mClazz);
             } catch (IOException e) {
@@ -220,7 +248,7 @@ public class DualCache<T> {
     public void invalidateDisk() {
         try {
             mDiskLruCache.delete();
-            File folder = new File(VBLibCacheContextUtils.getContext().getCacheDir().getPath() + "/" + CACHE_FILE_PREFIX + "/" + mId);
+            File folder = new File(DualCacheContextUtils.getContext().getCacheDir().getPath() + "/" + CACHE_FILE_PREFIX + "/" + mId);
             mDiskLruCache = DiskLruCache.open(folder, mAppVersion, 1, mDiskCacheSizeInBytes);
         } catch (IOException e) {
             e.printStackTrace();
@@ -233,19 +261,23 @@ public class DualCache<T> {
      * @return a hashed name for the file to use for disk cache from a key.
      */
     private String getDiskFileNameFromKey(String key) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            md.update(key.getBytes());
-            byte byteData[] = md.digest();
-            StringBuilder sb = new StringBuilder();
-            for (byte b : byteData) {
-                sb.append(String.format("%02x", b & 0xff));
+        if (mHashDiskKeys) {
+            try {
+                MessageDigest md = MessageDigest.getInstance("MD5");
+                md.update(key.getBytes());
+                byte byteData[] = md.digest();
+                StringBuilder sb = new StringBuilder();
+                for (byte b : byteData) {
+                    sb.append(String.format("%02x", b & 0xff));
+                }
+                return CACHE_FILE_PREFIX + "-" + mId + "-" + sb;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            return CACHE_FILE_PREFIX + "-" + mId + "-" + sb;
-        } catch (Exception e) {
-            e.printStackTrace();
+            return null;
+        } else {
+            return key;
         }
-        return null;
     }
 
     /**
