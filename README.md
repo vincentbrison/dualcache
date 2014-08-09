@@ -3,7 +3,7 @@ CAUTION
  - This project is in alpha state. You should not used it except for experimental purposes.
  - This project is only supported for Gradle build system (if you use an IDE, only Android Studio is supported).
 
-vb-android-library-cache
+vb.openlibraries.android.dualcache
 ========================
 
 This android library provide a cache with 2 layers, one in RAM in top of one on local storage.
