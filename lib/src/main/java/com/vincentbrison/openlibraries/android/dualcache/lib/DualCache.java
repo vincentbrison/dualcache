@@ -1,4 +1,4 @@
-package com.vb.openlibraries.android.dualcache.lib;
+package com.vincentbrison.openlibraries.android.dualcache.lib;
 
 import android.content.Context;
 

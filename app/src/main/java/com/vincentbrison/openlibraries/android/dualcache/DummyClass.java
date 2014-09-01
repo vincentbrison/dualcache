@@ -1,6 +1,5 @@
-package com.vb.openlibraries.android.dualcache;
+package com.vincentbrison.openlibraries.android.dualcache;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 

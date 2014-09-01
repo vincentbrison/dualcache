@@ -8,13 +8,11 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".DemoActivity"
-            android:label="Dual cache demo"
-            android:parentActivityName=".SettingsActivity" >
+            android:name="com.vincentbrison.openlibraries.android.dualcache.DemoActivity"
+            android:parentActivityName="com.vincentbrison.openlibraries.android.dualcache.SettingsActivity" >
         </activity>
         <activity
-            android:name=".SettingsActivity"
-            android:label="@string/title_activity_activity_settings" >
+            android:name="com.vincentbrison.openlibraries.android.dualcache.SettingsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

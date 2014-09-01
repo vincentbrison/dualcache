@@ -1,4 +1,4 @@
-package com.vb.openlibraries.android.dualcache;
+package com.vincentbrison.openlibraries.android.dualcache;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -9,9 +9,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.vb.openlibraries.android.dualcache.lib.DualCache;
-import com.vb.openlibraries.android.dualcache.lib.DualCacheContextUtils;
-import com.vb.openlibraries.android.dualcache.lib.DualCacheLogUtils;
+import com.vb.openlibraries.android.dualcache.R;
+import com.vincentbrison.openlibraries.android.dualcache.lib.DualCache;
+import com.vincentbrison.openlibraries.android.dualcache.lib.DualCacheContextUtils;
+import com.vincentbrison.openlibraries.android.dualcache.lib.DualCacheLogUtils;
 
 import java.util.ArrayList;
 import java.util.List;

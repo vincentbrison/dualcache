@@ -1,4 +1,4 @@
-package com.vb.openlibraries.android.dualcache;
+package com.vincentbrison.openlibraries.android.dualcache;
 
 /**
  * Created by Brize on 29/07/2014.
