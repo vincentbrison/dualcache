@@ -93,9 +93,6 @@ public class SettingsActivity extends Activity {
                 Log.i("Bench", "DualCacheTest time for " + numberOfActions + " randoms puts and gets : " + time + " ms.");
             }
         });
-
-
-
     }
 
 }
