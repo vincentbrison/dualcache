@@ -34,11 +34,10 @@ apply plugin: 'maven'
 uploadArchives {
     repositories {
         mavenDeployer {
-            // You luckily want that this path leads to my maven hosted here https://github.com/vincentbrison/vb-maven/
-            repository(url: "file:../vb-maven/release/")
-            pom.groupId = 'com.vincentbrison.openlibraries.android.dualcache.lib'
+            repository(url: "https://oss.sonatpe.org/service/local/staging/deploy/maven2")
+            pom.groupId = 'com.vincentbrison.openlibraries.android.'
             pom.artifactId = 'dualcache'
-            pom.version = '0.0.14'
+            pom.version = '1.0.0'
         }
     }
 }
