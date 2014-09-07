@@ -2,7 +2,6 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 def ask(param) {
-
     def console = System.console()
     def userInput
     if (console) {
@@ -11,7 +10,6 @@ def ask(param) {
         logger.error "Cannot get console."
     }
     return userInput
-
 }
 
 
@@ -31,10 +29,6 @@ def getRepositoryUsername() {
     return hasProperty('nexusUsername') ? nexusUsername : ""
 }
 
-def getRepositoryPassword() {
-    return ask("Please provide your oss nexus password")
-}
-
 afterEvaluate { project ->
     uploadArchives {
         repositories {
@@ -46,7 +40,7 @@ afterEvaluate { project ->
                 pom.version = VERSION_NAME
 
                 repository(url: sonatypeRepositoryUrl) {
-                    authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
+                    authentication(userName: getRepositoryUsername(), password: ask("Please provide your oss nexus password").toString())
                 }
 
                 pom.project {
