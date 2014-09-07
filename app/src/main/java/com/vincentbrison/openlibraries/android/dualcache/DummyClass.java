@@ -3,9 +3,6 @@ package com.vincentbrison.openlibraries.android.dualcache;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Brize on 29/07/2014.
- */
 public class DummyClass {
     protected String dummyString;
     protected Object dummyObject;

@@ -48,7 +48,7 @@ public class DemoActivity extends Activity {
 
         setContentView(R.layout.activity_demo);
 
-        mCache = new DualCache<String>(mCacheId, 1, mRamCacheSize, mDiskCacheSize, true, true, String.class);
+        mCache = new DualCache<String>(mCacheId, 1, mRamCacheSize, mDiskCacheSize, true, String.class);
 
         mButtonAddObjectA = (Button) findViewById(R.id.buttonAddObjectAToCache);
         mButtonAddObjectB = (Button) findViewById(R.id.buttonAddObjectBToCache);
@@ -73,14 +73,14 @@ public class DemoActivity extends Activity {
         mButtonAddObjectA.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mCache.put("A", "objectA");
+                mCache.put("a", "objectA");
             }
         });
 
         mButtonAddObjectB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mCache.put("B", "objectB");
+                mCache.put("b", "objectB");
             }
         });
 
@@ -95,7 +95,7 @@ public class DemoActivity extends Activity {
             @Override
             public void onClick(View view) {
                 long start = System.currentTimeMillis();
-                String result = mCache.get("B");
+                String result = mCache.get("b");
                 long end = System.currentTimeMillis();
                 long time = end - start;
                 if (result != null) {
@@ -109,7 +109,7 @@ public class DemoActivity extends Activity {
             @Override
             public void onClick(View view) {
                 long start = System.currentTimeMillis();
-                String result = mCache.get("A");
+                String result = mCache.get("a");
                 long end = System.currentTimeMillis();
                 long time = end - start;
                 if (result != null) {

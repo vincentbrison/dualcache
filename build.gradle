@@ -1,5 +1,4 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-
 buildscript {
     repositories {
         mavenCentral()
@@ -9,7 +8,14 @@ buildscript {
     }
 }
 
+def isReleaseBuild() {
+    println(version)
+    return version.contains("SNAPSHOT") == false
+}
+
 allprojects {
+    version = VERSION_NAME
+    group = GROUP
     repositories {
         mavenCentral()
     }

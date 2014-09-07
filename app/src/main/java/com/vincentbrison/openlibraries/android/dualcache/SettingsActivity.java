@@ -45,6 +45,7 @@ public class SettingsActivity extends Activity {
             public void onClick(View view) {
                 Intent intent = new Intent(SettingsActivity.this, DemoActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
                 intent.putExtra(DemoActivity.EXTRA_DISK_CACHE_SIZE, Integer.parseInt(mEditTextSizeDisk.getText().toString()));
                 intent.putExtra(DemoActivity.EXTRA_RAM_CACHE_SIZE, Integer.parseInt(mEditTextSizeRam.getText().toString()));
                 intent.putExtra(DemoActivity.EXTRA_ID_CACHE, mEditTextIdCache.getText().toString());
@@ -65,7 +66,7 @@ public class SettingsActivity extends Activity {
 
                 Log.i("Bench", "Bench using dummy object");
                 LruCache<String, DummyClass> lruCacheTest = new LruCache<String, DummyClass>(maxRamSize);
-                DualCache<DummyClass> dualCacheTest = new DualCache<DummyClass>("bench", 1, maxRamSize, maxDiskSize, true, true, DummyClass.class);
+                DualCache<DummyClass> dualCacheTest = new DualCache<DummyClass>("bench", 1, maxRamSize, maxDiskSize, true, DummyClass.class);
 
                 int numberOfActions = 100;
                 List<DummyClass> dummyObjects = new ArrayList<DummyClass>();

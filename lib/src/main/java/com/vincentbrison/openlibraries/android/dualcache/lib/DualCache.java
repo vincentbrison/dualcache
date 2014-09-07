@@ -26,32 +26,46 @@ import com.jakewharton.disklrucache.DiskLruCache;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.MessageDigest;
 
 /**
  * Created by Vincent Brison.
+ * This class intent to provide a very easy to use, reliable, highly configurable, performance driven
+ * cache library for Android.
  */
 public class DualCache<T> {
 
     /**
-     * Define the general behaviour of the cache.
+     * Define the behaviour of the RAM layer.
      */
-    public enum DualCacheMode {
-        /**
-        * ONLY_RAM means only RAM must be used (no disk used).
-         */
-        ONLY_RAM,
+    public enum DualCacheRAMMode {
 
         /**
-         * BOTH_RAM_AND_DISK is the default behaviour where both RAM and dik are used for cache.
+         * Means that object will be converted in JSON and stored as is in RAM. Object are duplicated
+         * using json serializer.
          */
-        BOTH_RAM_AND_DISK
+        ENABLE_WITH_JSON,
+
+        /**
+         * The RAM layer is not used.
+         */
+        DISABLE
     }
 
     /**
-     * Is true if you want hash the key used by the disk cache (could be useful if you use meanful keys...).
+     * Define the behaviour of the disk layer.
      */
-    private boolean mHashDiskKeys = false;
+    public enum DualCacheDiskMode {
+
+        /**
+         * Object are stored on disk using json serialization.
+         */
+        ENABLE_WITH_JSON,
+
+        /**
+         * The disk layer is not used.
+         */
+        DISABLE
+    }
 
     /**
      * Is true if you want use {@link android.content.Context#MODE_PRIVATE} as policy for the disk files used by this cache. Otherwise {@link android.content.Context#getCacheDir()} are used.
@@ -95,26 +109,38 @@ public class DualCache<T> {
     private int mAppVersion;
 
     /**
-     * The default behaviour use both RAM and disk fro cache.
+     * By default the RAM layer use JSON serialization to store cached object.
      */
-    private DualCacheMode mMode = DualCacheMode.BOTH_RAM_AND_DISK;
+    private DualCacheRAMMode mRAMMode = DualCacheRAMMode.ENABLE_WITH_JSON;
+
+    /**
+     * By default the disk layer use JSON serialization to store cached object.
+     */
+    private DualCacheDiskMode mDiskMode = DualCacheDiskMode.ENABLE_WITH_JSON;
 
     /**
      * Gson serializer used to save data and load data. Can be used by multiple threads.
      */
-    private static ObjectMapper sMapper = new ObjectMapper();
+    private static ObjectMapper sMapper;
+
+    static {
+        sMapper = new ObjectMapper();
+        sMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
+        sMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+        sMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+    }
 
     /**
      * Construct a DualCache object. The #DualCacheMode is set to BOTH_RAM_AND_DISK by default.
-     * @param id is the unique id of this cache.
-     * @param appVersion is the app version of the application.
-     * @param ramCacheSizeInBytes is the max size of the ram to use.
+     *
+     * @param id                   is the unique id of this cache.
+     * @param appVersion           is the app version of the application.
+     * @param ramCacheSizeInBytes  is the max size of the ram to use.
      * @param diskCacheSizeInBytes is the max size of disk to use, 0 for unlimited size.
-     * @param usePrivateFiles is true if you want use {@link android.content.Context#MODE_PRIVATE} as policy for the disk files used by this cache. Otherwise {@link android.content.Context#getCacheDir()} are used.
-     * @param hashDiskKeys is true if you want hash the key used by the disk cache (could be useful if you use meanful keys...).
-     * @param clazz is the class of object to cache.
+     * @param usePrivateFiles      is true if you want use {@link android.content.Context#MODE_PRIVATE} as policy for the disk files used by this cache. Otherwise {@link android.content.Context#getCacheDir()} are used.
+     * @param clazz                is the class of object to cache.
      */
-    public DualCache(String id, int appVersion, int ramCacheSizeInBytes, int diskCacheSizeInBytes, boolean usePrivateFiles, boolean hashDiskKeys, Class<T> clazz) {
+    public DualCache(String id, int appVersion, int ramCacheSizeInBytes, int diskCacheSizeInBytes, boolean usePrivateFiles, Class<T> clazz) {
 
         // Set params
         mId = id;
@@ -122,12 +148,6 @@ public class DualCache<T> {
         mClazz = clazz;
         mDiskCacheSizeInBytes = diskCacheSizeInBytes;
         mUsePrivateFiles = usePrivateFiles;
-        mHashDiskKeys = hashDiskKeys;
-
-        // Configure mapper
-        sMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
-        sMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-        sMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
 
         // Build caches
         mRamCacheLru = new StringCacheLru(ramCacheSizeInBytes);
@@ -148,7 +168,8 @@ public class DualCache<T> {
 
     /**
      * Put an object in cache.
-     * @param key is the key of the object.
+     *
+     * @param key    is the key of the object.
      * @param object is the object to put in cache.
      */
     public void put(String key, T object) {
@@ -161,11 +182,13 @@ public class DualCache<T> {
             e.printStackTrace();
         }
 
-        mRamCacheLru.put(key, stringObject);
+        if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_JSON)) {
+            mRamCacheLru.put(key, stringObject);
+        }
 
-        if (mMode == DualCacheMode.BOTH_RAM_AND_DISK) {
+        if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_JSON)) {
             try {
-                DiskLruCache.Editor editor = mDiskLruCache.edit(getDiskFileNameFromKey(key));
+                DiskLruCache.Editor editor = mDiskLruCache.edit(key);
                 editor.set(0, stringObject);
                 editor.commit();
             } catch (IOException e) {
@@ -176,6 +199,7 @@ public class DualCache<T> {
 
     /**
      * Return the object of the corresponding key from the cache. In no object is available, return null.
+     *
      * @param key is the key of the object.
      * @return the object of the corresponding key from the cache. In no object is available, return null.
      */
@@ -188,12 +212,12 @@ public class DualCache<T> {
         stringObject = mRamCacheLru.get(key);
 
         if (stringObject == null) {
-            if (mMode == DualCacheMode.BOTH_RAM_AND_DISK) {
+            if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_JSON)) {
                 // Try to get the cached object from disk.
                 DualCacheLogUtils
                         .logInfo("Object " + key + " is not in the RAM. Try to get it from disk.");
                 try {
-                    snapshotObject = mDiskLruCache.get(getDiskFileNameFromKey(key));
+                    snapshotObject = mDiskLruCache.get(key);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -227,12 +251,16 @@ public class DualCache<T> {
 
     /**
      * Delete the corresponding object in cache.
+     *
      * @param key is the key of the object.
      */
     public void delete(String key) {
-        mRamCacheLru.remove(key);
 
-        if (mMode == DualCacheMode.BOTH_RAM_AND_DISK) {
+        if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_JSON)) {
+            mRamCacheLru.remove(key);
+        }
+
+        if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_JSON)) {
             try {
                 mDiskLruCache.remove(key);
             } catch (IOException e) {
@@ -245,7 +273,7 @@ public class DualCache<T> {
      * Remove all objects from cache (both RAM and disk).
      */
     public void invalidate() {
-        if (mMode == DualCacheMode.BOTH_RAM_AND_DISK) {
+        if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_JSON)) {
             invalidateDisk();
         }
         invalidateRAM();
@@ -272,32 +300,8 @@ public class DualCache<T> {
     }
 
     /**
-     * Return a hashed name for the file to use for disk cache from a key.
-     * @param key is the key to hash.
-     * @return a hashed name for the file to use for disk cache from a key.
-     */
-    private String getDiskFileNameFromKey(String key) {
-        if (mHashDiskKeys) {
-            try {
-                MessageDigest md = MessageDigest.getInstance("MD5");
-                md.update(key.getBytes());
-                byte byteData[] = md.digest();
-                StringBuilder sb = new StringBuilder();
-                for (byte b : byteData) {
-                    sb.append(String.format("%02x", b & 0xff));
-                }
-                return CACHE_FILE_PREFIX + "-" + mId + "-" + sb;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        } else {
-            return key;
-        }
-    }
-
-    /**
      * Return the mapper if you want to do more configuration on it.
+     *
      * @return the mapper if you want to do more configuration on it.
      */
     public static ObjectMapper getMapper() {
@@ -306,6 +310,7 @@ public class DualCache<T> {
 
     /**
      * Return the size used in bytes of the RAM cache.
+     *
      * @return the size used in bytes of the RAM cache.
      */
     public long getRamSize() {
@@ -314,25 +319,26 @@ public class DualCache<T> {
 
     /**
      * Return the size used in bytes of the disk cache.
+     *
      * @return the size used in bytes of the disk cache.
      */
     public long getDiskSize() {
         return mDiskLruCache.size();
     }
 
-    /**
-     * Return the DualCacheMode in used from this instance of cache.
-     * @return the DualCacheMode in used from this instance of cache.
-     */
-    public DualCacheMode getMode() {
-        return mMode;
+    public DualCacheRAMMode getRAMMode() {
+        return mRAMMode;
     }
 
-    /**
-     * Set the DualCacheMode in used from this instance of cache.
-     * mMode is the mode to use in this instance of cache.
-     */
-    public void setMode(DualCacheMode mMode) {
-        this.mMode = mMode;
+    public void setRAMMode(DualCacheRAMMode RAMMode) {
+        this.mRAMMode = RAMMode;
+    }
+
+    public DualCacheDiskMode getDiskMode() {
+        return mDiskMode;
+    }
+
+    public void setDiskMode(DualCacheDiskMode diskMode) {
+        this.mDiskMode = diskMode;
     }
 }
