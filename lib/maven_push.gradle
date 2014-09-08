@@ -25,10 +25,6 @@ if (isReleaseBuild()) {
 
 }
 
-def getRepositoryUsername() {
-    return hasProperty('nexusUsername') ? nexusUsername : ""
-}
-
 afterEvaluate { project ->
     uploadArchives {
         repositories {
@@ -40,7 +36,7 @@ afterEvaluate { project ->
                 pom.version = VERSION_NAME
 
                 repository(url: sonatypeRepositoryUrl) {
-                    authentication(userName: getRepositoryUsername(), password: ask("Please provide your oss nexus password").toString())
+                    authentication(userName: "vbrison", password: ask("Please provide your oss nexus password").toString())
                 }
 
                 pom.project {
@@ -76,7 +72,11 @@ afterEvaluate { project ->
 
     signing {
         password = ask("Please provide your key password")
-        allprojects { ext."signing.password" = password }
+        allprojects {
+            ext."signing.password" = password
+            ext."signing.keyId" = "D376F8F6"
+            ext."signing.secretKeyRingFile" = "/Users/vincentbrison/.gnupg/secring.gpg"
+        }
         required { isReleaseBuild() && gradle.taskGraph.hasTask("uploadArchives") }
         sign configurations.archives
     }
