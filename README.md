@@ -22,19 +22,19 @@ Setup
  
    ```gradle
    maven {
-       url 'https://github.com/vincentbrison/vb-maven/raw/master/release/'
+       url 'https://oss.sonatype.org/content/groups/public/'
    }
    ```
    and to your dependencies :
    
    ```gradle
-     compile 'com.vb.openlibraries.android.dualcache.lib:dualcache:0.0.+@aar'
+     compile 'com.vincentbrison.openlibraries.android:dualcache:1.0.0'
      compile 'com.android.support:support-v4:19.1.+'
      compile 'com.jakewharton:disklrucache:2.0.+'
      compile 'com.fasterxml.jackson.core:jackson-databind:2.4.+'
 
    ```
-    The alpha releases will use 0.0.+, the beta releases 0.1.+, the stables releases 1.+.+.
+    
  - If you want activate the log of this library :
  
   ```Java
