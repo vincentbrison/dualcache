@@ -17,6 +17,7 @@
 package com.vincentbrison.openlibraries.android.dualcache.lib;
 
 import android.content.Context;
+import android.support.v4.util.LruCache;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -44,6 +45,11 @@ public class DualCache<T> {
          * using json serializer.
          */
         ENABLE_WITH_JSON,
+
+        /**
+         *
+         */
+        ENABLE_WITH_REFERENCE,
 
         /**
          * The RAM layer is not used.
@@ -86,7 +92,7 @@ public class DualCache<T> {
     /**
      * RAM cache.
      */
-    private StringCacheLru mRamCacheLru;
+    protected LruCache mRamCacheLru;
 
     /**
      * Disk cache.
@@ -123,12 +129,23 @@ public class DualCache<T> {
      */
     private static ObjectMapper sMapper;
 
+    private SizeOf<T> handlerSizeOf;
+
     static {
         sMapper = new ObjectMapper();
         sMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
         sMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         sMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
     }
+
+    protected DualCache(String id, int appVersion, Class<T> clazz) {
+        // Set params
+        mId = id;
+        mAppVersion = appVersion;
+        mClazz = clazz;
+
+    }
+
 
     /**
      * Construct a DualCache object. The #DualCacheMode is set to BOTH_RAM_AND_DISK by default.
@@ -140,7 +157,7 @@ public class DualCache<T> {
      * @param usePrivateFiles      is true if you want use {@link android.content.Context#MODE_PRIVATE} as policy for the disk files used by this cache. Otherwise {@link android.content.Context#getCacheDir()} are used.
      * @param clazz                is the class of object to cache.
      */
-    public DualCache(String id, int appVersion, int ramCacheSizeInBytes, int diskCacheSizeInBytes, boolean usePrivateFiles, Class<T> clazz) {
+    /*public DualCache(String id, int appVersion, int ramCacheSizeInBytes, int diskCacheSizeInBytes, boolean usePrivateFiles, Class<T> clazz) {
 
         // Set params
         mId = id;
@@ -150,7 +167,7 @@ public class DualCache<T> {
         mUsePrivateFiles = usePrivateFiles;
 
         // Build caches
-        mRamCacheLru = new StringCacheLru(ramCacheSizeInBytes);
+        mRamCacheLru = new StringLRUCache(ramCacheSizeInBytes);
 
         File folder = null;
         if (mUsePrivateFiles) {
@@ -163,6 +180,11 @@ public class DualCache<T> {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+    }
+    */
+
+    public void setCustomSizeOfHandler(SizeOf handler) {
 
     }
 
@@ -205,11 +227,13 @@ public class DualCache<T> {
      */
     public T get(String key) {
 
-        String stringObject;
+        String stringObject = null;
         DiskLruCache.Snapshot snapshotObject = null;
 
         // Try to get the object from RAM.
-        stringObject = mRamCacheLru.get(key);
+        if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_JSON)) {
+            stringObject = (String) mRamCacheLru.get(key);
+        }
 
         if (stringObject == null) {
             if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_JSON)) {
