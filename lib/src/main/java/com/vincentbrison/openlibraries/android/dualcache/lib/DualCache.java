@@ -82,12 +82,12 @@ public class DualCache<T> {
      * Defined the sub folder from {@link android.content.Context#getCacheDir()} used to store all
      * the data generated from the use of this class.
      */
-    private static String CACHE_FILE_PREFIX = "dualcache";
+    protected static String CACHE_FILE_PREFIX = "dualcache";
 
     /**
      * Unique ID which define a cache.
      */
-    private String mId;
+    protected String mId;
 
     /**
      * RAM cache.
@@ -97,7 +97,7 @@ public class DualCache<T> {
     /**
      * Disk cache.
      */
-    private DiskLruCache mDiskLruCache;
+    protected DiskLruCache mDiskLruCache;
 
     /**
      * Define the class store in this cache.
@@ -112,7 +112,7 @@ public class DualCache<T> {
     /**
      * Define the app version of the application (allow you to automatically invalidate data from different app version on disk).
      */
-    private int mAppVersion;
+    protected int mAppVersion;
 
     /**
      * By default the RAM layer use JSON serialization to store cached object.

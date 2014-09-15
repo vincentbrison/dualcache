@@ -1,5 +1,12 @@
 package com.vincentbrison.openlibraries.android.dualcache.lib;
 
+import android.content.Context;
+
+import com.jakewharton.disklrucache.DiskLruCache;
+
+import java.io.File;
+import java.io.IOException;
+
 /**
  *
  */
@@ -23,7 +30,35 @@ public class DualCacheBuilder<T> {
         return this;
     }
 
-    public DualCache build() {
-        return mDualCache;
+    public DualCacheBuilder<T> useJsonInDisk(int maxDiskSize, boolean usePrivateFiles) {
+        mDualCache.setDiskMode(DualCache.DualCacheDiskMode.ENABLE_WITH_JSON);
+        File folder = null;
+        if (usePrivateFiles) {
+            folder = DualCacheContextUtils.getContext().getDir(DualCache.CACHE_FILE_PREFIX + mDualCache.mId, Context.MODE_PRIVATE);
+        } else {
+            folder = new File(DualCacheContextUtils.getContext().getCacheDir().getPath() + "/" + DualCache.CACHE_FILE_PREFIX + "/" + mDualCache.mId);
+        }
+        try {
+            mDualCache.mDiskLruCache = DiskLruCache.open(folder, mDualCache.mAppVersion, 1, maxDiskSize);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return this;
+    }
+
+    public DualCacheBuilder<T> noDisk() {
+        mDualCache.setDiskMode(DualCache.DualCacheDiskMode.DISABLE);
+        return this;
+    }
+
+    public DualCacheBuilder<T> noRam() {
+        mDualCache.setRAMMode(DualCache.DualCacheRAMMode.DISABLE);
+        return this;
+    }
+
+    public DualCache<T> build() {
+        DualCache dualCacheToBuild = mDualCache;
+        mDualCache = null;
+        return dualCacheToBuild;
     }
 }
