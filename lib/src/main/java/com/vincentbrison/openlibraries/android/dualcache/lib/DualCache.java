@@ -196,25 +196,32 @@ public class DualCache<T> {
      */
     public void put(String key, T object) {
         DualCacheLogUtils.logInfo("Object " + key + " is saved in cache.");
-        String stringObject = null;
 
-        try {
-            stringObject = sMapper.writeValueAsString(object);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
+        if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_REFERENCE)) {
+            mRamCacheLru.put(key, object);
         }
 
-        if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_JSON)) {
-            mRamCacheLru.put(key, stringObject);
-        }
-
-        if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_JSON)) {
+        if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_JSON) || mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_JSON))
+        {
+            String stringObject = null;
             try {
-                DiskLruCache.Editor editor = mDiskLruCache.edit(key);
-                editor.set(0, stringObject);
-                editor.commit();
-            } catch (IOException e) {
+                stringObject = sMapper.writeValueAsString(object);
+            } catch (JsonProcessingException e) {
                 e.printStackTrace();
+            }
+
+            if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_JSON)) {
+                mRamCacheLru.put(key, stringObject);
+            }
+
+            if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_JSON)) {
+                try {
+                    DiskLruCache.Editor editor = mDiskLruCache.edit(key);
+                    editor.set(0, stringObject);
+                    editor.commit();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -227,12 +234,14 @@ public class DualCache<T> {
      */
     public T get(String key) {
 
-        String stringObject = null;
+        Object result = null;
         DiskLruCache.Snapshot snapshotObject = null;
 
         // Try to get the object from RAM.
-        if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_JSON)) {
-            stringObject = (String) mRamCacheLru.get(key);
+        if (mRAMMode.equals(DualCacheDiskMode.ENABLE_WITH_JSON)) {
+            result = (String) mRamCacheLru.get(key);
+        } else if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_REFERENCE)) {
+            result = mR
         }
 
         if (stringObject == null) {
@@ -347,7 +356,12 @@ public class DualCache<T> {
      * @return the size used in bytes of the disk cache.
      */
     public long getDiskSize() {
-        return mDiskLruCache.size();
+        if (mDiskLruCache == null) {
+            return -1;
+        } else {
+            return mDiskLruCache.size();
+        }
+
     }
 
     public DualCacheRAMMode getRAMMode() {
