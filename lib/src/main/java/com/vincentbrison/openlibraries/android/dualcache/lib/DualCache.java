@@ -213,9 +213,7 @@ public class DualCache<T> {
         DiskLruCache.Snapshot snapshotObject = null;
 
         // Try to get the object from RAM.
-        if (mRAMMode.equals(DualCacheDiskMode.ENABLE_WITH_JSON)) {
-            RAMResult = (String) mRamCacheLru.get(key);
-        } else if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_REFERENCE)) {
+        if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_JSON) || mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_REFERENCE)) {
             RAMResult = mRamCacheLru.get(key);
         }
 
@@ -240,21 +238,64 @@ public class DualCache<T> {
                     DualCacheLogUtils.logInfo("Object " + key + " is not on disk.");
             }
 
+            T objectFromJsonDisk = null;
+            T objectFromStringDisk = null;
+
             if (DiskResult != null ) {
                 // Refresh object in ram.
-                if (mRAMMode.equals(DualCacheDiskMode.ENABLE_WITH_JSON)) {
-                    mRamCacheLru.put(key, );
-                    RAMResult = (String) mRamCacheLru.get(key);
+                if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_JSON)) {
+                    if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_JSON)) {
+                        // Need to copy json string into ram.
+                        mRamCacheLru.put(key, DiskResult);
+                    } else if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
+                        // Need to convert string to json.
+                        try {
+                            objectFromStringDisk = mSerializer.fromString(DiskResult);
+                            mRamCacheLru.put(key,
+                                    sMapper.writeValueAsString(objectFromStringDisk
+                                    ));
+                        } catch (JsonProcessingException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 } else if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_REFERENCE)) {
-                    RAMResult = mRamCacheLru.get(key);
+                    if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_JSON)) {
+                        // Need to get an instance from json string.
+                        try {
+                            objectFromJsonDisk = sMapper.readValue(DiskResult, mClazz);
+                            mRamCacheLru.put(key, objectFromJsonDisk);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } else if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
+                        // Need to get an instance from string.
+                        if (objectFromStringDisk == null) {
+                            objectFromStringDisk = mSerializer.fromString(DiskResult);
+                        }
+                        mRamCacheLru.put(key, objectFromStringDisk);
+                    }
                 }
+            }
 
-                return result;
+            if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_JSON)) {
+                try {
+                    if (objectFromJsonDisk == null) {
+                        objectFromJsonDisk = sMapper.readValue(DiskResult, mClazz);
+                    }
+                    return objectFromJsonDisk;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)){
+                if (objectFromStringDisk == null) {
+                    objectFromStringDisk = mSerializer.fromString(DiskResult);
+                }
+                return objectFromStringDisk;
             }
 
         } else {
             DualCacheLogUtils.logInfo("Object " + key + " is in the RAM.");
-            if (mRAMMode.equals(DualCacheDiskMode.ENABLE_WITH_JSON)) {
+            if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_JSON)) {
                 try {
                     return sMapper.readValue((String) RAMResult, mClazz);
                 } catch (IOException e) {
@@ -334,7 +375,11 @@ public class DualCache<T> {
      * @return the size used in bytes of the RAM cache.
      */
     public long getRamSize() {
-        return mRamCacheLru.size();
+        if (mRamCacheLru == null) {
+            return -1;
+        } else {
+            return mRamCacheLru.size();
+        }
     }
 
     /**
