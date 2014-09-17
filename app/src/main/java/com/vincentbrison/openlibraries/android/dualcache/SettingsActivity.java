@@ -57,6 +57,7 @@ public class SettingsActivity extends Activity {
             @Override
             public void onClick(View view) {
 
+                /*
                 Log.i("Bench", "Start bench");
 
                 int maxRamSize = Integer.parseInt(mEditTextSizeRam.getText().toString());
@@ -92,6 +93,7 @@ public class SettingsActivity extends Activity {
                 end = System.currentTimeMillis();
                 time = end - start;
                 Log.i("Bench", "DualCacheTest time for " + numberOfActions + " randoms puts and gets : " + time + " ms.");
+                */
             }
         });
     }

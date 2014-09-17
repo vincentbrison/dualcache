@@ -63,4 +63,8 @@ public class DualCacheLogUtils {
     public static void logInfo(String msg) {
         log(Log.INFO, "dualcache", msg);
     }
+
+    public static void logVerbose(String msg) {
+        log(Log.VERBOSE, "dualcache", msg);
+    }
 }

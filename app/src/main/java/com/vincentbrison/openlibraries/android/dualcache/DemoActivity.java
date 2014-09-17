@@ -10,7 +10,12 @@ import android.widget.Toast;
 
 import com.vb.openlibraries.android.dualcache.R;
 import com.vincentbrison.openlibraries.android.dualcache.lib.DualCache;
+import com.vincentbrison.openlibraries.android.dualcache.lib.DualCacheBuilder;
+import com.vincentbrison.openlibraries.android.dualcache.lib.Serializer;
+import com.vincentbrison.openlibraries.android.dualcache.lib.SizeOf;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -48,7 +53,25 @@ public class DemoActivity extends Activity {
 
         setContentView(R.layout.activity_demo);
 
-        mCache = new DualCache<String>(mCacheId, 1, mRamCacheSize, mDiskCacheSize, true, String.class);
+        DualCacheBuilder<String> builder = new DualCacheBuilder(mCacheId, 1, String.class);
+        mCache = builder.useJsonInRam(mRamCacheSize).noDisk().build();
+        /*
+        mCache = builder.useReferenceInRam(mRamCacheSize, new SizeOf<String>() {
+            @Override
+            public int sizeOf(String object) {
+                return object.getBytes().length;
+            }
+        }).useSerializerInDisk(mDiskCacheSize, true, new Serializer() {
+            @Override
+            public Object fromString(String data) {
+                return data;
+            }
+
+            @Override
+            public String toString(Object object) {
+                return (String) object;
+            }
+        }).build();*/
 
         mButtonAddObjectA = (Button) findViewById(R.id.buttonAddObjectAToCache);
         mButtonAddObjectB = (Button) findViewById(R.id.buttonAddObjectBToCache);
