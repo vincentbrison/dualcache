@@ -30,6 +30,12 @@ public class DualCacheBuilder<T> {
         return this;
     }
 
+    /**
+     * @param maxDiskSize
+     * @param usePrivateFiles Is true if you want use {@link android.content.Context#MODE_PRIVATE} as policy for the disk files used by this cache. Otherwise {@link android.content.Context#getCacheDir()} are used.
+     * @param serializer
+     * @return
+     */
     public DualCacheBuilder<T> useSerializerInDisk(int maxDiskSize, boolean usePrivateFiles, Serializer serializer) {
         mDualCache.setDiskMode(DualCache.DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER);
         mDualCache.mSerializer = serializer;

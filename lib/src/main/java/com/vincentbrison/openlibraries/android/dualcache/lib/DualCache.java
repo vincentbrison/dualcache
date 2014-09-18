@@ -41,11 +41,12 @@ public class DualCache<T> {
 
         /**
          * Means that object will be serialized with a default serializer is in RAM.
+         * For now provided through Jackson json lib.
          */
         ENABLE_WITH_DEFAULT_SERIALIZER,
 
         /**
-         *
+         * Means that only reference to objects will be store in the RAM layer.
          */
         ENABLE_WITH_REFERENCE,
 
@@ -75,11 +76,6 @@ public class DualCache<T> {
          */
         DISABLE
     }
-
-    /**
-     * Is true if you want use {@link android.content.Context#MODE_PRIVATE} as policy for the disk files used by this cache. Otherwise {@link android.content.Context#getCacheDir()} are used.
-     */
-    private boolean mUsePrivateFiles = false;
 
     /**
      * Defined the sub folder from {@link android.content.Context#getCacheDir()} used to store all
@@ -396,18 +392,34 @@ public class DualCache<T> {
 
     }
 
+    /**
+     * Return the way objects are cached in RAM layer.
+     * @return the way objects are cached in RAM layer.
+     */
     public DualCacheRAMMode getRAMMode() {
         return mRAMMode;
     }
 
+    /**
+     * Set the way objects are stored in the RAM layer.
+     * @param RAMMode is the value to set.
+     */
     public void setRAMMode(DualCacheRAMMode RAMMode) {
         this.mRAMMode = RAMMode;
     }
 
+    /**
+     * Return the way objects are cached in disk layer.
+     * @return the way objects are cached in disk layer.
+     */
     public DualCacheDiskMode getDiskMode() {
         return mDiskMode;
     }
 
+    /**
+     * Set the way objects are stored in the disk layer.
+     * @param diskMode is the value to set.
+     */
     public void setDiskMode(DualCacheDiskMode diskMode) {
         this.mDiskMode = diskMode;
     }
