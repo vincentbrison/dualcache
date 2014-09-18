@@ -176,7 +176,7 @@ public class DualCache<T> {
             }
         }
 
-        if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_JSON) || mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_JSON))
+        if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_DEFAULT_SERIALIZER) || mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER))
         {
             try {
                 jsonStringObject = sMapper.writeValueAsString(object);
@@ -184,11 +184,11 @@ public class DualCache<T> {
                 e.printStackTrace();
             }
 
-            if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_JSON)) {
+            if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_DEFAULT_SERIALIZER)) {
                 mRamCacheLru.put(key, jsonStringObject);
             }
 
-            if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_JSON)) {
+            if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER)) {
                 try {
                     DiskLruCache.Editor editor = mDiskLruCache.edit(key);
                     editor.set(0, jsonStringObject);
@@ -213,7 +213,7 @@ public class DualCache<T> {
         DiskLruCache.Snapshot snapshotObject = null;
 
         // Try to get the object from RAM.
-        if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_JSON) || mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_REFERENCE)) {
+        if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_DEFAULT_SERIALIZER) || mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_REFERENCE)) {
             RAMResult = mRamCacheLru.get(key);
         }
 
@@ -221,7 +221,7 @@ public class DualCache<T> {
             // Try to get the cached object from disk.
             DualCacheLogUtils
                     .logInfo("Object " + key + " is not in the RAM. Try to get it from disk.");
-            if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_JSON)|| mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
+            if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER)|| mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
                 try {
                     snapshotObject = mDiskLruCache.get(key);
                 } catch (IOException e) {
@@ -243,8 +243,8 @@ public class DualCache<T> {
 
             if (DiskResult != null ) {
                 // Refresh object in ram.
-                if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_JSON)) {
-                    if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_JSON)) {
+                if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_DEFAULT_SERIALIZER)) {
+                    if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER)) {
                         // Need to copy json string into ram.
                         mRamCacheLru.put(key, DiskResult);
                     } else if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
@@ -259,7 +259,7 @@ public class DualCache<T> {
                         }
                     }
                 } else if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_REFERENCE)) {
-                    if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_JSON)) {
+                    if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER)) {
                         // Need to get an instance from json string.
                         try {
                             objectFromJsonDisk = sMapper.readValue(DiskResult, mClazz);
@@ -277,7 +277,7 @@ public class DualCache<T> {
                 }
             }
 
-            if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_JSON)) {
+            if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER)) {
                 try {
                     if (objectFromJsonDisk == null) {
                         objectFromJsonDisk = sMapper.readValue(DiskResult, mClazz);
@@ -295,7 +295,7 @@ public class DualCache<T> {
 
         } else {
             DualCacheLogUtils.logInfo("Object " + key + " is in the RAM.");
-            if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_JSON)) {
+            if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_DEFAULT_SERIALIZER)) {
                 try {
                     return sMapper.readValue((String) RAMResult, mClazz);
                 } catch (IOException e) {

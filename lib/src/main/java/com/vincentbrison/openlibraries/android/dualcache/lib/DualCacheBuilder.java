@@ -19,7 +19,7 @@ public class DualCacheBuilder<T> {
     }
 
     public DualCacheBuilder<T> useJsonInRam(int maxRamSize) {
-        mDualCache.setRAMMode(DualCache.DualCacheRAMMode.ENABLE_WITH_JSON);
+        mDualCache.setRAMMode(DualCache.DualCacheRAMMode.ENABLE_WITH_DEFAULT_SERIALIZER);
         mDualCache.mRamCacheLru = new StringLRUCache(maxRamSize);
         return this;
     }
@@ -48,7 +48,7 @@ public class DualCacheBuilder<T> {
     }
 
     public DualCacheBuilder<T> useJsonInDisk(int maxDiskSize, boolean usePrivateFiles) {
-        mDualCache.setDiskMode(DualCache.DualCacheDiskMode.ENABLE_WITH_JSON);
+        mDualCache.setDiskMode(DualCache.DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER);
         File folder = null;
         if (usePrivateFiles) {
             folder = DualCacheContextUtils.getContext().getDir(DualCache.CACHE_FILE_PREFIX + mDualCache.mId, Context.MODE_PRIVATE);
