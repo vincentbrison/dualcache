@@ -31,6 +31,7 @@ import java.io.IOException;
  * Created by Vincent Brison.
  * This class intent to provide a very easy to use, reliable, highly configurable, performance driven
  * cache library for Android.
+ * @param <T> is the Class of object to cache.
  */
 public class DualCache<T> {
 
@@ -79,24 +80,29 @@ public class DualCache<T> {
 
     /**
      * Defined the sub folder from {@link android.content.Context#getCacheDir()} used to store all
-     * the data generated from the use of this class.
+     * the data generated from the use of this library.
      */
-    protected static String CACHE_FILE_PREFIX = "dualcache";
+    protected static final String CACHE_FILE_PREFIX = "dualcache";
+
+    /**
+     * Gson serializer used to save data and load data. Can be used by multiple threads.
+     */
+    private static ObjectMapper sMapper;
 
     /**
      * Unique ID which define a cache.
      */
-    protected String mId;
+    private String mId;
 
     /**
      * RAM cache.
      */
-    protected LruCache mRamCacheLru;
+    private LruCache mRamCacheLru;
 
     /**
      * Disk cache.
      */
-    protected DiskLruCache mDiskLruCache;
+    private DiskLruCache mDiskLruCache;
 
     /**
      * Define the class store in this cache.
@@ -109,9 +115,10 @@ public class DualCache<T> {
     private int mDiskCacheSizeInBytes;
 
     /**
-     * Define the app version of the application (allow you to automatically invalidate data from different app version on disk).
+     * Define the app version of the application (allow you to automatically invalidate data
+     * from different app version on disk).
      */
-    protected int mAppVersion;
+    private int mAppVersion;
 
     /**
      * By default the RAM layer use JSON serialization to store cached object.
@@ -124,13 +131,11 @@ public class DualCache<T> {
     private DualCacheDiskMode mDiskMode = DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER;
 
     /**
-     * Gson mSerializer used to save data and load data. Can be used by multiple threads.
+     * The handler used when the ram cache is enable with {@link com.vincentbrison.openlibraries.android.dualcache.lib.DualCache.DualCacheRAMMode#ENABLE_WITH_REFERENCE}
      */
-    private static ObjectMapper sMapper;
+    private SizeOf<T> mHandlerSizeOf;
 
-    protected SizeOf<T> mHandlerSizeOf;
-
-    protected Serializer<T> mSerializer;
+    private Serializer<T> mSerializer;
 
     static {
         sMapper = new ObjectMapper();

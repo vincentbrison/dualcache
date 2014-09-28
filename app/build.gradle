@@ -1,4 +1,5 @@
 apply plugin: 'android'
+apply from: '../config/quality.gradle'
 
 android {
     compileSdkVersion 19
