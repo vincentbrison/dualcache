@@ -53,25 +53,7 @@ public class DemoActivity extends Activity {
 
         setContentView(R.layout.activity_demo);
 
-        DualCacheBuilder<String> builder = new DualCacheBuilder(mCacheId, 1, String.class);
-        mCache = builder.useJsonInRam(mRamCacheSize).noDisk().build();
-        /*
-        mCache = builder.useReferenceInRam(mRamCacheSize, new SizeOf<String>() {
-            @Override
-            public int sizeOf(String object) {
-                return object.getBytes().length;
-            }
-        }).useSerializerInDisk(mDiskCacheSize, true, new Serializer() {
-            @Override
-            public Object fromString(String data) {
-                return data;
-            }
-
-            @Override
-            public String toString(Object object) {
-                return (String) object;
-            }
-        }).build();*/
+        mCache = new DualCacheBuilder<String>(mCacheId, 1, String.class).useJsonInRam(mRamCacheSize).useJsonInDisk(mDiskCacheSize, true);
 
         mButtonAddObjectA = (Button) findViewById(R.id.buttonAddObjectAToCache);
         mButtonAddObjectB = (Button) findViewById(R.id.buttonAddObjectBToCache);
