@@ -23,10 +23,30 @@ android {
 }
 
 dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:support-v4:19.1.+'
     compile 'com.jakewharton:disklrucache:2.0.2'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.4.2'
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    androidTestCompile 'junit:junit:4.+'
+    androidTestCompile 'org.robolectric:robolectric:2.3'
+}
+
+apply plugin: 'robolectric'
+robolectric {
+    // configure the set of classes for JUnit tests
+    include '**/*Test.class'
+
+    // configure max heap size of the test JVM
+    maxHeapSize = '2048m'
+
+    // configure whether failing tests should fail the build
+    ignoreFailures true
+
+    // use afterTest to listen to the test execution results
+    afterTest { descriptor, result ->
+        println "Executing test for {$descriptor.name} with result: ${result.resultType}"
+    }
 }
 
 apply from: 'maven_push.gradle'

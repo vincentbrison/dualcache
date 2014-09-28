@@ -71,9 +71,8 @@ afterEvaluate { project ->
     }
 
     signing {
-        password = ask("Please provide your key password")
         allprojects {
-            ext."signing.password" = password
+            ext."signing.password" = ask("Please provide your key password")
             ext."signing.keyId" = "D376F8F6"
             ext."signing.secretKeyRingFile" = "/Users/vincentbrison/.gnupg/secring.gpg"
         }
