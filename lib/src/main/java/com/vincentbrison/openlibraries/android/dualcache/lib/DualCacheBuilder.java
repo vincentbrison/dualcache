@@ -7,9 +7,7 @@ import com.jakewharton.disklrucache.DiskLruCache;
 import java.io.File;
 import java.io.IOException;
 
-/**
- *
- */
+
 public class DualCacheBuilder<T> {
 
     private DualCache<T> mDualCache;

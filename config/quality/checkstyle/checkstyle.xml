@@ -19,7 +19,7 @@
         <!-- See http://checkstyle.sf.net/config_sizes.html !-->
         <!-- Checks for long lines. !-->
         <module name="LineLength">
-            <property name="ignorePattern" value="^$"/>
+            <property name="ignorePattern" value="[^ *\* *[^ ]+$]"/>
             <property name="max" value="120"/>
         </module>
 
