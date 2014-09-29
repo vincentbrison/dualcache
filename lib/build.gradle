@@ -3,7 +3,7 @@ apply from: '../config/quality.gradle'
 
 android {
 
-    compileSdkVersion 17
+    compileSdkVersion 20
     buildToolsVersion "20.0.0"
 
     defaultConfig {
