@@ -25,7 +25,7 @@ import android.util.Log;
 public final class DualCacheLogUtils {
 
     private static boolean isLogEnabled = false;
-
+    private static final String DEFAULT_LOG_TAG = "dualcache";
     private DualCacheLogUtils() {
 
     }
@@ -45,10 +45,9 @@ public final class DualCacheLogUtils {
     }
 
     private static void log(int lvl, String tag, String msg) {
-        if (lvl != Log.ASSERT && lvl != Log.DEBUG && lvl != Log.ERROR && lvl != Log.INFO && lvl != Log.VERBOSE && lvl != Log.WARN)
-            Log.w("", "Warning, wrong lvl used for logging. Must be Log.ASSERT, Log.DEBUG, Log.ERROR, Log.INFO, Log.VERBOSE, or Log.WARN");
-        else if (isLogEnabled)
+        if (isLogEnabled) {
             Log.println(lvl, tag, msg);
+        }
     }
 
     /**
@@ -61,18 +60,36 @@ public final class DualCacheLogUtils {
     }
 
     /**
-     * Default log info using tag "dualcache".
+     * Default log info using tag {@link #DEFAULT_LOG_TAG}.
      * @param msg is the msg to log.
      */
     public static void logInfo(String msg) {
-        log(Log.INFO, "dualcache", msg);
+        log(Log.INFO, DEFAULT_LOG_TAG, msg);
     }
 
     /**
-     * Log with lvl verbose and tag "dualcache".
+     * Log with lvl verbose and tag {@link #DEFAULT_LOG_TAG}.
      * @param msg is the msg to log.
      */
     public static void logVerbose(String msg) {
-        log(Log.VERBOSE, "dualcache", msg);
+        log(Log.VERBOSE, DEFAULT_LOG_TAG, msg);
+    }
+
+    /**
+     * Log with lvl warning and tag {@link #DEFAULT_LOG_TAG}.
+     * @param msg is the msg to log.
+     */
+    public static void logWarning(String msg) {
+        log(Log.WARN, DEFAULT_LOG_TAG, msg);
+    }
+
+    /**
+     * Log with lvl error and tag {@link #DEFAULT_LOG_TAG}.
+     * @param error is the error to log.
+     */
+    public static void logError(Throwable error) {
+        if (isLogEnabled) {
+            Log.e(DEFAULT_LOG_TAG, "error : ", error);
+        }
     }
 }

@@ -42,7 +42,7 @@ public class DualCacheDiskBuilder<T> {
         try {
             mDualCache.setDiskLruCache(DiskLruCache.open(folder, mDualCache.getAppVersion(), 1, maxDiskSize));
         } catch (IOException e) {
-            e.printStackTrace();
+            DualCacheLogUtils.logError(e);
         }
         return mDualCache;
     }
@@ -64,7 +64,7 @@ public class DualCacheDiskBuilder<T> {
         try {
             mDualCache.setDiskLruCache(DiskLruCache.open(folder, mDualCache.getAppVersion(), 1, maxDiskSize));
         } catch (IOException e) {
-            e.printStackTrace();
+            DualCacheLogUtils.logError(e);
         }
         return mDualCache;
     }
