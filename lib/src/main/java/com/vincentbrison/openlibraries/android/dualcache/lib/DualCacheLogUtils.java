@@ -22,9 +22,13 @@ import android.util.Log;
  * Created by Vincent Brison.
  * This class provide a log utility to the library.
  */
-public class DualCacheLogUtils {
+public final class DualCacheLogUtils {
 
     private static boolean isLogEnabled = false;
+
+    private DualCacheLogUtils() {
+
+    }
 
     /**
      * Enable the logs of this library. By default logs are disabled.
@@ -57,13 +61,17 @@ public class DualCacheLogUtils {
     }
 
     /**
-     * Default log info using tag bfi.lib.cache.
+     * Default log info using tag "dualcache".
      * @param msg is the msg to log.
      */
     public static void logInfo(String msg) {
         log(Log.INFO, "dualcache", msg);
     }
 
+    /**
+     * Log with lvl verbose and tag "dualcache".
+     * @param msg is the msg to log.
+     */
     public static void logVerbose(String msg) {
         log(Log.VERBOSE, "dualcache", msg);
     }

@@ -11,6 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_margin="10dp"
         android:text="Ram cache size (bytes) : " />
 
@@ -21,9 +22,11 @@
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/activity_settings_textview_ram_cache_size"
         android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_margin="10dp"
         android:layout_toRightOf="@+id/activity_settings_textview_ram_cache_size"
-        android:gravity="right"
+        android:layout_toEndOf="@+id/activity_settings_textview_ram_cache_size"
+        android:gravity="end"
         android:hint="50"
         android:inputType="number"
         android:maxLines="1" />
@@ -33,20 +36,22 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_below="@+id/activity_settings_textview_ram_cache_size"
         android:layout_margin="10dp"
         android:text="Disk cache size (bytes) : " />
 
     <EditText
         android:id="@+id/activity_settings_edittext_disk_cache_size"
-
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/activity_settings_textview_disk_cache_size"
         android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_margin="10dp"
         android:layout_toRightOf="@+id/activity_settings_textview_disk_cache_size"
-        android:gravity="right"
+        android:layout_toEndOf="@+id/activity_settings_textview_disk_cache_size"
+        android:gravity="end"
         android:hint="50"
         android:inputType="number"
         android:maxLines="1" />
@@ -56,20 +61,22 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_below="@+id/activity_settings_textview_disk_cache_size"
         android:layout_margin="10dp"
         android:text="Cache id : " />
 
     <EditText
         android:id="@+id/activity_settings_edittext_cache_id"
-
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/activity_settings_textview_cache_id"
         android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_margin="10dp"
         android:layout_toRightOf="@+id/activity_settings_textview_cache_id"
-        android:gravity="right"
+        android:layout_toEndOf="@+id/activity_settings_textview_cache_id"
+        android:gravity="end"
         android:hint="mycache"
         android:maxLines="1" />
 
@@ -80,13 +87,5 @@
         android:layout_below="@+id/activity_settings_textview_cache_id"
         android:layout_margin="10dp"
         android:text="Start demo" />
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Start bench"
-        android:layout_margin="10dp"
-        android:id="@+id/activity_settings_button_bench"
-        android:layout_below="@+id/activity_settings_button_demo" />
 
 </RelativeLayout>

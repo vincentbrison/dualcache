@@ -22,17 +22,26 @@ import android.content.Context;
  * Created by Vincent Brison.
  * This class provide a context to the library.
  */
-public class DualCacheContextUtils {
+public final class DualCacheContextUtils {
     private static Context mContext = null;
+
+    private DualCacheContextUtils() {
+
+    }
 
     public static void setContext(Context context) {
         mContext = context;
     }
 
-    public static Context getContext() {
-        if (mContext == null)
-            DualCacheLogUtils.logInfo("The context provided to this library is null. Please provide"
-                    + " a proper context according the lifecycle of the application.");
+    /**
+     * Return the context use by the library.
+     * @return the context use by the library.
+     */
+    protected static Context getContext() {
+        if (mContext == null) {
+            throw new IllegalStateException("The context provided to this library is null. Please provide"
+                    + " a proper context according the lifecycle of the application (you should provide the application context).");
+        }
         return mContext;
     }
 

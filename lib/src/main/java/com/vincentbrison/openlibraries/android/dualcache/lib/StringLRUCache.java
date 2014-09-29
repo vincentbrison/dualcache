@@ -18,10 +18,14 @@ package com.vincentbrison.openlibraries.android.dualcache.lib;
 
 import android.support.v4.util.LruCache;
 
+import java.nio.charset.Charset;
+
+
 /**
- * Created by A559998 on 11/07/2014.
+ * LRU cache used by the RAM cache layer when storing serialized object.
  */
 public class StringLRUCache extends LruCache<String, String> {
+
     /**
      * @param maxSize for caches that do not override {@link #sizeOf}, this is
      *                the maximum number of entries in the cache. For all other caches,
@@ -33,6 +37,6 @@ public class StringLRUCache extends LruCache<String, String> {
 
     @Override
     protected int sizeOf(String key, String value) {
-        return value.getBytes().length;
+        return value.getBytes(Charset.forName("UTF-8")).length;
     }
 }

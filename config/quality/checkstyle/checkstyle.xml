@@ -16,6 +16,8 @@
 
     <module name="TreeWalker">
 
+        <module name="FileContentsHolder"/>
+
         <!-- See http://checkstyle.sf.net/config_sizes.html !-->
         <!-- Checks for long lines. !-->
         <module name="LineLength">
@@ -37,7 +39,7 @@
         <!-- Checks for long methods and constructors. !-->
         <!-- See http://checkstyle.sf.net/config_sizes.html !-->
         <module name="MethodLength">
-            <property name="max" value="80"/>
+            <property name="max" value="120"/>
             <property name="countEmpty" value="true"/>
             <property name="tokens" value="METHOD_DEF, CTOR_DEF"/>
         </module>
@@ -57,6 +59,8 @@
 
     </module>
     <module name="TreeWalker">
+
+        <module name="FileContentsHolder"/>
 
         <!-- Checks the padding of an empty for initializer. !-->
         <!-- See http://checkstyle.sf.net/config_whitespace.html !-->
@@ -160,6 +164,9 @@
     <!-- http://checkstyle.sourceforge.net/config_whitespace.html#FileTabCharacter !-->
     <module name="FileTabCharacter"/>
     <module name="TreeWalker">
+
+        <module name="FileContentsHolder"/>
+
         <!-- Checks that the outer type name and the file name match. !-->
         <!-- See http://checkstyle.sourceforge.net/config_misc.html#OuterTypeFilename !-->
         <module name="OuterTypeFilename"/>
@@ -252,6 +259,8 @@
     </module>
     <module name="TreeWalker">
 
+        <module name="FileContentsHolder"/>
+
         <!-- Validates Javadoc comments to help ensure they are well formed. !-->
         <!-- See http://checkstyle.sf.net/config_javadoc.html#JavadocStyle !-->
         <module name="JavadocStyle">
@@ -294,7 +303,7 @@
             <property name="allowMissingThrowsTags" value="false"/>
             <property name="allowMissingReturnTag" value="false"/>
             <property name="allowMissingJavadoc" value="false"/>
-            <property name="allowMissingPropertyJavadoc" value="false"/>
+            <property name="allowMissingPropertyJavadoc" value="true"/>
             <property name="logLoadErrors" value="true"/>
             <property name="suppressLoadErrors" value="false"/>
             <property name="tokens" value="METHOD_DEF, CTOR_DEF"/>
@@ -312,6 +321,8 @@
     </module>
     <module name="TreeWalker">
 
+        <module name="FileContentsHolder"/>
+
         <!-- Ensure a class has a package declaration. !-->
         <!-- See http://checkstyle.sf.net/config_coding.html !-->
         <module name="PackageDeclaration">
@@ -320,6 +331,8 @@
 
     </module>
     <module name="TreeWalker">
+
+        <module name="FileContentsHolder"/>
 
         <!-- Checks visibility of class members. !-->
         <!-- See http://checkstyle.sf.net/config_design.html !-->
@@ -339,6 +352,8 @@
 
     </module>
     <module name="TreeWalker">
+
+        <module name="FileContentsHolder"/>
 
         <!-- Checks that the order of modifiers conforms to the suggestions in the Java Language specification, !-->
         <!-- sections 8.1.1, 8.3.1 and 8.4.3. !-->
@@ -433,6 +448,8 @@
         <module name="UnusedImports"/>
 
     </module>
+
+    <module name="SuppressionCommentFilter"/>
 
 
 </module>

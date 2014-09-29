@@ -1,4 +1,5 @@
-apply plugin: 'android'
+apply plugin: 'com.android.application'
+apply from: '../config/quality.gradle'
 
 android {
     compileSdkVersion 19
@@ -18,6 +19,7 @@ android {
     }
 
     packagingOptions {
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
         exclude 'META-INF/ASL2.0'
@@ -29,4 +31,5 @@ android {
 dependencies {
     compile project (":lib")
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.jakewharton:butterknife:5.1.2'
 }

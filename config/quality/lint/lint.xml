@@ -151,4 +151,6 @@
     <issue id="WrongFolder" severity="ignore" />
     <issue id="WrongManifestParent" severity="ignore" />
     <issue id="WrongViewCast" severity="ignore" />
+    <issue id="GradleDependency" severity="ignore" />
+
 </lint>

@@ -12,6 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:text="Add object A to cache" />
@@ -97,7 +98,8 @@
         android:text="data disk"
         android:id="@+id/textViewDataSizeDisk"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true" />
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -108,7 +110,10 @@
         android:maxLines="2"
         android:layout_alignParentBottom="true"
         android:layout_toRightOf="@+id/textViewDataSizeRam"
+        android:layout_toEndOf="@+id/textViewDataSizeRam"
         android:layout_toLeftOf="@id/textViewDataSizeDisk"
+        android:layout_toStartOf="@id/textViewDataSizeDisk"
+
         />
 
 </RelativeLayout>

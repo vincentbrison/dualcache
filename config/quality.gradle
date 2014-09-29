@@ -3,13 +3,12 @@ apply plugin: 'findbugs'
 apply plugin: 'pmd'
 
 // Add checkstyle, findbugs, pmd and lint to the check task.
-check.dependsOn 'checkstyle', 'findbugs', 'pmd', 'lint'
-
+check.dependsOn  'checkstyle', 'findbugs', 'pmd', 'lint'
 
 task checkstyle(type: Checkstyle) {
     configFile file("${project.rootDir}/config/quality/checkstyle/checkstyle.xml")
     configProperties.checkstyleSuppressionsPath = file("${project.rootDir}/config/quality/checkstyle/suppressions.xml").absolutePath
-    source 'src'
+    source 'src/main/java'
     include '**/*.java'
     exclude '**/gen/**'
 
@@ -22,7 +21,7 @@ task findbugs(type: FindBugs) {
     effort = "max"
     reportLevel = "high"
     excludeFilter = new File("${project.rootDir}/config/quality/findbugs/findbugs-filter.xml")
-    classes = files("${project.rootDir}/app/build/classes")
+    classes = files("${project.rootDir}/app/build/intermediates/classes") + files("${project.rootDir}/lib/build/intermediates/classes")
 
     source 'src'
     include '**/*.java'
@@ -44,7 +43,7 @@ task findbugs(type: FindBugs) {
 
 task pmd(type: Pmd) {
     ruleSetFiles = files("${project.rootDir}/config/quality/pmd/pmd-ruleset.xml")
-    ignoreFailures = false
+    ignoreFailures = true
     ruleSets = []
 
     source 'src'
@@ -63,6 +62,7 @@ task pmd(type: Pmd) {
     }
 }
 
+
 android {
     lintOptions {
         abortOnError true
@@ -73,7 +73,5 @@ android {
         htmlReport true
         // optional path to report (default will be lint-results.html in the builddir)
         htmlOutput file("$project.buildDir/reports/lint/lint.html")
-
-
     }
 }

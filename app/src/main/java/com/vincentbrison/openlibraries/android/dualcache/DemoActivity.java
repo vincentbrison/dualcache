@@ -11,19 +11,31 @@ import android.widget.Toast;
 import com.vb.openlibraries.android.dualcache.R;
 import com.vincentbrison.openlibraries.android.dualcache.lib.DualCache;
 import com.vincentbrison.openlibraries.android.dualcache.lib.DualCacheBuilder;
-import com.vincentbrison.openlibraries.android.dualcache.lib.Serializer;
-import com.vincentbrison.openlibraries.android.dualcache.lib.SizeOf;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
+/**
+ * This Activity provide a very simple demo usage of the dualcache.
+ */
 public class DemoActivity extends Activity {
 
-    public final static String EXTRA_DISK_CACHE_SIZE = "EXTRA_DISK_CACHE_SIZE";
-    public final static String EXTRA_RAM_CACHE_SIZE = "EXTRA_RAM_CACHE_SIZE";
-    public final static String EXTRA_ID_CACHE = "EXTRA_ID_CACHE";
+    /**
+     * Intent extra key to retrieve the disk cache size as an integer.
+     */
+    public static final String EXTRA_DISK_CACHE_SIZE = "EXTRA_DISK_CACHE_SIZE";
+
+    /**
+     * Intent extra key to retrieve the ram cache size as an integer.
+     */
+    public static final String EXTRA_RAM_CACHE_SIZE = "EXTRA_RAM_CACHE_SIZE";
+
+    /**
+     * Intent extra key to retrieve the id of the cache as a string.
+     */
+    public static final String EXTRA_ID_CACHE = "EXTRA_ID_CACHE";
 
     private int mDiskCacheSize;
     private int mRamCacheSize;
@@ -32,57 +44,33 @@ public class DemoActivity extends Activity {
 
     private Handler mHandler;
 
-    private Button mButtonAddObjectA;
-    private Button mButtonAddObjectB;
-    private Button mButtonAddRandomObject;
-    private Button mButtonDisplayObjectB;
-    private Button mButtonDisplayObjectA;
-    private Button mButtonDisplayRandomObject;
-    private Button mButtonInvalidateCache;
-    private TextView mTextViewDataRam;
-    private TextView mTextViewDataDisk;
-    private TextView mTextViewDataTime;
+    //CHECKSTYLE:OFF
+    @InjectView(R.id.buttonAddObjectAToCache) protected Button mButtonAddObjectA;
+    @InjectView(R.id.buttonAddObjectBToCache) protected Button mButtonAddObjectB;
+    @InjectView(R.id.buttonAddRandomObjectToCache) protected Button mButtonAddRandomObject;
+    @InjectView(R.id.buttonDisplayObjectB) protected Button mButtonDisplayObjectB;
+    @InjectView(R.id.buttonDisplayObjectA) protected Button mButtonDisplayObjectA;
+    @InjectView(R.id.buttonDisplayRandomObject) protected Button mButtonDisplayRandomObject;
+    @InjectView(R.id.buttonInvalidateCache) protected Button mButtonInvalidateCache;
+    @InjectView(R.id.textViewDataSizeRam) protected TextView mTextViewDataRam;
+    @InjectView(R.id.textViewDataSizeDisk) protected TextView mTextViewDataDisk;
+    @InjectView(R.id.textViewDataTime) protected TextView mTextViewDataTime;
+    //CHECKSTYLE:ON
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setContentView(R.layout.activity_demo);
+        ButterKnife.inject(this);
+
         mCacheId = getIntent().getStringExtra(EXTRA_ID_CACHE);
         mDiskCacheSize = getIntent().getIntExtra(EXTRA_DISK_CACHE_SIZE, 100);
         mRamCacheSize = getIntent().getIntExtra(EXTRA_RAM_CACHE_SIZE, 50);
 
-        setContentView(R.layout.activity_demo);
-
-        DualCacheBuilder<String> builder = new DualCacheBuilder(mCacheId, 1, String.class);
-        mCache = builder.useJsonInRam(mRamCacheSize).noDisk().build();
-        /*
-        mCache = builder.useReferenceInRam(mRamCacheSize, new SizeOf<String>() {
-            @Override
-            public int sizeOf(String object) {
-                return object.getBytes().length;
-            }
-        }).useSerializerInDisk(mDiskCacheSize, true, new Serializer() {
-            @Override
-            public Object fromString(String data) {
-                return data;
-            }
-
-            @Override
-            public String toString(Object object) {
-                return (String) object;
-            }
-        }).build();*/
-
-        mButtonAddObjectA = (Button) findViewById(R.id.buttonAddObjectAToCache);
-        mButtonAddObjectB = (Button) findViewById(R.id.buttonAddObjectBToCache);
-        mButtonAddRandomObject = (Button) findViewById(R.id.buttonAddRandomObjectToCache);
-        mButtonInvalidateCache = (Button) findViewById(R.id.buttonInvalidateCache);
-        mButtonDisplayObjectA = (Button) findViewById(R.id.buttonDisplayObjectA);
-        mButtonDisplayObjectB = (Button) findViewById(R.id.buttonDisplayObjectB);
-        mButtonDisplayRandomObject = (Button) findViewById(R.id.buttonDisplayRandomObject);
-        mTextViewDataDisk = (TextView) findViewById(R.id.textViewDataSizeDisk);
-        mTextViewDataRam = (TextView) findViewById(R.id.textViewDataSizeRam);
-        mTextViewDataTime = (TextView) findViewById(R.id.textViewDataTime);
+        mCache = new DualCacheBuilder<String>(mCacheId, 1, String.class)
+                .useJsonInRam(mRamCacheSize)
+                .useJsonInDisk(mDiskCacheSize, true);
 
         mHandler = new Handler();
         mHandler.post(new Runnable() {
@@ -142,20 +130,12 @@ public class DemoActivity extends Activity {
             }
         });
 
-        mButtonDisplayRandomObject.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });
-
         mButtonInvalidateCache.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mCache.invalidate();
             }
         });
-
     }
 
     private void refreshCacheSize() {

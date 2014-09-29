@@ -3,12 +3,12 @@ apply from: '../config/quality.gradle'
 
 android {
 
-    compileSdkVersion 19
-    buildToolsVersion "19.1.0"
+    compileSdkVersion 17
+    buildToolsVersion "20.0.0"
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 19
+        targetSdkVersion 20
         versionCode 1
         versionName project.VERSION_NAME
     }
@@ -23,10 +23,10 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:19.1.+'
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:support-v4:20.0.0'
     compile 'com.jakewharton:disklrucache:2.0.2'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.4.2'
-    compile fileTree(dir: 'libs', include: ['*.jar'])
 }
 
 apply from: 'maven_push.gradle'
