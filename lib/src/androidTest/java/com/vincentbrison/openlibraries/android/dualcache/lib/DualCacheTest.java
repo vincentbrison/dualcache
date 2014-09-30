@@ -10,8 +10,16 @@ public class DualCacheTest extends ApplicationTestCase<Application> {
         super(Application.class);
     }
 
-    public void testSomething() throws Exception {
-        assertTrue(1 == 2);
+    public void testOnlyRAM() throws Exception {
+        DualCache<String> cache = new DualCacheBuilder<String>("test", 1, String.class).useJsonInRam(100).noDisk();
+
+        cache.put("key", "test string");
+
+        assertEquals("test string", cache.get("key"));
+    }
+
+    public void testDebug() throws Exception {
+        assertTrue(1 == 1);
     }
 
 
