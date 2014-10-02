@@ -11,4 +11,18 @@ public abstract class Vehicule {
     public int getWheels() {
         return mWheels;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Vehicule) {
+            if (mName.equals(((Vehicule) o).getName())
+                    && mWheels == ((Vehicule) o).getWheels()) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return super.equals(o);
+        }
+    }
 }

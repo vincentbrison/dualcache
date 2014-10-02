@@ -30,6 +30,19 @@ public class DualCacheBuilder<T> {
     }
 
     /**
+     * Use Json serialization/deserialization to store and retrieve object from ram cache.
+     * @param maxRamSize is the max amount of ram which can be used by the ram cache.
+     * @param serializer is the interface with provide serialization/deserialization methods for the ram cache layer.
+     * @return the builder for the disk cache layer.
+     */
+    public DualCacheDiskBuilder<T> useSerializerInRam(int maxRamSize, Serializer<T> serializer) {
+        mDualCache.setRAMMode(DualCache.DualCacheRAMMode.ENABLE_WITH_CUSTOM_SERIALIZER);
+        mDualCache.setRamCacheLru(new StringLRUCache(maxRamSize));
+        mDualCache.setRAMSerializer(serializer);
+        return new DualCacheDiskBuilder<T>(mDualCache);
+    }
+
+    /**
      * Store directly object in ram. You have to provide a way to compute the size of an object in ram to be able to used the LRU capacity of the ram cache.
      * @param maxRamSize is the max amount of ram which can be used by the ram cache.
      * @param handlerSizeOf is the interface which let compute the size of object stored in ram.

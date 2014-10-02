@@ -23,7 +23,7 @@ task findbugs(type: FindBugs) {
     excludeFilter = new File("${project.rootDir}/config/quality/findbugs/findbugs-filter.xml")
     classes = files("${project.rootDir}/app/build/intermediates/classes") + files("${project.rootDir}/lib/build/intermediates/classes")
 
-    source 'src'
+    source 'src/main/java'
     include '**/*.java'
     exclude '**/gen/**'
 
@@ -46,7 +46,7 @@ task pmd(type: Pmd) {
     ignoreFailures = false
     ruleSets = []
 
-    source 'src'
+    source 'src/main/java'
     include '**/*.java'
     exclude '**/gen/**'
 
