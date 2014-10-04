@@ -457,9 +457,7 @@ public class DualCache<T> {
      * Remove all objects from cache (both RAM and disk).
      */
     public void invalidate() {
-        if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER)) {
-            invalidateDisk();
-        }
+        invalidateDisk();
         invalidateRAM();
     }
 
@@ -467,19 +465,23 @@ public class DualCache<T> {
      * Remove all objects from RAM.
      */
     public void invalidateRAM() {
-        mRamCacheLru.evictAll();
+        if (!mRAMMode.equals(DualCacheRAMMode.DISABLE)) {
+            mRamCacheLru.evictAll();
+        }
     }
 
     /**
      * Remove all objects from Disk.
      */
     public void invalidateDisk() {
-        try {
-            mDiskLruCache.delete();
-            File folder = new File(DualCacheContextUtils.getContext().getCacheDir().getPath() + "/" + CACHE_FILE_PREFIX + "/" + mId);
-            mDiskLruCache = DiskLruCache.open(folder, mAppVersion, 1, mDiskCacheSizeInBytes);
-        } catch (IOException e) {
-            DualCacheLogUtils.logError(e);
+        if (!mDiskMode.equals(DualCacheDiskMode.DISABLE)) {
+            try {
+                mDiskLruCache.delete();
+                File folder = new File(DualCacheContextUtils.getContext().getCacheDir().getPath() + "/" + CACHE_FILE_PREFIX + "/" + mId);
+                mDiskLruCache = DiskLruCache.open(folder, mAppVersion, 1, mDiskCacheSizeInBytes);
+            } catch (IOException e) {
+                DualCacheLogUtils.logError(e);
+            }
         }
     }
 
