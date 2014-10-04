@@ -82,6 +82,7 @@ public abstract class DualCacheTest extends ApplicationTestCase<Application> {
             assertNull(mCache.get("key"));
         } else {
             assertEquals(car, mCache.get("key"));
+            mCache.invalidateRAM();
         }
 
         mCache.invalidateDisk();
@@ -101,13 +102,9 @@ public abstract class DualCacheTest extends ApplicationTestCase<Application> {
         CoolBike bike = new CoolBike();
         mCache.put("car", car);
         mCache.put("bike", bike);
-        mCache.invalidateRAM();
-        if (mCache.getDiskMode().equals(DualCache.DualCacheDiskMode.DISABLE)) {
-            assertNull(mCache.get("car"));
-            assertNull(mCache.get("bike"));
-        } else {
-            assertEquals(mCache.get("car"), car);
-            assertEquals(mCache.get("bike"), bike);
-        }
+        mCache.delete("car");
+        mCache.delete("bike");
+        assertNull(mCache.get("car"));
+        assertNull(mCache.get("bike"));
     }
 }
