@@ -5,7 +5,7 @@ import com.vincentbrison.openlibraries.android.dualcache.lib.testobjects.Vehicul
 /**
  * Created by Brize on 04/10/2014.
  */
-public class RamDefaultSerializerNoDiskTest extends DualCacheTest {
+public class RamDefaultSerializerNoDisk extends DualCacheTest {
 
     @Override
     protected void setUp() throws Exception {

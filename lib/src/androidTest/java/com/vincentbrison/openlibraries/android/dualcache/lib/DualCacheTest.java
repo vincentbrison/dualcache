@@ -10,7 +10,7 @@ import com.vincentbrison.openlibraries.android.dualcache.lib.testobjects.Vehicul
 public abstract class DualCacheTest extends ApplicationTestCase<Application> {
 
     protected static final int RAM_MAX_SIZE = 1000;
-    protected static final int DISK_MAX_SIZE = 2000;
+    protected static final int DISK_MAX_SIZE = 10 * RAM_MAX_SIZE;
     protected static final String CACHE_NAME = "test";
     protected static final int TEST_APP_VERSION = 0;
     protected DualCache<Vehicule> mCache;
@@ -32,7 +32,6 @@ public abstract class DualCacheTest extends ApplicationTestCase<Application> {
     }
 
     public void testBasicOperations() throws Exception {
-
         CoolCar car = new CoolCar();
         mCache.put("key", car);
         if (mCache.getRAMMode().equals(DualCache.DualCacheRAMMode.DISABLE) &&
@@ -74,7 +73,6 @@ public abstract class DualCacheTest extends ApplicationTestCase<Application> {
     }
 
     public void testBasicOperations2() throws Exception {
-
         CoolCar car = new CoolCar();
         mCache.put("key", car);
         mCache.invalidateRAM();
@@ -106,5 +104,28 @@ public abstract class DualCacheTest extends ApplicationTestCase<Application> {
         mCache.delete("bike");
         assertNull(mCache.get("car"));
         assertNull(mCache.get("bike"));
+    }
+
+    public void testLRUPolicy() {
+        mCache.invalidate();
+        CoolCar carToEvict = new CoolCar();
+        mCache.put("car", carToEvict);
+        long size = mCache.getRamSize();
+        int numberOfItemsToAddForRAMEviction = (int) (RAM_MAX_SIZE / size);
+        for (int i = 0; i < numberOfItemsToAddForRAMEviction; i++) {
+            mCache.put("car" + i, new CoolCar());
+        }
+        mCache.invalidateDisk();
+        assertNull(mCache.get("car"));
+
+        mCache.put("car", carToEvict);
+        for (int i = 0; i < numberOfItemsToAddForRAMEviction; i++) {
+            mCache.put("car" + i, new CoolCar());
+        }
+        if (!mCache.getDiskMode().equals(DualCache.DualCacheDiskMode.DISABLE)) {
+            assertEquals(carToEvict, mCache.get("car"));
+        } else {
+            assertNull(mCache.get("car"));
+        }
     }
 }
