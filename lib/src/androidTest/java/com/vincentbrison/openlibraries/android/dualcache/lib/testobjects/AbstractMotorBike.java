@@ -1,9 +1,9 @@
 package com.vincentbrison.openlibraries.android.dualcache.lib.testobjects;
 
 
-public abstract class MotorBike extends Vehicule {
+public abstract class AbstractMotorBike extends AbstractVehicule {
 
-    public MotorBike() {
+    public AbstractMotorBike() {
         mWheels = 2;
     }
 }

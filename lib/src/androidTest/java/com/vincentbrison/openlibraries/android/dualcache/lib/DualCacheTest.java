@@ -3,17 +3,17 @@ package com.vincentbrison.openlibraries.android.dualcache.lib;
 import android.app.Application;
 import android.test.ApplicationTestCase;
 
+import com.vincentbrison.openlibraries.android.dualcache.lib.testobjects.AbstractVehicule;
 import com.vincentbrison.openlibraries.android.dualcache.lib.testobjects.CoolBike;
 import com.vincentbrison.openlibraries.android.dualcache.lib.testobjects.CoolCar;
-import com.vincentbrison.openlibraries.android.dualcache.lib.testobjects.Vehicule;
 
 public abstract class DualCacheTest extends ApplicationTestCase<Application> {
 
     protected static final int RAM_MAX_SIZE = 1000;
-    protected static final int DISK_MAX_SIZE = 10 * RAM_MAX_SIZE;
+    protected static final int DISK_MAX_SIZE = 20 * RAM_MAX_SIZE;
     protected static final String CACHE_NAME = "test";
     protected static final int TEST_APP_VERSION = 0;
-    protected DualCache<Vehicule> mCache;
+    protected DualCache<AbstractVehicule> mCache;
 
     public DualCacheTest() {
         super(Application.class);
@@ -126,6 +126,36 @@ public abstract class DualCacheTest extends ApplicationTestCase<Application> {
             assertEquals(carToEvict, mCache.get("car"));
         } else {
             assertNull(mCache.get("car"));
+        }
+    }
+
+    public static class SerializerForTesting implements Serializer<AbstractVehicule> {
+
+        @Override
+        public AbstractVehicule fromString(String data) {
+            if (data.equals(CoolBike.class.getSimpleName())) {
+                return new CoolBike();
+            } else if (data.equals(CoolCar.class.getSimpleName())) {
+                return new CoolCar();
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        public String toString(AbstractVehicule object) {
+            return object.getClass().getSimpleName();
+        }
+    }
+
+    public static class SizeOfVehiculeForTesting implements SizeOf<AbstractVehicule> {
+
+        @Override
+        public int sizeOf(AbstractVehicule object) {
+            int size = 0;
+            size += object.getName().length() * 2; // we suppose that char = 2 bytes
+            size += 4; // we suppose that int = 4 bytes
+            return size;
         }
     }
 }

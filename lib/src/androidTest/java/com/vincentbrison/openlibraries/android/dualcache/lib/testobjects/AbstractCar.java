@@ -1,8 +1,8 @@
 package com.vincentbrison.openlibraries.android.dualcache.lib.testobjects;
 
-public abstract class Car extends Vehicule {
+public abstract class AbstractCar extends AbstractVehicule {
 
-    public Car() {
+    public AbstractCar() {
         mWheels = 4;
     }
 }
