@@ -18,6 +18,11 @@ This library is highly configurable :
 If you work with `custom serializer` or `references` you will have to provide (through an interface) the
 way of compute the size of cached objects, to be able to correctly execute the [LRU policy] (http://en.wikipedia.org/wiki/Cache_algorithms).
 
+To get the best performance from this library, I recommend that you use larger size for the disk layer than
+for the Ram layer. When you try to get an object from the cache which is already in the Ram layer, the disk wont be
+use to keep the best performance from the Ram. If you try to get an object from the cache which is on disk and not on Ram,
+the object will be loaded into RAM, to ensure better further access time.
+
 The Philosophy behind this library
 ==================================
 When you want to use a [cache] (http://en.wikipedia.org/wiki/Cache_\(computing\)) on Android today, you have two possibilities. You whether use :
@@ -121,6 +126,11 @@ To get an object from your cache, simply call `get` :
  DummyClass object = null;
  object = cache.get("mykey");
   ```
+
+Use cases
+=========
+ - Using default serialization on RAM + disk can be very useful to cache network. exchange of data.
+ - Using references in RAM + serialization can be very useful to cache bitmaps.
 
 Javadoc
 =======
