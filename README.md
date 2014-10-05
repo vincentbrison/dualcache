@@ -1,7 +1,21 @@
 Android dualcache
 ========================
 This android library provide a cache with 2 layers, one in RAM in top of one on local storage.
+This library is highly configurable :
 
+Configurations | Disk : `default serializer` (json) | Disk : `Custom serializer` | Disk : `disable`
+Ram : `default serializer` (json) | YES | YES | YES
+Ram : `custom serializer` | YES | YES | YES
+Ram : `References` | YES | YES | YES
+Ram : `disable | YES | YES | NO
+
+ - `Default serializer` : the objects stored in cache will be serialized in json through internal json mapper.
+ - `Custom serializer` : the object stored in cache will be serialized through a serializer provided by yourself.
+ - `References` : the objects stored in Ram are cached through there references (no serialization is done).
+ - `Disable` : the corresponding layer (Ram or disk) is disable.
+
+If you work with `custom serializer` or `references` you will have to provide (through an interface) the
+way of compute the size of cached objects, to be able to correctly execute the [LRU policy] (http://en.wikipedia.org/wiki/Cache_algorithms).
 
 The Philosophy behind this library
 ----------------------------------
@@ -24,7 +38,8 @@ The purpose of this library is to provide both features of these two caches, by 
 to ask yourself anymore "Should I use this one or this one ? But this one is persistent, but the other one is faster...".
 With this library you only use one cache, with two layers, one in RAM, and one in Disk and you configure how they have to work
 to provide exactly what you need in term of caching for you application.
- 
+
+
 Setup
 -----
  - Add to your repositories the following url :
