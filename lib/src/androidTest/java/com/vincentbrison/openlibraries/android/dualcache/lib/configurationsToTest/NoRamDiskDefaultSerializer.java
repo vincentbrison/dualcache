@@ -14,6 +14,6 @@ public class NoRamDiskDefaultSerializer extends DualCacheTest {
         super.setUp();
         mCache = new DualCacheBuilder<AbstractVehicule>(CACHE_NAME, TEST_APP_VERSION, AbstractVehicule.class)
                 .noRam()
-                .useJsonInDisk(DISK_MAX_SIZE, true);
+                .useDefaultSerializerInDisk(DISK_MAX_SIZE, true);
     }
 }

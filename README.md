@@ -19,7 +19,7 @@ If you work with `custom serializer` or `references` you will have to provide (t
 way of compute the size of cached objects, to be able to correctly execute the [LRU policy] (http://en.wikipedia.org/wiki/Cache_algorithms).
 
 The Philosophy behind this library
-----------------------------------
+==================================
 When you want to use a [cache] (http://en.wikipedia.org/wiki/Cache_\(computing\)) on Android today, you have two possibilities. You whether use :
  - The [LruCache] (http://developer.android.com/reference/android/util/LruCache.html) included into the Android SDK.
  - The [DiskLruCache] (https://github.com/JakeWharton/DiskLruCache) of Jake Wharton.
@@ -42,7 +42,7 @@ to provide exactly what you need in term of caching for you application.
 
 
 Setup
------
+=====
  - Add to your repositories the following url :
  
    ```gradle
@@ -53,12 +53,14 @@ Setup
    and to your dependencies :
    
    ```gradle
-     compile 'com.vincentbrison.openlibraries.android:dualcache:1.0.0'
-     compile 'com.android.support:support-v4:19.1.+'
-     compile 'com.jakewharton:disklrucache:2.0.+'
-     compile 'com.fasterxml.jackson.core:jackson-databind:2.4.+'
+     compile 'com.vincentbrison.openlibraries.android:dualcache:2.0.0@jar'
 
    ```
+
+   For information, I publish my lib in `jar` and `aar` format. Since there is currently a [bug] (https://code.google.com/p/android/issues/detail?id=73087)
+   which prevent you from getting the javadoc when using `aar` format, and since my library does not
+   embedded any resources, I recommend you to use the for now the `jar` format.
+
     
  - If you want activate the log of this library :
  
@@ -75,25 +77,64 @@ Setup
  - You are good to go !
   
 Basic examples
---------------
- - You can cache whatever object. Be aware that each object will be convert to String in cache, so do not use this cache with Bitmap for example.
- - Basic example :
+==============
+
+Build your cache
+---------------
+ First of all, you need to build you cache. Since the cache object is highly configurable (have a lot of parameters)
+ I use the [builder pattern] (http://en.wikipedia.org/wiki/Builder_pattern).
+ You have to build your cache through the `DualCacheBuilder` class.
+ 1. A cache with default serializer in RAM and disk disable :
  
  ```Java
- // Whatever object can be cached, polymorphism is fully supported.
- DualCache<DummyClass> dualCache = new DualCache<DummyClass>("myCache", 1, maxRamSize, maxDiskSize, DummyClass.class);
- DummyClass object = new DummyClass();
- cache.put("mykey", object);
+ DualCache<AbstractVehicule> cache = new DualCacheBuilder<AbstractVehicule>(CACHE_NAME, TEST_APP_VERSION, AbstractVehicule.class)
+                                                     .useDefaultSerializerInRam(RAM_MAX_SIZE)
+                                                     .noDisk();
  ```
 
+ 2. A cache with references in RAM and a default serializer on disk :
 
- - Basic example :
- 
+```Java
+ DualCache<AbstractVehicule> cache = new DualCacheBuilder<AbstractVehicule>(CACHE_NAME, TEST_APP_VERSION, AbstractVehicule.class)
+                                                     .useReferenceInRam(RAM_MAX_SIZE, new SizeOfVehiculeForTesting())
+                                                     .useDefaultSerializerInDisk(DISK_MAX_SIZE, true);
+ ```
+You can note that when you build the cache, you need to provide an `app version` number. When the cache
+is loaded, if data exist with a inferior number, it will be invalidate. It can be extremely useful when
+you update your app, and change your model, to avoid crashes. This feature is possible because the DiskLruCache of Jake Wharton
+implemented this feature.
+
+Put
+---
+To put an object into your cache, simply call `put` :
+
+```Java
+ DummyClass object = new DummyClass();;
+ object = cache.put("mykey", object);
+  ```
+
+Get
+---
+To get an object from your cache, simply call `get` :
+
  ```Java
  DummyClass object = null;
  object = cache.get("mykey");
   ```
-  
+
+Javadoc
+=======
+The javadoc provided with this library is fully written for every public class, methods, fields, feel
+free to use it :).
+
+Testing
+=======
+All the configurations of the cache are (almost) fully tested through automated tests. If you fork
+this repo, you can launch them with the gradle command `connectedAndroidTest`.
+You need to have a device connected since the tests will be run on every device connected to your computer.
+I recommend the use of easy to use [GenyMotion] (http://www.genymotion.com/) VMs to do these tests.
+A report will be available at : `/{location of your fork}/lib/build/outputs/reports/androidTests/connected/index.html`
+
 License
 =======
 

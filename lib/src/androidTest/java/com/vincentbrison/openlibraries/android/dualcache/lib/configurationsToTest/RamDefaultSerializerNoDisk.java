@@ -13,7 +13,7 @@ public class RamDefaultSerializerNoDisk extends DualCacheTest {
     protected void setUp() throws Exception {
         super.setUp();
         mCache = new DualCacheBuilder<AbstractVehicule>(CACHE_NAME, TEST_APP_VERSION, AbstractVehicule.class)
-                .useJsonInRam(RAM_MAX_SIZE)
+                .useDefaultSerializerInRam(RAM_MAX_SIZE)
                 .noDisk();
     }
 }

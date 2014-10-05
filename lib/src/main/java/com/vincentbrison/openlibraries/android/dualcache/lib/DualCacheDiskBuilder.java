@@ -30,7 +30,7 @@ public class DualCacheDiskBuilder<T> {
      * @param serializer is the interface with provide serialization/deserialization methods for the disk cache layer.
      * @return the "ready to use" dualcache.
      */
-    public DualCache<T> useSerializerInDisk(int maxDiskSize, boolean usePrivateFiles, Serializer<T> serializer) {
+    public DualCache<T> useCustomSerializerInDisk(int maxDiskSize, boolean usePrivateFiles, Serializer<T> serializer) {
         mDualCache.setDiskMode(DualCache.DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER);
         mDualCache.setDiskCacheSizeInBytes(maxDiskSize);
         mDualCache.setDiskSerializer(serializer);
@@ -54,7 +54,7 @@ public class DualCacheDiskBuilder<T> {
      * @param usePrivateFiles is true if you want to use {@link Context#MODE_PRIVATE}.
      * @return the "ready to use" dualcache.
      */
-    public DualCache<T> useJsonInDisk(int maxDiskSize, boolean usePrivateFiles) {
+    public DualCache<T> useDefaultSerializerInDisk(int maxDiskSize, boolean usePrivateFiles) {
         mDualCache.setDiskMode(DualCache.DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER);
         mDualCache.setDiskCacheSizeInBytes(maxDiskSize);
         File folder = null;

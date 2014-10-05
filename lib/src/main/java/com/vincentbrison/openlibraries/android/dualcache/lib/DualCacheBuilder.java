@@ -23,7 +23,7 @@ public class DualCacheBuilder<T> {
      * @param maxRamSize is the max amount of ram which can be used by the ram cache.
      * @return the builder for the disk cache layer.
      */
-    public DualCacheDiskBuilder<T> useJsonInRam(int maxRamSize) {
+    public DualCacheDiskBuilder<T> useDefaultSerializerInRam(int maxRamSize) {
         mDualCache.setRAMMode(DualCache.DualCacheRAMMode.ENABLE_WITH_DEFAULT_SERIALIZER);
         mDualCache.setRamCacheLru(new StringLRUCache(maxRamSize));
         return new DualCacheDiskBuilder<T>(mDualCache);
@@ -35,7 +35,7 @@ public class DualCacheBuilder<T> {
      * @param serializer is the interface with provide serialization/deserialization methods for the ram cache layer.
      * @return the builder for the disk cache layer.
      */
-    public DualCacheDiskBuilder<T> useSerializerInRam(int maxRamSize, Serializer<T> serializer) {
+    public DualCacheDiskBuilder<T> useCustomSerializerInRam(int maxRamSize, Serializer<T> serializer) {
         mDualCache.setRAMMode(DualCache.DualCacheRAMMode.ENABLE_WITH_CUSTOM_SERIALIZER);
         mDualCache.setRamCacheLru(new StringLRUCache(maxRamSize));
         mDualCache.setRAMSerializer(serializer);

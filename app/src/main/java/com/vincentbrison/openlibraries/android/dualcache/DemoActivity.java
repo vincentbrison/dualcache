@@ -69,8 +69,8 @@ public class DemoActivity extends Activity {
         mRamCacheSize = getIntent().getIntExtra(EXTRA_RAM_CACHE_SIZE, 50);
 
         mCache = new DualCacheBuilder<String>(mCacheId, 1, String.class)
-                .useJsonInRam(mRamCacheSize)
-                .useJsonInDisk(mDiskCacheSize, true);
+                .useDefaultSerializerInRam(mRamCacheSize)
+                .useDefaultSerializerInDisk(mDiskCacheSize, true);
 
         mHandler = new Handler();
         mHandler.post(new Runnable() {
