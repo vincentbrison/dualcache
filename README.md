@@ -1,20 +1,29 @@
-CAUTION
-=======
- - This project is in alpha state. You should not used it except for experimental purposes.
- - This project is only supported for Gradle build system (if you use an IDE, only Android Studio is supported).
-
-vb.openlibraries.android.dualcache
+Android dualcache
 ========================
-
 This android library provide a cache with 2 layers, one in RAM in top of one on local storage.
-This library will convert each object into a String to be able to measure the size in byte of each cached object.
-You have to be aware that the default implementation of [LruCache] (http://developer.android.com/reference/android/util/LruCache.html) does not fulfill this feature.
-This library includes the following features :
- - A RAM cache layer.
- - A disk cache layer ([based on the awesome work of Jake Wharton] (https://github.com/JakeWharton/DiskLruCache)).
- - Whatever object you choose to put in cache, its size is automatically calculated, to ensure a limited used space by the cache (with LRU policy).
- - You can choose to use only the RAM layer or the RAM layer with the disk layer, to save data among different executions for example.
- - Limited size of the RAM and the disk layer.
+
+
+The Philosophy behind this library
+----------------------------------
+When you want to use a [cache] (http://en.wikipedia.org/wiki/Cache_\(computing\)) on Android today, you have two possibilities. You whether use :
+ - The [LruCache] (http://developer.android.com/reference/android/util/LruCache.html) included into the Android SDK.
+ - The [DiskLruCache] (https://github.com/JakeWharton/DiskLruCache) of Jake Wharton.
+
+The thing is the first one only works in RAM, and the second one only on disk (internal memory of th phone). So you need to choose
+whether if you will use the LruCache (RAM) :
+ - Very fast access to your cache.
+ - High resources constraints, since the RAM allocated to your application is used for caching.
+ - Not persistent among different execution of your app.
+
+Or you will use the DiskLruCache (Disk) :
+ - Slower access time than the LruCache.
+ - Almost no resources constraints, since the size used on the disk (internal memory), will not impact your application.
+ - Persistent among different execution of your app.
+
+The purpose of this library is to provide both features of these two caches, by making them working together. You do not need
+to ask yourself anymore "Should I use this one or this one ? But this one is persistent, but the other one is faster...".
+With this library you only use one cache, with two layers, one in RAM, and one in Disk and you configure how they have to work
+to provide exactly what you need in term of caching for you application.
  
 Setup
 -----
@@ -49,8 +58,8 @@ Setup
   
  - You are good to go !
   
-Put
----
+Basic examples
+--------------
  - You can cache whatever object. Be aware that each object will be convert to String in cache, so do not use this cache with Bitmap for example.
  - Basic example :
  
@@ -61,9 +70,7 @@ Put
  cache.put("mykey", object);
  ```
 
-    
-Get
----
+
  - Basic example :
  
  ```Java

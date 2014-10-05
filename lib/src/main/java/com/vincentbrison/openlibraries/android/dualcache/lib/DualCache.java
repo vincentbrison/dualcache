@@ -29,8 +29,8 @@ import java.io.IOException;
 
 /**
  * Created by Vincent Brison.
- * This class intent to provide a very easy to use, reliable, highly configurable, performance driven
- * cache library for Android.
+ * This class intent to provide a very easy to use, reliable, highly configurable
+ * caching library for Android.
  *
  * @param <T> is the Class of object to cache.
  */
