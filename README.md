@@ -1,5 +1,8 @@
+CAUTION : this is the dev branch, the library is not yet released
+=================================================================
+
 Android dualcache
-========================
+=================
 This android library provide a cache with 2 layers, one in RAM in top of one on local storage.
 This library is highly configurable :
 
@@ -99,7 +102,7 @@ Build your cache
 
  2. A cache with references in RAM and a default serializer on disk :
 
-```Java
+ ```Java
  DualCache<AbstractVehicule> cache = new DualCacheBuilder<AbstractVehicule>(CACHE_NAME, TEST_APP_VERSION, AbstractVehicule.class)
                                                      .useReferenceInRam(RAM_MAX_SIZE, new SizeOfVehiculeForTesting())
                                                      .useDefaultSerializerInDisk(DISK_MAX_SIZE, true);
