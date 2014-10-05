@@ -4,6 +4,7 @@ This android library provide a cache with 2 layers, one in RAM in top of one on 
 This library is highly configurable :
 
 | Configurations | Disk : `default serializer` (json) | Disk : `Custom serializer` | Disk : `disable` |
+| -------------- | ---------------------------------- | -------------------------- | ---------------- |
 | Ram : `default serializer` (json) | YES | YES | YES |
 | Ram : `custom serializer` | YES | YES | YES |
 | Ram : `References` | YES | YES | YES |
