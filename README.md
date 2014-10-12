@@ -1,6 +1,3 @@
-CAUTION : this is the dev branch, the library is not yet released
-=================================================================
-
 Android dualcache
 =================
 This android library provide a cache with 2 layers, one in RAM in top of one on local storage.
