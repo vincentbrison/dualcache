@@ -48,6 +48,9 @@ to provide exactly what you need in term of caching for you application.
 
 Setup
 =====
+
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-android--easy--cache-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1377)
+
  - Add to your repositories the following url :
  
    ```gradle
