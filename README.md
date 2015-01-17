@@ -29,7 +29,7 @@ When you want to use a [cache] (http://en.wikipedia.org/wiki/Cache_\(computing\)
  - The [LruCache] (http://developer.android.com/reference/android/util/LruCache.html) included into the Android SDK.
  - The [DiskLruCache] (https://github.com/JakeWharton/DiskLruCache) of Jake Wharton.
 
-The thing is the first one only works in RAM, and the second one only on disk (internal memory of th phone). So you need to choose
+The thing is the first one only works in RAM, and the second one only on disk (internal memory of the phone). So you need to choose
 whether if you will use the LruCache (RAM) :
  - Very fast access to your cache.
  - High resources constraints, since the RAM allocated to your application is used for caching.
