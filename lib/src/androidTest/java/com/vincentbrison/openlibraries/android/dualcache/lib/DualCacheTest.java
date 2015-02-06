@@ -1,23 +1,18 @@
 package com.vincentbrison.openlibraries.android.dualcache.lib;
 
-import android.app.Application;
-import android.test.ApplicationTestCase;
+import android.test.AndroidTestCase;
 
 import com.vincentbrison.openlibraries.android.dualcache.lib.testobjects.AbstractVehicule;
 import com.vincentbrison.openlibraries.android.dualcache.lib.testobjects.CoolBike;
 import com.vincentbrison.openlibraries.android.dualcache.lib.testobjects.CoolCar;
 
-public abstract class DualCacheTest extends ApplicationTestCase<Application> {
+public abstract class DualCacheTest extends AndroidTestCase {
 
     protected static final int RAM_MAX_SIZE = 1000;
     protected static final int DISK_MAX_SIZE = 20 * RAM_MAX_SIZE;
     protected static final String CACHE_NAME = "test";
     protected static final int TEST_APP_VERSION = 0;
     protected DualCache<AbstractVehicule> mCache;
-
-    public DualCacheTest() {
-        super(Application.class);
-    }
 
     @Override
     protected void setUp() throws Exception {
