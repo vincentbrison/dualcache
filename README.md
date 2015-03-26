@@ -167,3 +167,7 @@ License
     limitations under the License.
 
  
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/vincentbrison/android-easy-cache/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
