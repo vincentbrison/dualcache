@@ -50,7 +50,6 @@ Setup
 =====
 
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-android--easy--cache-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1377)
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/vincentbrison/android-easy-cache/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
  - Add to your repositories the following url :
  
