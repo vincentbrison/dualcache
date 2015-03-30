@@ -26,48 +26,78 @@ public class DualCacheDiskBuilder<T> {
     /**
      * Use custom serialization/deserialization to store and retrieve object from disk cache.
      * @param maxDiskSize is the max size of disk which an be used by the disk cache layer.
-     * @param usePrivateFiles is true if you want to use {@link Context#MODE_PRIVATE}.
+     * @param usePrivateFiles is true if you want to use {@link Context#MODE_PRIVATE} with the default disk cache folder.
      * @param serializer is the interface with provide serialization/deserialization methods for the disk cache layer.
      * @return the "ready to use" dualcache.
      */
     public DualCache<T> useCustomSerializerInDisk(int maxDiskSize, boolean usePrivateFiles, Serializer<T> serializer) {
-        mDualCache.setDiskMode(DualCache.DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER);
-        mDualCache.setDiskCacheSizeInBytes(maxDiskSize);
-        mDualCache.setDiskSerializer(serializer);
-        File folder = null;
-        if (usePrivateFiles) {
-            folder = DualCacheContextUtils.getContext().getDir(DualCache.CACHE_FILE_PREFIX + mDualCache.getCacheId(), Context.MODE_PRIVATE);
-        } else {
-            folder = new File(DualCacheContextUtils.getContext().getCacheDir().getPath() + "/" + DualCache.CACHE_FILE_PREFIX + "/" + mDualCache.getCacheId());
-        }
-        try {
-            mDualCache.setDiskLruCache(DiskLruCache.open(folder, mDualCache.getAppVersion(), 1, maxDiskSize));
-        } catch (IOException e) {
-            DualCacheLogUtils.logError(e);
-        }
-        return mDualCache;
+        File folder = getDefaultDiskCacheFolder(usePrivateFiles);
+        return useCustomSerializerInDiskIfProvided(maxDiskSize, folder, serializer);
+    }
+
+    /**
+     * Use custom serialization/deserialization to store and retrieve object from disk cache.
+     * @param maxDiskSize is the max size of disk which an be used by the disk cache layer.
+     * @param diskCacheFolder is the folder where the disk cache will be stored.
+     * @param serializer is the interface with provide serialization/deserialization methods for the disk cache layer.
+     * @return the "ready to use" dualcache.
+     */
+    public DualCache<T> useCustomSerializerInDisk(int maxDiskSize, File diskCacheFolder, Serializer<T> serializer) {
+        return useCustomSerializerInDiskIfProvided(maxDiskSize, diskCacheFolder, serializer);
     }
 
     /**
      * Use Json serializer/deserialiazer to store and retrieve object from the disk cache layer.
      * @param maxDiskSize is the max amount of disk which can be used by the disk cache layer.
-     * @param usePrivateFiles is true if you want to use {@link Context#MODE_PRIVATE}.
+     * @param usePrivateFiles is true if you want to use {@link Context#MODE_PRIVATE} with the default disk cache folder.
      * @return the "ready to use" dualcache.
      */
     public DualCache<T> useDefaultSerializerInDisk(int maxDiskSize, boolean usePrivateFiles) {
-        mDualCache.setDiskMode(DualCache.DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER);
-        mDualCache.setDiskCacheSizeInBytes(maxDiskSize);
+        File folder = getDefaultDiskCacheFolder(usePrivateFiles);
+        return useCustomSerializerInDiskIfProvided(maxDiskSize, folder, null);
+    }
+
+    /**
+     * Use Json serializer/deserialiazer to store and retrieve object from the disk cache layer.
+     * @param maxDiskSize is the max amount of disk which can be used by the disk cache layer.
+     * @param diskCacheFolder is the folder where the disk cache will be stored.
+     * @return the "ready to use" dualcache.
+     */
+    public DualCache<T> useDefaultSerializerInDisk(int maxDiskSize, File diskCacheFolder) {
+        return useCustomSerializerInDiskIfProvided(maxDiskSize, diskCacheFolder, null);
+    }
+
+    private File getDefaultDiskCacheFolder(boolean usePrivateFiles) {
         File folder = null;
         if (usePrivateFiles) {
             folder = DualCacheContextUtils.getContext().getDir(DualCache.CACHE_FILE_PREFIX + mDualCache.getCacheId(), Context.MODE_PRIVATE);
         } else {
             folder = new File(DualCacheContextUtils.getContext().getCacheDir().getPath() + "/" + DualCache.CACHE_FILE_PREFIX + "/" + mDualCache.getCacheId());
         }
+        return folder;
+    }
+
+    private DualCache<T> useCustomSerializerInDiskIfProvided(int maxDiskSize, File diskCacheFolder, Serializer<T> serializer) {
+        mDualCache.setDiskCacheSizeInBytes(maxDiskSize);
+
+        if(serializer == null) {
+            mDualCache.setDiskMode(DualCache.DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER);
+        } else {
+            mDualCache.setDiskMode(DualCache.DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER);
+            mDualCache.setDiskSerializer(serializer);
+        }
+
+        if(diskCacheFolder == null) {
+            diskCacheFolder = getDefaultDiskCacheFolder(false);
+        }
+
         try {
-            mDualCache.setDiskLruCache(DiskLruCache.open(folder, mDualCache.getAppVersion(), 1, maxDiskSize));
+            mDualCache.setDiskLruCache(DiskLruCache.open(diskCacheFolder, mDualCache.getAppVersion(), 1, maxDiskSize));
+            mDualCache.setDiskCacheFolder(diskCacheFolder);
         } catch (IOException e) {
             DualCacheLogUtils.logError(e);
         }
+
         return mDualCache;
     }
 

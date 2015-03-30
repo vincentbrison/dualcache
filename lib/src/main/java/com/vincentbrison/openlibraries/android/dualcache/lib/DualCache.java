@@ -122,6 +122,12 @@ public class DualCache<T> {
      */
     private int mDiskCacheSizeInBytes;
 
+
+    /**
+     * Define the folder in which the disk cache will save its files.
+     */
+    private File mDiskCacheFolder;
+
     /**
      * Define the app version of the application (allow you to automatically invalidate data
      * from different app version on disk).
@@ -247,6 +253,14 @@ public class DualCache<T> {
 
     protected void setDiskCacheSizeInBytes(int diskCacheSizeInBytes) {
         mDiskCacheSizeInBytes = diskCacheSizeInBytes;
+    }
+
+    public File getDiskCacheFolder() {
+        return mDiskCacheFolder;
+    }
+
+    public void setDiskCacheFolder(File folder) {
+        mDiskCacheFolder = folder;
     }
 
     /**
@@ -477,8 +491,7 @@ public class DualCache<T> {
         if (!mDiskMode.equals(DualCacheDiskMode.DISABLE)) {
             try {
                 mDiskLruCache.delete();
-                File folder = new File(DualCacheContextUtils.getContext().getCacheDir().getPath() + "/" + CACHE_FILE_PREFIX + "/" + mId);
-                mDiskLruCache = DiskLruCache.open(folder, mAppVersion, 1, mDiskCacheSizeInBytes);
+                mDiskLruCache = DiskLruCache.open(mDiskCacheFolder, mAppVersion, 1, mDiskCacheSizeInBytes);
             } catch (IOException e) {
                 DualCacheLogUtils.logError(e);
             }
