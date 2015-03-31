@@ -1,5 +1,9 @@
 Android dualcache
 =================
+
+[![Build Status](https://travis-ci.org/vincentbrison/android-easy-cache.svg?branch=dev_travis)](https://travis-ci.org/vincentbrison/android-easy-cache)
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-android--easy--cache-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1377)
+
 This android library provide a cache with 2 layers, one in RAM in top of one on local storage.
 This library is highly configurable :
 
@@ -48,8 +52,6 @@ to provide exactly what you need in term of caching for you application.
 
 Setup
 =====
-
-[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-android--easy--cache-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1377)
 
  - Add to your repositories the following url :
  
