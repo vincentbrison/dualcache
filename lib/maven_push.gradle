@@ -4,7 +4,7 @@ apply plugin: 'signing'
 def ask(param) {
     def console = System.console()
     def userInput
-    if (console) {
+    if (console && !project.hasProperty("travis")) {
         userInput = console.readPassword('> ' + param.toString() + ' : ')
     } else {
         logger.error "Cannot get console. Please execute 'gradle uploadArchives' from CLI."

@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply from: '../config/quality.gradle'
+apply from: 'maven_push.gradle'
 
 android {
 
@@ -29,7 +30,6 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-databind:2.4.2'
 }
 
-apply from: 'maven_push.gradle'
 android.libraryVariants.all { variant ->
     def name = variant.buildType.name
     if (name.equals(com.android.builder.core.BuilderConstants.DEBUG)) {

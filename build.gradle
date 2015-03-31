@@ -9,7 +9,7 @@ buildscript {
 }
 
 def isReleaseBuild() {
-    println(version)
+    println("current VERSION_NAME : " + version)
     return version.contains("SNAPSHOT") == false
 }
 
