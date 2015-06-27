@@ -63,7 +63,7 @@ Setup
    and to your dependencies :
    
    ```gradle
-     compile 'com.vincentbrison.openlibraries.android:dualcache:2.0.0@jar'
+     compile 'com.vincentbrison.openlibraries.android:dualcache:2.1.0@jar'
 
    ```
 
@@ -153,7 +153,7 @@ A report will be available at : `/{location of your fork}/lib/build/outputs/repo
 License
 =======
 
-    Copyright 2013 Vincent Brison.
+    Copyright 2015 Vincent Brison.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
