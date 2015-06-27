@@ -1,11 +1,19 @@
 package com.vincentbrison.openlibraries.android.dualcache.lib;
 
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
 import android.test.AndroidTestCase;
 
 import com.vincentbrison.openlibraries.android.dualcache.lib.testobjects.AbstractVehicule;
 import com.vincentbrison.openlibraries.android.dualcache.lib.testobjects.CoolBike;
 import com.vincentbrison.openlibraries.android.dualcache.lib.testobjects.CoolCar;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+@RunWith(AndroidJUnit4.class)
 public abstract class DualCacheTest extends AndroidTestCase {
 
     protected static final int RAM_MAX_SIZE = 1000;
@@ -14,18 +22,22 @@ public abstract class DualCacheTest extends AndroidTestCase {
     protected static final int TEST_APP_VERSION = 0;
     protected DualCache<AbstractVehicule> mCache;
 
+    @Before
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
+        setContext(InstrumentationRegistry.getTargetContext());
         DualCacheContextUtils.setContext(getContext());
     }
 
+    @After
     @Override
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         mCache.invalidate();
         super.tearDown();
     }
 
+    @Test
     public void testBasicOperations() throws Exception {
         CoolCar car = new CoolCar();
         mCache.put("key", car);
@@ -67,6 +79,7 @@ public abstract class DualCacheTest extends AndroidTestCase {
         }
     }
 
+    @Test
     public void testBasicOperations2() throws Exception {
         CoolCar car = new CoolCar();
         mCache.put("key", car);
@@ -101,6 +114,7 @@ public abstract class DualCacheTest extends AndroidTestCase {
         assertNull(mCache.get("bike"));
     }
 
+    @Test
     public void testLRUPolicy() {
         mCache.invalidate();
         CoolCar carToEvict = new CoolCar();

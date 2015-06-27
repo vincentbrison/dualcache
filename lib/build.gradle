@@ -12,6 +12,7 @@ android {
         targetSdkVersion 20
         versionCode 1
         versionName project.VERSION_NAME
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     packagingOptions {
@@ -28,6 +29,8 @@ dependencies {
     compile 'com.android.support:support-v4:20.0.0'
     compile 'com.jakewharton:disklrucache:2.0.2'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.4.2'
+
+    androidTestCompile 'com.android.support.test:runner:0.3'
 }
 
 android.libraryVariants.all { variant ->

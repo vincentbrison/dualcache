@@ -11,7 +11,7 @@ import com.vincentbrison.openlibraries.android.dualcache.lib.testobjects.Abstrac
 public class RamReferenceNoDisk extends DualCacheTest {
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         mCache = new DualCacheBuilder<AbstractVehicule>(CACHE_NAME, TEST_APP_VERSION, AbstractVehicule.class)
                 .useReferenceInRam(RAM_MAX_SIZE, new SizeOfVehiculeForTesting())

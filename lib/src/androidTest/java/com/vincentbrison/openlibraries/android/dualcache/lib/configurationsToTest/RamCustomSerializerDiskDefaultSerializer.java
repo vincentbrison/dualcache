@@ -10,7 +10,7 @@ import com.vincentbrison.openlibraries.android.dualcache.lib.testobjects.Abstrac
 public class RamCustomSerializerDiskDefaultSerializer extends DualCacheTest {
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         mCache = new DualCacheBuilder<AbstractVehicule>(CACHE_NAME, TEST_APP_VERSION, AbstractVehicule.class)
                 .useCustomSerializerInRam(RAM_MAX_SIZE, new SerializerForTesting())
