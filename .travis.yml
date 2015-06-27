@@ -16,6 +16,7 @@ android:
     - extra-google-google_play_services
     - extra-google-m2repository
     - extra-android-m2repository
+    - extra-android-support
     - addon-google_apis-google-19
 
     # Specify at least one system image,
@@ -29,4 +30,4 @@ before_script:
   - adb wait-for-device
   - adb shell input keyevent 82 &
 
-script: ./gradlew lib:connectedAndroidTest -Ptravis
+script: ./gradlew lib:connectedAndroidTest
