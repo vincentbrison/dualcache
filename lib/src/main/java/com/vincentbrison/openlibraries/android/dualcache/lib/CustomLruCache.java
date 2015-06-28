@@ -60,7 +60,7 @@ import java.util.Map;
  * of <a href="http://developer.android.com/sdk/compatibility-library.html">Android's
  * Support Package</a> for earlier releases.
  */
-public class LruCache<K, V> {
+public class CustomLruCache<K, V> {
     private final LinkedHashMap<K, V> map;
 
     /** Size of this cache in units. Not necessarily the number of elements. */
@@ -78,7 +78,7 @@ public class LruCache<K, V> {
      *     the maximum number of entries in the cache. For all other caches,
      *     this is the maximum sum of the sizes of the entries in this cache.
      */
-    public LruCache(int maxSize) {
+    public CustomLruCache(int maxSize) {
         if (maxSize <= 0) {
             throw new IllegalArgumentException("maxSize <= 0");
         }

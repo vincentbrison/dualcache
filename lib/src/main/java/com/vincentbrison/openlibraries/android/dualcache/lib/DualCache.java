@@ -103,7 +103,7 @@ public class DualCache<T> {
     /**
      * RAM cache.
      */
-    private LruCache mRamCacheLru;
+    private CustomLruCache mRamCacheLru;
 
     /**
      * Disk cache.
@@ -191,7 +191,7 @@ public class DualCache<T> {
         mDiskSerializer = diskSerializer;
     }
 
-    protected void setRamCacheLru(LruCache ramLruCache) {
+    protected void setRamCacheLru(CustomLruCache ramLruCache) {
         mRamCacheLru = ramLruCache;
     }
 
