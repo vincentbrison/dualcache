@@ -16,8 +16,6 @@
 
 package com.vincentbrison.openlibraries.android.dualcache.lib;
 
-import android.support.v4.util.LruCache;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;

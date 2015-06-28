@@ -16,8 +16,6 @@
 
 package com.vincentbrison.openlibraries.android.dualcache.lib;
 
-import android.support.v4.util.LruCache;
-
 import java.nio.charset.Charset;
 
 
