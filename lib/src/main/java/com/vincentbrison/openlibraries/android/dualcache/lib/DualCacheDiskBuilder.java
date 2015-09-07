@@ -78,22 +78,23 @@ public class DualCacheDiskBuilder<T> {
     }
 
     private DualCache<T> useCustomSerializerInDiskIfProvided(int maxDiskSize, File diskCacheFolder, Serializer<T> serializer) {
+        File crtDiskCacheFolder = diskCacheFolder;
         mDualCache.setDiskCacheSizeInBytes(maxDiskSize);
 
-        if(serializer == null) {
+        if (serializer == null) {
             mDualCache.setDiskMode(DualCache.DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER);
         } else {
             mDualCache.setDiskMode(DualCache.DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER);
             mDualCache.setDiskSerializer(serializer);
         }
 
-        if(diskCacheFolder == null) {
-            diskCacheFolder = getDefaultDiskCacheFolder(false);
+        if (crtDiskCacheFolder == null) {
+            crtDiskCacheFolder = getDefaultDiskCacheFolder(false);
         }
 
         try {
-            mDualCache.setDiskLruCache(DiskLruCache.open(diskCacheFolder, mDualCache.getAppVersion(), 1, maxDiskSize));
-            mDualCache.setDiskCacheFolder(diskCacheFolder);
+            mDualCache.setDiskLruCache(DiskLruCache.open(crtDiskCacheFolder, mDualCache.getAppVersion(), 1, maxDiskSize));
+            mDualCache.setDiskCacheFolder(crtDiskCacheFolder);
         } catch (IOException e) {
             DualCacheLogUtils.logError(e);
         }

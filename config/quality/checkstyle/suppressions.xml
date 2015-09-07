@@ -8,5 +8,5 @@
     <suppress files="R.java" checks="[a-zA-Z0-9]*"/>
     <suppress files="BuildConfig.java" checks="[a-zA-Z0-9]*"/>
     <suppress files="(Test.java)$" checks="[a-zA-Z0-9]*"/>
-
+    <suppress files="CustomLruCache.java" checks="[a-zA-Z0-9]*"/>
 </suppressions>
