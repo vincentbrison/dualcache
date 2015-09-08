@@ -1,12 +1,10 @@
 package com.vincentbrison.openlibraries.android.dualcache.lib;
 
-import android.support.v4.util.LruCache;
-
 /**
  * This is the LRU cache used for the RAM layer when configured to used references.
  * @param <T> is the class of object stored in the cache.
  */
-public class ReferenceLRUCache<T> extends LruCache<String, T> {
+public class ReferenceLRUCache<T> extends CustomLruCache<String, T> {
 
     private SizeOf<T> mHandlerSizeOf;
 

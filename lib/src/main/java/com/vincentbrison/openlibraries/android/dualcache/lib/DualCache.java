@@ -16,8 +16,6 @@
 
 package com.vincentbrison.openlibraries.android.dualcache.lib;
 
-import android.support.v4.util.LruCache;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -105,7 +103,7 @@ public class DualCache<T> {
     /**
      * RAM cache.
      */
-    private LruCache mRamCacheLru;
+    private CustomLruCache mRamCacheLru;
 
     /**
      * Disk cache.
@@ -193,7 +191,7 @@ public class DualCache<T> {
         mDiskSerializer = diskSerializer;
     }
 
-    protected void setRamCacheLru(LruCache ramLruCache) {
+    protected void setRamCacheLru(CustomLruCache ramLruCache) {
         mRamCacheLru = ramLruCache;
     }
 
