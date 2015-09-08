@@ -63,7 +63,7 @@ Setup
    and to your dependencies :
    
    ```gradle
-     compile 'com.vincentbrison.openlibraries.android:dualcache:2.1.0@jar'
+     compile 'com.vincentbrison.openlibraries.android:dualcache:2.2.0@jar'
 
    ```
 
