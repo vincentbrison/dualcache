@@ -30,4 +30,4 @@ before_script:
 
 script:
   - ./gradlew lib:connectedAndroidTest -Ptravis --stacktrace
-  - ./gradlew lib:check -Ptravis --debug --stacktrace
+  - ./gradlew lib:check -Ptravis --stacktrace

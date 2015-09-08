@@ -24,6 +24,7 @@
 
     <exclude-pattern>.*/R.java</exclude-pattern>
     <exclude-pattern>.*/gen/.*</exclude-pattern>
+    <exclude-pattern>.*/CustomLruCache.java</exclude-pattern>
 
     <rule ref="rulesets/java/android.xml">
         <!-- Config.LOGD deprecated in API level 4 !-->
