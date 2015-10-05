@@ -71,7 +71,7 @@ Setup
      }
      dependencies {
        compile ('com.vincentbrison.openlibraries.android:dualcache:2.2.0@jar') {
-         transitive true
+         transitive = true
        }
      }
    ```
