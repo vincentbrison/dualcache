@@ -60,11 +60,20 @@ Setup
        url 'https://oss.sonatype.org/content/groups/public/'
    }
    ```
-   and to your dependencies :
+   and to your module gradle file :
    
    ```gradle
-     compile 'com.vincentbrison.openlibraries.android:dualcache:2.2.0@jar'
-
+     android {
+       packagingOptions {
+          exclude 'META-INF/LICENSE'
+          exclude 'META-INF/NOTICE'
+       }
+     }
+     dependencies {
+       compile ('com.vincentbrison.openlibraries.android:dualcache:2.2.0@jar') {
+         transitive true
+       }
+     }
    ```
 
    For information, I publish my lib in `jar` and `aar` format. Since there is currently a [bug] (https://code.google.com/p/android/issues/detail?id=73087)
