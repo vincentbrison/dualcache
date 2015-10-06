@@ -24,6 +24,8 @@ import com.jakewharton.disklrucache.DiskLruCache;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by Vincent Brison.
@@ -120,7 +122,6 @@ public class DualCache<T> {
      */
     private int mDiskCacheSizeInBytes;
 
-
     /**
      * Define the folder in which the disk cache will save its files.
      */
@@ -150,6 +151,8 @@ public class DualCache<T> {
     private Serializer<T> mDiskSerializer;
 
     private Serializer<T> mRamSerializer;
+
+    private ConcurrentMap<String, String> mEditionLocks = new ConcurrentHashMap<>();
 
     static {
         sMapper = new ObjectMapper();
@@ -277,43 +280,48 @@ public class DualCache<T> {
      * @param object is the object to put in cache.
      */
     public void put(String key, T object) {
-        String jsonStringObject = null;
-        if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_REFERENCE)) {
-            mRamCacheLru.put(key, object);
-        }
 
-        if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
-            mRamCacheLru.put(key, mRamSerializer.toString(object));
-        }
-
-        if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
-            try {
-                DiskLruCache.Editor editor = mDiskLruCache.edit(key);
-                editor.set(0, mDiskSerializer.toString(object));
-                editor.commit();
-            } catch (IOException e) {
-                DualCacheLogUtils.logError(e);
-            }
-        }
-
-        if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_DEFAULT_SERIALIZER) || mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER)) {
-            try {
-                jsonStringObject = sMapper.writeValueAsString(object);
-            } catch (JsonProcessingException e) {
-                DualCacheLogUtils.logError(e);
+        // Synchronize put on each entry. Gives concurrent editions on different entries, and atomic modification on the same entry.
+        mEditionLocks.putIfAbsent(key, key);
+        synchronized (mEditionLocks.get(key)) {
+            String jsonStringObject = null;
+            if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_REFERENCE)) {
+                mRamCacheLru.put(key, object);
             }
 
-            if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_DEFAULT_SERIALIZER)) {
-                mRamCacheLru.put(key, jsonStringObject);
+            if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
+                mRamCacheLru.put(key, mRamSerializer.toString(object));
             }
 
-            if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER)) {
+            if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
                 try {
                     DiskLruCache.Editor editor = mDiskLruCache.edit(key);
-                    editor.set(0, jsonStringObject);
+                    editor.set(0, mDiskSerializer.toString(object));
                     editor.commit();
                 } catch (IOException e) {
                     DualCacheLogUtils.logError(e);
+                }
+            }
+
+            if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_DEFAULT_SERIALIZER) || mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER)) {
+                try {
+                    jsonStringObject = sMapper.writeValueAsString(object);
+                } catch (JsonProcessingException e) {
+                    DualCacheLogUtils.logError(e);
+                }
+
+                if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_DEFAULT_SERIALIZER)) {
+                    mRamCacheLru.put(key, jsonStringObject);
+                }
+
+                if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER)) {
+                    try {
+                        DiskLruCache.Editor editor = mDiskLruCache.edit(key);
+                        editor.set(0, jsonStringObject);
+                        editor.commit();
+                    } catch (IOException e) {
+                        DualCacheLogUtils.logError(e);
+                    }
                 }
             }
         }
@@ -451,16 +459,18 @@ public class DualCache<T> {
      * @param key is the key of the object.
      */
     public void delete(String key) {
+        mEditionLocks.putIfAbsent(key, key);
+        synchronized (mEditionLocks.get(key)) {
+            if (!mRAMMode.equals(DualCacheRAMMode.DISABLE)) {
+                mRamCacheLru.remove(key);
+            }
 
-        if (!mRAMMode.equals(DualCacheRAMMode.DISABLE)) {
-            mRamCacheLru.remove(key);
-        }
-
-        if (!mDiskMode.equals(DualCacheDiskMode.DISABLE)) {
-            try {
-                mDiskLruCache.remove(key);
-            } catch (IOException e) {
-                DualCacheLogUtils.logError(e);
+            if (!mDiskMode.equals(DualCacheDiskMode.DISABLE)) {
+                try {
+                    mDiskLruCache.remove(key);
+                } catch (IOException e) {
+                    DualCacheLogUtils.logError(e);
+                }
             }
         }
     }
