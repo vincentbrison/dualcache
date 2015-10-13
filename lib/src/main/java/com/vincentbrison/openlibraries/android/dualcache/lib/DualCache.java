@@ -16,6 +16,8 @@
 
 package com.vincentbrison.openlibraries.android.dualcache.lib;
 
+import android.util.Log;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -153,6 +155,10 @@ public class DualCache<T> {
     private Serializer<T> mRamSerializer;
 
     private ConcurrentMap<String, String> mEditionLocks = new ConcurrentHashMap<>();
+    private boolean mIsGlobalLockEnable = false;
+
+    private Object lockRunningEditions = new Object();
+    private Integer mNumberOfEditionsRunning = 0;
 
     static {
         sMapper = new ObjectMapper();
@@ -280,47 +286,59 @@ public class DualCache<T> {
      * @param object is the object to put in cache.
      */
     public void put(String key, T object) {
-
         // Synchronize put on each entry. Gives concurrent editions on different entries, and atomic modification on the same entry.
-        mEditionLocks.putIfAbsent(key, key);
-        synchronized (mEditionLocks.get(key)) {
-            String jsonStringObject = null;
-            if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_REFERENCE)) {
-                mRamCacheLru.put(key, object);
-            }
+        String jsonStringObject = null;
+        if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_REFERENCE)) {
+            mRamCacheLru.put(key, object);
+        }
 
-            if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
-                mRamCacheLru.put(key, mRamSerializer.toString(object));
-            }
+        if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
+            mRamCacheLru.put(key, mRamSerializer.toString(object));
+        }
 
-            if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
-                try {
+        if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
+            try {
+                synchronized (getLock(key)) {
+                    mNumberOfEditionsRunning++;
                     DiskLruCache.Editor editor = mDiskLruCache.edit(key);
                     editor.set(0, mDiskSerializer.toString(object));
                     editor.commit();
-                } catch (IOException e) {
-                    DualCacheLogUtils.logError(e);
+                }
+            } catch (IOException e) {
+                DualCacheLogUtils.logError(e);
+            }
+            synchronized (lockRunningEditions) {
+                if (--mNumberOfEditionsRunning == 0) {
+                    lockRunningEditions.notify();
                 }
             }
+        }
 
-            if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_DEFAULT_SERIALIZER) || mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER)) {
+        if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_DEFAULT_SERIALIZER) || mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER)) {
+            try {
+                jsonStringObject = sMapper.writeValueAsString(object);
+            } catch (JsonProcessingException e) {
+                DualCacheLogUtils.logError(e);
+            }
+
+            if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_DEFAULT_SERIALIZER)) {
+                mRamCacheLru.put(key, jsonStringObject);
+            }
+
+            if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER)) {
                 try {
-                    jsonStringObject = sMapper.writeValueAsString(object);
-                } catch (JsonProcessingException e) {
-                    DualCacheLogUtils.logError(e);
-                }
-
-                if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_DEFAULT_SERIALIZER)) {
-                    mRamCacheLru.put(key, jsonStringObject);
-                }
-
-                if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER)) {
-                    try {
+                    synchronized (getLock(key)) {
+                        mNumberOfEditionsRunning++;
                         DiskLruCache.Editor editor = mDiskLruCache.edit(key);
                         editor.set(0, jsonStringObject);
                         editor.commit();
-                    } catch (IOException e) {
-                        DualCacheLogUtils.logError(e);
+                    }
+                } catch (IOException e) {
+                    DualCacheLogUtils.logError(e);
+                }
+                synchronized (lockRunningEditions) {
+                    if (--mNumberOfEditionsRunning == 0) {
+                        lockRunningEditions.notify();
                     }
                 }
             }
@@ -349,10 +367,12 @@ public class DualCache<T> {
             logEntryForKeyIsNotInRam(key);
             if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER) || mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
                 try {
+                    waitIfInvalidateIsRunning();
                     snapshotObject = mDiskLruCache.get(key);
                 } catch (IOException e) {
                     DualCacheLogUtils.logError(e);
                 }
+
                 if (snapshotObject != null) {
                     logEntryForKeyIsOnDisk(key);
                     try {
@@ -453,23 +473,51 @@ public class DualCache<T> {
         return null;
     }
 
+    // Block while global lock is set.
+    private void waitIfInvalidateIsRunning() {
+        if (mIsGlobalLockEnable) {
+            Log.d("thread", "Wait until pending disk invalidation complete");
+            synchronized (mEditionLocks) {
+                try {
+                    mEditionLocks.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            Log.d("thread", "no pending disk invalidation, continue");
+        }
+    }
+
+    // Let concurrent modification on different keys.
+    private String getLock(String key) {
+        waitIfInvalidateIsRunning();
+        mEditionLocks.putIfAbsent(key, key);
+        return mEditionLocks.get(key);
+    }
+
     /**
      * Delete the corresponding object in cache.
      *
      * @param key is the key of the object.
      */
     public void delete(String key) {
-        mEditionLocks.putIfAbsent(key, key);
-        synchronized (mEditionLocks.get(key)) {
-            if (!mRAMMode.equals(DualCacheRAMMode.DISABLE)) {
-                mRamCacheLru.remove(key);
-            }
+        if (!mRAMMode.equals(DualCacheRAMMode.DISABLE)) {
+            mRamCacheLru.remove(key);
+        }
 
-            if (!mDiskMode.equals(DualCacheDiskMode.DISABLE)) {
-                try {
+        if (!mDiskMode.equals(DualCacheDiskMode.DISABLE)) {
+            try {
+                synchronized (getLock(key)) {
+                    mNumberOfEditionsRunning++;
                     mDiskLruCache.remove(key);
-                } catch (IOException e) {
-                    DualCacheLogUtils.logError(e);
+                }
+            } catch (IOException e) {
+                DualCacheLogUtils.logError(e);
+            }
+            synchronized (lockRunningEditions) {
+                if (--mNumberOfEditionsRunning == 0) {
+                    lockRunningEditions.notify();
                 }
             }
         }
@@ -498,8 +546,27 @@ public class DualCache<T> {
     public void invalidateDisk() {
         if (!mDiskMode.equals(DualCacheDiskMode.DISABLE)) {
             try {
-                mDiskLruCache.delete();
-                mDiskLruCache = DiskLruCache.open(mDiskCacheFolder, mAppVersion, 1, mDiskCacheSizeInBytes);
+                mIsGlobalLockEnable = true;
+                synchronized (mEditionLocks) {
+                    synchronized (lockRunningEditions) {
+                        if (mNumberOfEditionsRunning != 0) {
+                            try {
+                                Log.d("thread", "wait all editions to end before invalidate cache");
+                                lockRunningEditions.wait();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        Log.d("thread", "start invalidate cache");
+                        mDiskLruCache.delete();
+                        mDiskLruCache = DiskLruCache.open(mDiskCacheFolder, mAppVersion, 1, mDiskCacheSizeInBytes);
+                        mIsGlobalLockEnable = false;
+                        Log.d("thread", "end invalidate cache, notify waiting editions");
+                        mEditionLocks.notifyAll();
+
+                    }
+                }
+
             } catch (IOException e) {
                 DualCacheLogUtils.logError(e);
             }
