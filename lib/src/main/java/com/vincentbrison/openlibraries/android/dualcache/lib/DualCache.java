@@ -299,7 +299,9 @@ public class DualCache<T> {
         if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
             try {
                 synchronized (getLock(key)) {
-                    mNumberOfEditionsRunning++;
+                    synchronized (lockRunningEditions) {
+                        mNumberOfEditionsRunning++;
+                    }
                     DiskLruCache.Editor editor = mDiskLruCache.edit(key);
                     editor.set(0, mDiskSerializer.toString(object));
                     editor.commit();
@@ -312,6 +314,7 @@ public class DualCache<T> {
                     lockRunningEditions.notify();
                 }
             }
+
         }
 
         if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_DEFAULT_SERIALIZER) || mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER)) {
@@ -328,7 +331,9 @@ public class DualCache<T> {
             if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER)) {
                 try {
                     synchronized (getLock(key)) {
-                        mNumberOfEditionsRunning++;
+                        synchronized (lockRunningEditions) {
+                            mNumberOfEditionsRunning++;
+                        }
                         DiskLruCache.Editor editor = mDiskLruCache.edit(key);
                         editor.set(0, jsonStringObject);
                         editor.commit();
@@ -476,7 +481,7 @@ public class DualCache<T> {
     // Block while global lock is set.
     private void waitIfInvalidateIsRunning() {
         if (mIsGlobalLockEnable) {
-            Log.d("thread", "Wait until pending disk invalidation complete");
+            debugLog("Wait until pending disk invalidation complete");
             synchronized (mEditionLocks) {
                 try {
                     mEditionLocks.wait();
@@ -485,7 +490,7 @@ public class DualCache<T> {
                 }
             }
         } else {
-            Log.d("thread", "no pending disk invalidation, continue");
+            debugLog("no pending disk invalidation, continue");
         }
     }
 
@@ -509,7 +514,9 @@ public class DualCache<T> {
         if (!mDiskMode.equals(DualCacheDiskMode.DISABLE)) {
             try {
                 synchronized (getLock(key)) {
-                    mNumberOfEditionsRunning++;
+                    synchronized (lockRunningEditions) {
+                        mNumberOfEditionsRunning++;
+                    }
                     mDiskLruCache.remove(key);
                 }
             } catch (IOException e) {
@@ -551,19 +558,18 @@ public class DualCache<T> {
                     synchronized (lockRunningEditions) {
                         if (mNumberOfEditionsRunning != 0) {
                             try {
-                                Log.d("thread", "wait all editions to end before invalidate cache");
+                                debugLog("wait all editions (" + mNumberOfEditionsRunning + ") to end before invalidate cache");
                                 lockRunningEditions.wait();
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
                         }
-                        Log.d("thread", "start invalidate cache");
+                        debugLog("start invalidate cache");
                         mDiskLruCache.delete();
                         mDiskLruCache = DiskLruCache.open(mDiskCacheFolder, mAppVersion, 1, mDiskCacheSizeInBytes);
                         mIsGlobalLockEnable = false;
-                        Log.d("thread", "end invalidate cache, notify waiting editions");
+                        debugLog("end invalidate cache, notify waiting editions");
                         mEditionLocks.notifyAll();
-
                     }
                 }
 
@@ -601,5 +607,9 @@ public class DualCache<T> {
 
     private void logEntryForKeyIsNotOnDisk(String key) {
         DualCacheLogUtils.logInfo(LOG_PREFIX + key + " is not on disk.");
+    }
+
+    private void debugLog(String log) {
+        Log.d("dualcachedebuglog", Thread.currentThread().getId() + " : " + log);
     }
 }

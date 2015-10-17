@@ -145,13 +145,15 @@ public abstract class DualCacheTest extends AndroidTestCase {
     @Test
     public void testConcurrentAccess() {
         List<Thread> threads = new ArrayList<>();
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 10; i++) {
             threads.add(createWrokerThread(mCache));
         }
+        Log.d("dualcachedebuglogti", "start worker threads");
         for (Thread thread : threads) {
             thread.start();
         }
 
+        Log.d("dualcachedebuglogti", "joining worker threads");
         for (Thread thread : threads) {
             try {
                 thread.join();
@@ -159,6 +161,7 @@ public abstract class DualCacheTest extends AndroidTestCase {
                 e.printStackTrace();
             }
         }
+        Log.d("dualcachedebuglogti", "join done");
         assertFalse("test", false);
     }
 
@@ -168,10 +171,11 @@ public abstract class DualCacheTest extends AndroidTestCase {
             @Override
             public void run() {
                 try {
+                    Log.d("dualcachedebuglogti", Thread.currentThread().getId() + " : is starting.");
                     int numberOfRun = 0;
                     while (numberOfRun++ < sMaxNumberOfRun) {
                         Thread.sleep((long) (Math.random() * 2));
-                        Log.i("test", "Thread " + Thread.currentThread().getId() + " will do its " + numberOfRun + " random action on cache.");
+                        //Log.d("dualcachedebuglogt", Thread.currentThread().getId() + " : will do its " + numberOfRun + " random action on cache.");
                         double choice = Math.random();
                         if (choice < 0.4) {
                             cache.put("key", new CoolCar());
@@ -180,15 +184,16 @@ public abstract class DualCacheTest extends AndroidTestCase {
                         } else if (choice < 0.8) {
                             cache.get("key");
                         } else if (choice < 0.9) {
-                            cache.invalidate();
+                            //cache.invalidate();
                         } else {
                             // do nothing
                         }
-                        Log.i("test", "Thread " + Thread.currentThread().getId() + " done its " + numberOfRun + " random action on cache.");
+                        //Log.d("dualcachedebuglogt", Thread.currentThread().getId() + " : done its " + numberOfRun + " random action on cache.");
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+                Log.d("dualcachedebuglogti", Thread.currentThread().getId() + " : is done.");
             }
         };
     }
