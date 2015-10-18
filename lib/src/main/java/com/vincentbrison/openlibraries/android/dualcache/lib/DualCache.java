@@ -16,8 +16,6 @@
 
 package com.vincentbrison.openlibraries.android.dualcache.lib;
 
-import android.util.Log;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -483,7 +481,7 @@ public class DualCache<T> {
             }
         }
 
-        // No data are available.
+        // No data is available.
         return null;
     }
 
@@ -492,16 +490,12 @@ public class DualCache<T> {
         synchronized (mEditionLocks) {
             if (mIsGlobalLockEnable) {
                 try {
-                    debugLog("Wait until pending disk invalidation complete");
                     mEditionLocks.wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-            } else {
-                //debugLog("no pending disk invalidation, continue");
             }
         }
-
     }
 
     // Let concurrent modification on different keys.
@@ -568,17 +562,14 @@ public class DualCache<T> {
                     synchronized (lockRunningEditions) {
                         if (mNumberOfEditionsRunning != 0) {
                             try {
-                                debugLog("wait all editions (" + mNumberOfEditionsRunning + ") to end before invalidate cache");
                                 lockRunningEditions.wait();
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
                         }
-                        debugLog("start invalidate cache");
                         mDiskLruCache.delete();
                         mDiskLruCache = DiskLruCache.open(mDiskCacheFolder, mAppVersion, 1, mDiskCacheSizeInBytes);
                         mIsGlobalLockEnable = false;
-                        debugLog("end invalidate cache, notify waiting editions");
                         mEditionLocks.notifyAll();
                     }
                 }
@@ -617,9 +608,5 @@ public class DualCache<T> {
 
     private void logEntryForKeyIsNotOnDisk(String key) {
         DualCacheLogUtils.logInfo(LOG_PREFIX + key + " is not on disk.");
-    }
-
-    private void debugLog(String log) {
-        Log.d("dualcachedebuglog", Thread.currentThread().getId() + " : " + log);
     }
 }
