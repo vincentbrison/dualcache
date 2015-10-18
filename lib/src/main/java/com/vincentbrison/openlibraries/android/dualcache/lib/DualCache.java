@@ -372,10 +372,19 @@ public class DualCache<T> {
             logEntryForKeyIsNotInRam(key);
             if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER) || mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
                 try {
-                    waitIfInvalidateIsRunning();
-                    snapshotObject = mDiskLruCache.get(key);
+                    synchronized (getLock(key)) {
+                        synchronized (lockRunningEditions) {
+                            mNumberOfEditionsRunning++;
+                        }
+                        snapshotObject = mDiskLruCache.get(key);
+                    }
                 } catch (IOException e) {
                     DualCacheLogUtils.logError(e);
+                }
+                synchronized (lockRunningEditions) {
+                    if (--mNumberOfEditionsRunning == 0) {
+                        lockRunningEditions.notify();
+                    }
                 }
 
                 if (snapshotObject != null) {
@@ -480,18 +489,19 @@ public class DualCache<T> {
 
     // Block while global lock is set.
     private void waitIfInvalidateIsRunning() {
-        if (mIsGlobalLockEnable) {
-            debugLog("Wait until pending disk invalidation complete");
-            synchronized (mEditionLocks) {
+        synchronized (mEditionLocks) {
+            if (mIsGlobalLockEnable) {
                 try {
+                    debugLog("Wait until pending disk invalidation complete");
                     mEditionLocks.wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+            } else {
+                //debugLog("no pending disk invalidation, continue");
             }
-        } else {
-            debugLog("no pending disk invalidation, continue");
         }
+
     }
 
     // Let concurrent modification on different keys.
@@ -553,8 +563,8 @@ public class DualCache<T> {
     public void invalidateDisk() {
         if (!mDiskMode.equals(DualCacheDiskMode.DISABLE)) {
             try {
-                mIsGlobalLockEnable = true;
                 synchronized (mEditionLocks) {
+                    mIsGlobalLockEnable = true;
                     synchronized (lockRunningEditions) {
                         if (mNumberOfEditionsRunning != 0) {
                             try {

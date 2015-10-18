@@ -171,7 +171,7 @@ public abstract class DualCacheTest extends AndroidTestCase {
             @Override
             public void run() {
                 try {
-                    Log.d("dualcachedebuglogti", Thread.currentThread().getId() + " : is starting.");
+                    //Log.d("dualcachedebuglogti", Thread.currentThread().getId() + " : is starting.");
                     int numberOfRun = 0;
                     while (numberOfRun++ < sMaxNumberOfRun) {
                         Thread.sleep((long) (Math.random() * 2));
@@ -184,7 +184,7 @@ public abstract class DualCacheTest extends AndroidTestCase {
                         } else if (choice < 0.8) {
                             cache.get("key");
                         } else if (choice < 0.9) {
-                            //cache.invalidate();
+                            cache.invalidate();
                         } else {
                             // do nothing
                         }
@@ -193,7 +193,7 @@ public abstract class DualCacheTest extends AndroidTestCase {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                Log.d("dualcachedebuglogti", Thread.currentThread().getId() + " : is done.");
+                //Log.d("dualcachedebuglogti", Thread.currentThread().getId() + " : is done.");
             }
         };
     }

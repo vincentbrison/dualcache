@@ -22,7 +22,7 @@
         <!-- Checks for long lines. !-->
         <module name="LineLength">
             <property name="ignorePattern" value="[^ *\* *[^ ]+$]"/>
-            <property name="max" value="120"/>
+            <property name="max" value="150"/>
         </module>
 
         <!-- Checks the number of methods declared in each type. This includes the number of each scope !-->
