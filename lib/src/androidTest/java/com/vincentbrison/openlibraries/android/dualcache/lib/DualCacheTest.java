@@ -167,15 +167,13 @@ public abstract class DualCacheTest extends AndroidTestCase {
 
     private Thread createWrokerThread(final DualCache<AbstractVehicule> cache) {
         return new Thread() {
-            int sMaxNumberOfRun = 100;
+            int sMaxNumberOfRun = 1000;
             @Override
             public void run() {
                 try {
-                    //Log.d("dualcachedebuglogti", Thread.currentThread().getId() + " : is starting.");
                     int numberOfRun = 0;
                     while (numberOfRun++ < sMaxNumberOfRun) {
                         Thread.sleep((long) (Math.random() * 2));
-                        //Log.d("dualcachedebuglogt", Thread.currentThread().getId() + " : will do its " + numberOfRun + " random action on cache.");
                         double choice = Math.random();
                         if (choice < 0.4) {
                             cache.put("key", new CoolCar());
@@ -183,17 +181,15 @@ public abstract class DualCacheTest extends AndroidTestCase {
                             cache.delete("key");
                         } else if (choice < 0.8) {
                             cache.get("key");
-                        } else if (choice < 0.9) {
+                        } else if (choice < 1) {
                             cache.invalidate();
                         } else {
                             // do nothing
                         }
-                        //Log.d("dualcachedebuglogt", Thread.currentThread().getId() + " : done its " + numberOfRun + " random action on cache.");
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                //Log.d("dualcachedebuglogti", Thread.currentThread().getId() + " : is done.");
             }
         };
     }
