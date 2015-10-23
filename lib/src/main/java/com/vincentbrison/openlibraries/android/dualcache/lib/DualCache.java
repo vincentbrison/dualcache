@@ -474,7 +474,7 @@ public class DualCache<T> {
     // Let concurrent modification on different keys.
     private Lock getLockForGivenEntry(String key) {
         if (!mEditionLocks.containsKey(key)) {
-            mEditionLocks.put(key, new ReentrantLock());
+            mEditionLocks.putIfAbsent(key, new ReentrantLock());
         }
         return mEditionLocks.get(key);
     }
