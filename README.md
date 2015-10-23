@@ -49,6 +49,11 @@ to ask yourself anymore "Should I use this one or this one ? But this one is per
 With this library you only use one cache, with two layers, one in RAM, and one in Disk and you configure how they have to work
 to provide exactly what you need in term of caching for you application.
 
+2.2.1 is adding concurrent access
+=================================
+Starting with version `2.2.1`, the cache is now supporting concurrent access. You can perform whatever operations from multiple threads and the cache
+takes care of the synchronization. More than that, this synchronization is optimized to block the threads only if needed, to get the best performances.
+In fact, `put` and `get` are synchronized on each entry, and the cache itself is locked trough a `ReadWriteLock` for invalidation operations.
 
 Setup
 =====
@@ -70,17 +75,12 @@ Setup
        }
      }
      dependencies {
-       compile ('com.vincentbrison.openlibraries.android:dualcache:2.2.0@jar') {
+       compile ('com.vincentbrison.openlibraries.android:dualcache:2.2.1@jar') {
          transitive = true
        }
      }
    ```
 
-   For information, I publish my lib in `jar` and `aar` format. Since there is currently a [bug] (https://code.google.com/p/android/issues/detail?id=73087)
-   which prevent you from getting the javadoc when using `aar` format, and since my library does not
-   embedded any resources, I recommend you to use the for now the `jar` format.
-
-    
  - If you want activate the log of this library :
  
   ```Java
@@ -128,7 +128,7 @@ Put
 To put an object into your cache, simply call `put` :
 
 ```Java
- DummyClass object = new DummyClass();;
+ DummyClass object = new DummyClass();
  object = cache.put("mykey", object);
   ```
 
@@ -143,8 +143,8 @@ To get an object from your cache, simply call `get` :
 
 Use cases
 =========
- - Using default serialization on RAM + disk can be very useful to cache network. exchange of data.
- - Using references in RAM + serialization can be very useful to cache bitmaps.
+ - Using default serialization on RAM + disk can be very useful to cache network exchange of data.
+ - Using references in RAM + serialization on disk can be very useful to cache bitmaps.
 
 Javadoc
 =======
@@ -175,9 +175,3 @@ License
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-
- 
-
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/vincentbrison/android-easy-cache/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
