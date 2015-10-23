@@ -3,6 +3,7 @@ package com.vincentbrison.openlibraries.android.dualcache.lib;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.AndroidTestCase;
+import android.util.Log;
 
 import com.vincentbrison.openlibraries.android.dualcache.lib.testobjects.AbstractVehicule;
 import com.vincentbrison.openlibraries.android.dualcache.lib.testobjects.CoolBike;
@@ -12,6 +13,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 public abstract class DualCacheTest extends AndroidTestCase {
@@ -136,6 +140,58 @@ public abstract class DualCacheTest extends AndroidTestCase {
         } else {
             assertNull(mCache.get("car"));
         }
+    }
+
+    @Test
+    public void testConcurrentAccess() {
+        List<Thread> threads = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            threads.add(createWrokerThread(mCache));
+        }
+        Log.d("dualcachedebuglogti", "start worker threads");
+        for (Thread thread : threads) {
+            thread.start();
+        }
+
+        Log.d("dualcachedebuglogti", "joining worker threads");
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        Log.d("dualcachedebuglogti", "join done");
+        assertFalse("test", false);
+    }
+
+    private Thread createWrokerThread(final DualCache<AbstractVehicule> cache) {
+        return new Thread() {
+            int sMaxNumberOfRun = 1000;
+            @Override
+            public void run() {
+                try {
+                    int numberOfRun = 0;
+                    while (numberOfRun++ < sMaxNumberOfRun) {
+                        Thread.sleep((long) (Math.random() * 2));
+                        double choice = Math.random();
+                        if (choice < 0.4) {
+                            cache.put("key", new CoolCar());
+                        } else if (choice < 0.5) {
+                            cache.delete("key");
+                        } else if (choice < 0.8) {
+                            cache.get("key");
+                        } else if (choice < 1) {
+                            cache.invalidate();
+                        } else {
+                            // do nothing
+                        }
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
     }
 
     public static class SerializerForTesting implements Serializer<AbstractVehicule> {

@@ -24,6 +24,12 @@ import com.jakewharton.disklrucache.DiskLruCache;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Created by Vincent Brison.
@@ -120,7 +126,6 @@ public class DualCache<T> {
      */
     private int mDiskCacheSizeInBytes;
 
-
     /**
      * Define the folder in which the disk cache will save its files.
      */
@@ -150,6 +155,9 @@ public class DualCache<T> {
     private Serializer<T> mDiskSerializer;
 
     private Serializer<T> mRamSerializer;
+
+    private final ConcurrentMap<String, Lock> mEditionLocks = new ConcurrentHashMap<>();
+    private ReadWriteLock mInvalidationReadWriteLock = new ReentrantReadWriteLock();
 
     static {
         sMapper = new ObjectMapper();
@@ -277,6 +285,7 @@ public class DualCache<T> {
      * @param object is the object to put in cache.
      */
     public void put(String key, T object) {
+        // Synchronize put on each entry. Gives concurrent editions on different entries, and atomic modification on the same entry.
         String jsonStringObject = null;
         if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_REFERENCE)) {
             mRamCacheLru.put(key, object);
@@ -288,11 +297,16 @@ public class DualCache<T> {
 
         if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
             try {
+                mInvalidationReadWriteLock.readLock().lock();
+                getLockForGivenEntry(key).lock();
                 DiskLruCache.Editor editor = mDiskLruCache.edit(key);
                 editor.set(0, mDiskSerializer.toString(object));
                 editor.commit();
             } catch (IOException e) {
                 DualCacheLogUtils.logError(e);
+            } finally {
+                getLockForGivenEntry(key).unlock();
+                mInvalidationReadWriteLock.readLock().unlock();
             }
         }
 
@@ -309,11 +323,17 @@ public class DualCache<T> {
 
             if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER)) {
                 try {
+                    mInvalidationReadWriteLock.readLock().lock();
+                    getLockForGivenEntry(key).lock();
                     DiskLruCache.Editor editor = mDiskLruCache.edit(key);
                     editor.set(0, jsonStringObject);
                     editor.commit();
+
                 } catch (IOException e) {
                     DualCacheLogUtils.logError(e);
+                } finally {
+                    getLockForGivenEntry(key).unlock();
+                    mInvalidationReadWriteLock.readLock().unlock();
                 }
             }
         }
@@ -341,10 +361,16 @@ public class DualCache<T> {
             logEntryForKeyIsNotInRam(key);
             if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER) || mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
                 try {
+                    mInvalidationReadWriteLock.readLock().lock();
+                    getLockForGivenEntry(key).lock();
                     snapshotObject = mDiskLruCache.get(key);
                 } catch (IOException e) {
                     DualCacheLogUtils.logError(e);
+                } finally {
+                    getLockForGivenEntry(key).unlock();
+                    mInvalidationReadWriteLock.readLock().unlock();
                 }
+
                 if (snapshotObject != null) {
                     logEntryForKeyIsOnDisk(key);
                     try {
@@ -441,8 +467,16 @@ public class DualCache<T> {
             }
         }
 
-        // No data are available.
+        // No data is available.
         return null;
+    }
+
+    // Let concurrent modification on different keys.
+    private Lock getLockForGivenEntry(String key) {
+        if (!mEditionLocks.containsKey(key)) {
+            mEditionLocks.put(key, new ReentrantLock());
+        }
+        return mEditionLocks.get(key);
     }
 
     /**
@@ -451,16 +485,19 @@ public class DualCache<T> {
      * @param key is the key of the object.
      */
     public void delete(String key) {
-
         if (!mRAMMode.equals(DualCacheRAMMode.DISABLE)) {
             mRamCacheLru.remove(key);
         }
-
         if (!mDiskMode.equals(DualCacheDiskMode.DISABLE)) {
             try {
+                mInvalidationReadWriteLock.readLock().lock();
+                getLockForGivenEntry(key).lock();
                 mDiskLruCache.remove(key);
             } catch (IOException e) {
                 DualCacheLogUtils.logError(e);
+            } finally {
+                getLockForGivenEntry(key).unlock();
+                mInvalidationReadWriteLock.readLock().unlock();
             }
         }
     }
@@ -488,10 +525,13 @@ public class DualCache<T> {
     public void invalidateDisk() {
         if (!mDiskMode.equals(DualCacheDiskMode.DISABLE)) {
             try {
+                mInvalidationReadWriteLock.writeLock().lock();
                 mDiskLruCache.delete();
                 mDiskLruCache = DiskLruCache.open(mDiskCacheFolder, mAppVersion, 1, mDiskCacheSizeInBytes);
             } catch (IOException e) {
                 DualCacheLogUtils.logError(e);
+            } finally {
+                mInvalidationReadWriteLock.writeLock().unlock();
             }
         }
     }
