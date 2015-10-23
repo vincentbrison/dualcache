@@ -75,7 +75,7 @@ Setup
        }
      }
      dependencies {
-       compile ('com.vincentbrison.openlibraries.android:dualcache:2.2.1@jar') {
+       compile ('com.vincentbrison.openlibraries.android:dualcache:2.2.2@jar') {
          transitive = true
        }
      }
