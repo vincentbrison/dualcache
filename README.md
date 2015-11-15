@@ -65,7 +65,7 @@ Setup
      mavenCentral()
    }
    ```
-   and to your module gradle file :
+- And add to your module gradle file :
    
    ```gradle
      android {
