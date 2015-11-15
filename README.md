@@ -58,11 +58,11 @@ In fact, `put` and `get` are synchronized on each entry, and the cache itself is
 Setup
 =====
 
- - Add to your repositories the following url :
+ - Ensure you can pull artifacts from Maven Central :
  
    ```gradle
-   maven {
-       url 'https://oss.sonatype.org/content/groups/public/'
+   repositories {
+     mavenCentral()
    }
    ```
    and to your module gradle file :
