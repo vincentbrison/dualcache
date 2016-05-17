@@ -58,42 +58,36 @@ In fact, `put` and `get` are synchronized on each entry, and the cache itself is
 Setup
 =====
 
- - Ensure you can pull artifacts from Maven Central :
- 
-   ```gradle
-   repositories {
-     mavenCentral()
-   }
-   ```
+- Ensure you can pull artifacts from Maven Central :
+```gradle
+repositories {
+    mavenCentral()
+}
+```
 - And add to your module gradle file :
-   
-   ```gradle
-     android {
-       packagingOptions {
-          exclude 'META-INF/LICENSE'
-          exclude 'META-INF/NOTICE'
-       }
-     }
-     dependencies {
-       compile ('com.vincentbrison.openlibraries.android:dualcache:2.2.2@jar') {
-         transitive = true
-       }
-     }
-   ```
+```gradle
+android {
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
+    }
+}
 
- - If you want activate the log of this library :
- 
-  ```Java
-   DualCacheLogUtils.enableLog();
-  ```
- - You have to provide a Context to the cache. Please use the [application context] (http://developer.android.com/reference/android/content/Context.html#getApplicationContext())
- to avoid ugly memory leak : 
- 
-  ```Java
-  DualCacheContextUtils.setContext(getApplicationContext());
-  ```
+dependencies {
+    compile 'com.vincentbrison.openlibraries.android:dualcache:2.2.2@jar'
+}
+```
+- If you want activate the log of this library :
+```Java
+DualCacheLogUtils.enableLog();
+```
+- You have to provide a Context to the cache. Please use the [application context] (http://developer.android.com/reference/android/content/Context.html#getApplicationContext())
+to avoid ugly memory leak : 
+```Java
+DualCacheContextUtils.setContext(getApplicationContext());
+```
   
- - You are good to go !
+- You are good to go !
   
 Basic examples
 ==============
@@ -105,19 +99,21 @@ Build your cache
  You have to build your cache through the `DualCacheBuilder` class.
  1. A cache with default serializer in RAM and disk disable :
  
- ```Java
- DualCache<AbstractVehicule> cache = new DualCacheBuilder<AbstractVehicule>(CACHE_NAME, TEST_APP_VERSION, AbstractVehicule.class)
-                                                     .useDefaultSerializerInRam(RAM_MAX_SIZE)
-                                                     .noDisk();
- ```
+```Java
+DualCache<AbstractVehicule> cache = 
+  new DualCacheBuilder<AbstractVehicule>(CACHE_NAME, TEST_APP_VERSION, AbstractVehicule.class)
+  .useDefaultSerializerInRam(RAM_MAX_SIZE)
+  .noDisk();
+```
 
  2. A cache with references in RAM and a default serializer on disk :
 
- ```Java
- DualCache<AbstractVehicule> cache = new DualCacheBuilder<AbstractVehicule>(CACHE_NAME, TEST_APP_VERSION, AbstractVehicule.class)
-                                                     .useReferenceInRam(RAM_MAX_SIZE, new SizeOfVehiculeForTesting())
-                                                     .useDefaultSerializerInDisk(DISK_MAX_SIZE, true);
- ```
+```Java
+DualCache<AbstractVehicule> cache = 
+  new DualCacheBuilder<AbstractVehicule>(CACHE_NAME, TEST_APP_VERSION, AbstractVehicule.class)
+  .useReferenceInRam(RAM_MAX_SIZE, new SizeOfVehiculeForTesting())
+  .useDefaultSerializerInDisk(DISK_MAX_SIZE, true);
+```
 You can note that when you build the cache, you need to provide an `app version` number. When the cache
 is loaded, if data exist with a inferior number, it will be invalidate. It can be extremely useful when
 you update your app, and change your model, to avoid crashes. This feature is possible because the DiskLruCache of Jake Wharton
@@ -128,18 +124,18 @@ Put
 To put an object into your cache, simply call `put` :
 
 ```Java
- DummyClass object = new DummyClass();
- object = cache.put("mykey", object);
-  ```
+DummyClass object = new DummyClass();
+object = cache.put("mykey", object);
+```
 
 Get
 ---
 To get an object from your cache, simply call `get` :
 
- ```Java
- DummyClass object = null;
- object = cache.get("mykey");
-  ```
+```Java
+DummyClass object = null;
+object = cache.get("mykey");
+```
 
 Use cases
 =========
