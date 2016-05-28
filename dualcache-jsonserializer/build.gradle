@@ -1,0 +1,6 @@
+apply plugin: 'java'
+
+dependencies {
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.4.2'
+    compile project(path: ':dualcache-serializerinterface')
+}

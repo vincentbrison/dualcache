@@ -1,0 +1,16 @@
+package com.vincentbrison.openlibraries.android.dualcache.lib.configurationsToTest;
+
+import com.vincentbrison.openlibraries.android.dualcache.DualCacheBuilder;
+import com.vincentbrison.openlibraries.android.dualcache.lib.DualCacheTest;
+import com.vincentbrison.openlibraries.android.dualcache.lib.testobjects.AbstractVehicule;
+
+public class RamDefaultSerializerNoDisk extends DualCacheTest {
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        mCache = new DualCacheBuilder<>(CACHE_NAME, TEST_APP_VERSION, AbstractVehicule.class, true)
+            .useCustomSerializerInRam(RAM_MAX_SIZE, defaultCacheSerializer)
+            .noDisk();
+    }
+}
