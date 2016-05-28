@@ -1,7 +1,7 @@
 package com.vincentbrison.openlibraries.android.dualcache.lib;
 
-import com.vincentbrison.openlibraries.android.dualcache.lib.ramLruCache.ReferenceLRUCache;
-import com.vincentbrison.openlibraries.android.dualcache.lib.ramLruCache.StringLRUCache;
+import com.vincentbrison.openlibraries.android.dualcache.lib.ramlrucache.ReferenceLRUCache;
+import com.vincentbrison.openlibraries.android.dualcache.lib.ramlrucache.StringLRUCache;
 
 /**
  * Class used to build a cache.
@@ -18,7 +18,7 @@ public class DualCacheBuilder<T> {
      * @param clazz is the class of object to store in cache.
      */
     public DualCacheBuilder(String id, int appVersion, Class<T> clazz, boolean isLogEnable) {
-        mDualCache = new DualCache<T>(id, appVersion, clazz, new DualCacheLogger(isLogEnable));
+        mDualCache = new DualCache<>(id, appVersion, clazz, new DualCacheLogger(isLogEnable));
     }
 
     /**
@@ -29,7 +29,7 @@ public class DualCacheBuilder<T> {
     public DualCacheDiskBuilder<T> useDefaultSerializerInRam(int maxRamSize) {
         mDualCache.setRAMMode(DualCache.DualCacheRAMMode.ENABLE_WITH_DEFAULT_SERIALIZER);
         mDualCache.setRamCacheLru(new StringLRUCache(maxRamSize));
-        return new DualCacheDiskBuilder<T>(mDualCache);
+        return new DualCacheDiskBuilder<>(mDualCache);
     }
 
     /**
@@ -42,19 +42,19 @@ public class DualCacheBuilder<T> {
         mDualCache.setRAMMode(DualCache.DualCacheRAMMode.ENABLE_WITH_CUSTOM_SERIALIZER);
         mDualCache.setRamCacheLru(new StringLRUCache(maxRamSize));
         mDualCache.setRAMSerializer(serializer);
-        return new DualCacheDiskBuilder<T>(mDualCache);
+        return new DualCacheDiskBuilder<>(mDualCache);
     }
 
     /**
      * Store directly object in ram. You have to provide a way to compute the size of an object in ram to be able to used the LRU capacity of the ram cache.
      * @param maxRamSize is the max amount of ram which can be used by the ram cache.
-     * @param handlerSizeOf is the interface which let compute the size of object stored in ram.
+     * @param handlerRamSizeOf is the interface which let compute the size of object stored in ram.
      * @return the builder for the disk cache layer.
      */
-    public DualCacheDiskBuilder<T> useReferenceInRam(int maxRamSize, SizeOf<T> handlerSizeOf) {
+    public DualCacheDiskBuilder<T> useReferenceInRam(int maxRamSize, RamSizeOf<T> handlerRamSizeOf) {
         mDualCache.setRAMMode(DualCache.DualCacheRAMMode.ENABLE_WITH_REFERENCE);
-        mDualCache.setRamCacheLru(new ReferenceLRUCache<T>(maxRamSize, handlerSizeOf));
-        return new DualCacheDiskBuilder<T>(mDualCache);
+        mDualCache.setRamCacheLru(new ReferenceLRUCache<T>(maxRamSize, handlerRamSizeOf));
+        return new DualCacheDiskBuilder<>(mDualCache);
     }
 
     /**
@@ -63,7 +63,7 @@ public class DualCacheBuilder<T> {
      */
     public DualCacheDiskBuilder<T> noRam() {
         mDualCache.setRAMMode(DualCache.DualCacheRAMMode.DISABLE);
-        return new DualCacheDiskBuilder<T>(mDualCache);
+        return new DualCacheDiskBuilder<>(mDualCache);
     }
 
 }

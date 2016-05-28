@@ -2,7 +2,6 @@ package com.vincentbrison.openlibraries.android.dualcache.lib.configurationsToTe
 
 import com.vincentbrison.openlibraries.android.dualcache.lib.DualCacheBuilder;
 import com.vincentbrison.openlibraries.android.dualcache.lib.DualCacheTest;
-import com.vincentbrison.openlibraries.android.dualcache.lib.SizeOf;
 import com.vincentbrison.openlibraries.android.dualcache.lib.testobjects.AbstractVehicule;
 
 /**
@@ -13,7 +12,7 @@ public class RamReferenceNoDisk extends DualCacheTest {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        mCache = new DualCacheBuilder<AbstractVehicule>(CACHE_NAME, TEST_APP_VERSION, AbstractVehicule.class)
+        mCache = new DualCacheBuilder<AbstractVehicule>(CACHE_NAME, TEST_APP_VERSION, AbstractVehicule.class, true)
                 .useReferenceInRam(RAM_MAX_SIZE, new SizeOfVehiculeForTesting())
                 .noDisk();
     }

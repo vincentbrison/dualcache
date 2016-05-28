@@ -31,7 +31,6 @@ public abstract class DualCacheTest extends AndroidTestCase {
     public void setUp() throws Exception {
         super.setUp();
         setContext(InstrumentationRegistry.getTargetContext());
-        DualCacheContextUtils.setContext(getContext());
     }
 
     @After
@@ -213,7 +212,7 @@ public abstract class DualCacheTest extends AndroidTestCase {
         }
     }
 
-    public static class SizeOfVehiculeForTesting implements SizeOf<AbstractVehicule> {
+    public static class SizeOfVehiculeForTesting implements RamSizeOf<AbstractVehicule> {
 
         @Override
         public int sizeOf(AbstractVehicule object) {

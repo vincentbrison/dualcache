@@ -1,6 +1,6 @@
-package com.vincentbrison.openlibraries.android.dualcache.lib.ramLruCache;
+package com.vincentbrison.openlibraries.android.dualcache.lib.ramlrucache;
 
-import com.vincentbrison.openlibraries.android.dualcache.lib.SizeOf;
+import com.vincentbrison.openlibraries.android.dualcache.lib.RamSizeOf;
 
 /**
  * This is the LRU cache used for the RAM layer when configured to used references.
@@ -8,7 +8,7 @@ import com.vincentbrison.openlibraries.android.dualcache.lib.SizeOf;
  */
 public class ReferenceLRUCache<T> extends CustomLruCache<String, T> {
 
-    private SizeOf<T> mHandlerSizeOf;
+    private RamSizeOf<T> mHandlerRamSizeOf;
 
     /**
      * @param maxSize for caches that do not override {@link #sizeOf}, this is
@@ -17,13 +17,13 @@ public class ReferenceLRUCache<T> extends CustomLruCache<String, T> {
      *
      * @param handler is the interface used to compute the size of each object stored in the ram cache layer.
      */
-    public ReferenceLRUCache(int maxSize, SizeOf<T> handler) {
+    public ReferenceLRUCache(int maxSize, RamSizeOf<T> handler) {
         super(maxSize);
-        mHandlerSizeOf = handler;
+        mHandlerRamSizeOf = handler;
     }
 
     @Override
     protected int sizeOf(String key, T value) {
-        return mHandlerSizeOf.sizeOf(value);
+        return mHandlerRamSizeOf.sizeOf(value);
     }
 }

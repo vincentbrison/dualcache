@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jakewharton.disklrucache.DiskLruCache;
-import com.vincentbrison.openlibraries.android.dualcache.lib.ramLruCache.CustomLruCache;
+import com.vincentbrison.openlibraries.android.dualcache.lib.ramlrucache.CustomLruCache;
 
 import java.io.File;
 import java.io.IOException;
@@ -151,7 +151,7 @@ public class DualCache<T> {
     /**
      * The handler used when the ram cache is enable with {@link com.vincentbrison.openlibraries.android.dualcache.lib.DualCache.DualCacheRAMMode#ENABLE_WITH_REFERENCE}
      */
-    private SizeOf<T> mHandlerSizeOf;
+    private RamSizeOf<T> mHandlerRamSizeOf;
 
     private Serializer<T> mDiskSerializer;
 

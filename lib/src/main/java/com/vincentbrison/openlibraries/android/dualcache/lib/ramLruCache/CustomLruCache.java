@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.vincentbrison.openlibraries.android.dualcache.lib.ramLruCache;
+package com.vincentbrison.openlibraries.android.dualcache.lib.ramlrucache;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashMap;

@@ -2,10 +2,6 @@ package com.vincentbrison.openlibraries.android.dualcache.lib;
 
 import android.support.test.InstrumentationRegistry;
 import android.test.AndroidTestCase;
-import android.util.Log;
-
-import com.vincentbrison.openlibraries.android.dualcache.lib.testobjects.AbstractVehicule;
-import com.vincentbrison.openlibraries.android.dualcache.lib.testobjects.CoolCar;
 
 import org.junit.After;
 import org.junit.Before;
@@ -30,9 +26,10 @@ public class TestIssue11 extends AndroidTestCase {
     public void setUp() throws Exception {
         super.setUp();
         setContext(InstrumentationRegistry.getTargetContext());
-        DualCacheContextUtils.setContext(getContext());
         File cacheDir = new File(mContext.getCacheDir(), CACHE_NAME);
-        mCache = new DualCacheBuilder<>(CACHE_NAME, 0, String.class).useDefaultSerializerInRam(CACHE_RAM_ENTRIES).useDefaultSerializerInDisk(CACHE_SIZE, cacheDir);
+        mCache = new DualCacheBuilder<>(CACHE_NAME, 0, String.class, true)
+            .useDefaultSerializerInRam(CACHE_RAM_ENTRIES)
+            .useDefaultSerializerInDisk(CACHE_SIZE, cacheDir, getContext());
     }
 
     @After
