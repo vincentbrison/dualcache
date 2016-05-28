@@ -74,7 +74,7 @@ android {
 }
 
 dependencies {
-    compile 'com.vincentbrison.openlibraries.android:dualcache:2.2.2@jar'
+    compile 'com.vincentbrison.openlibraries.android:dualcache:2.2.2'
 }
 ```
 - If you want activate the log of this library :
