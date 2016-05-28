@@ -3,6 +3,7 @@ package com.vincentbrison.openlibraries.android.dualcache.lib;
 import android.content.Context;
 
 import com.jakewharton.disklrucache.DiskLruCache;
+import com.vincentbrison.openlibraries.android.dualcache.lib.jsonserializer.JsonSerializer;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,13 +15,15 @@ import java.io.IOException;
 public class DualCacheDiskBuilder<T> {
 
     private DualCache<T> mDualCache;
+    private Class<T> clazz;
 
     /**
      * Construct this builder.
      * @param dualCache is the dualcache to configure.
      */
-    protected DualCacheDiskBuilder(DualCache<T> dualCache) {
+    protected DualCacheDiskBuilder(DualCache<T> dualCache, Class<T> clazz) {
         mDualCache = dualCache;
+        this.clazz = clazz;
     }
 
     /**
@@ -63,7 +66,7 @@ public class DualCacheDiskBuilder<T> {
         int maxDiskSize, boolean usePrivateFiles, Context context
     ) {
         File folder = getDefaultDiskCacheFolder(usePrivateFiles, context);
-        return useCustomSerializerInDiskIfProvided(maxDiskSize, folder, null, context);
+        return useCustomSerializerInDiskIfProvided(maxDiskSize, folder, new JsonSerializer<>(clazz), context);
     }
 
     /**
@@ -76,7 +79,11 @@ public class DualCacheDiskBuilder<T> {
     public DualCache<T> useDefaultSerializerInDisk(
         int maxDiskSize, File diskCacheFolder, Context context
     ) {
-        return useCustomSerializerInDiskIfProvided(maxDiskSize, diskCacheFolder, null, context);
+        return useCustomSerializerInDiskIfProvided(
+            maxDiskSize, diskCacheFolder,
+            new JsonSerializer<>(clazz),
+            context
+        );
     }
 
     private File getDefaultDiskCacheFolder(boolean usePrivateFiles, Context context) {
@@ -101,12 +108,8 @@ public class DualCacheDiskBuilder<T> {
         File crtDiskCacheFolder = diskCacheFolder;
         mDualCache.setDiskCacheSizeInBytes(maxDiskSize);
 
-        if (serializer == null) {
-            mDualCache.setDiskMode(DualCache.DualCacheDiskMode.ENABLE_WITH_DEFAULT_SERIALIZER);
-        } else {
-            mDualCache.setDiskMode(DualCache.DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER);
-            mDualCache.setDiskSerializer(serializer);
-        }
+        mDualCache.setDiskMode(DualCache.DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER);
+        mDualCache.setDiskSerializer(serializer);
 
         if (crtDiskCacheFolder == null) {
             crtDiskCacheFolder = getDefaultDiskCacheFolder(false, context);

@@ -1,5 +1,6 @@
 package com.vincentbrison.openlibraries.android.dualcache.lib;
 
+import com.vincentbrison.openlibraries.android.dualcache.lib.jsonserializer.JsonSerializer;
 import com.vincentbrison.openlibraries.android.dualcache.lib.ramlrucache.ReferenceLRUCache;
 import com.vincentbrison.openlibraries.android.dualcache.lib.ramlrucache.StringLRUCache;
 
@@ -10,6 +11,7 @@ import com.vincentbrison.openlibraries.android.dualcache.lib.ramlrucache.StringL
 public class DualCacheBuilder<T> {
 
     private DualCache<T> mDualCache;
+    private Class<T> clazz;
 
     /**
      * Start the building of the cache.
@@ -18,6 +20,7 @@ public class DualCacheBuilder<T> {
      * @param clazz is the class of object to store in cache.
      */
     public DualCacheBuilder(String id, int appVersion, Class<T> clazz, boolean isLogEnable) {
+        this.clazz = clazz;
         mDualCache = new DualCache<>(id, appVersion, clazz, new DualCacheLogger(isLogEnable));
     }
 
@@ -27,9 +30,10 @@ public class DualCacheBuilder<T> {
      * @return the builder for the disk cache layer.
      */
     public DualCacheDiskBuilder<T> useDefaultSerializerInRam(int maxRamSize) {
-        mDualCache.setRAMMode(DualCache.DualCacheRAMMode.ENABLE_WITH_DEFAULT_SERIALIZER);
+        mDualCache.setRAMMode(DualCache.DualCacheRAMMode.ENABLE_WITH_CUSTOM_SERIALIZER);
         mDualCache.setRamCacheLru(new StringLRUCache(maxRamSize));
-        return new DualCacheDiskBuilder<>(mDualCache);
+        mDualCache.setRAMSerializer(new JsonSerializer<>(clazz));
+        return new DualCacheDiskBuilder<>(mDualCache, clazz);
     }
 
     /**
@@ -42,7 +46,7 @@ public class DualCacheBuilder<T> {
         mDualCache.setRAMMode(DualCache.DualCacheRAMMode.ENABLE_WITH_CUSTOM_SERIALIZER);
         mDualCache.setRamCacheLru(new StringLRUCache(maxRamSize));
         mDualCache.setRAMSerializer(serializer);
-        return new DualCacheDiskBuilder<>(mDualCache);
+        return new DualCacheDiskBuilder<>(mDualCache, clazz);
     }
 
     /**
@@ -54,7 +58,7 @@ public class DualCacheBuilder<T> {
     public DualCacheDiskBuilder<T> useReferenceInRam(int maxRamSize, RamSizeOf<T> handlerRamSizeOf) {
         mDualCache.setRAMMode(DualCache.DualCacheRAMMode.ENABLE_WITH_REFERENCE);
         mDualCache.setRamCacheLru(new ReferenceLRUCache<T>(maxRamSize, handlerRamSizeOf));
-        return new DualCacheDiskBuilder<>(mDualCache);
+        return new DualCacheDiskBuilder<>(mDualCache, clazz);
     }
 
     /**
@@ -63,7 +67,7 @@ public class DualCacheBuilder<T> {
      */
     public DualCacheDiskBuilder<T> noRam() {
         mDualCache.setRAMMode(DualCache.DualCacheRAMMode.DISABLE);
-        return new DualCacheDiskBuilder<>(mDualCache);
+        return new DualCacheDiskBuilder<>(mDualCache, clazz);
     }
 
 }

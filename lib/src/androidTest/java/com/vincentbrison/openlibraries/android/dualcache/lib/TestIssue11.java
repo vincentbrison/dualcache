@@ -27,7 +27,7 @@ public class TestIssue11 extends AndroidTestCase {
         super.setUp();
         setContext(InstrumentationRegistry.getTargetContext());
         File cacheDir = new File(mContext.getCacheDir(), CACHE_NAME);
-        mCache = new DualCacheBuilder<>(CACHE_NAME, 0, String.class, true)
+        mCache = new DualCacheBuilder<>(CACHE_NAME, 0, String.class, false)
             .useDefaultSerializerInRam(CACHE_RAM_ENTRIES)
             .useDefaultSerializerInDisk(CACHE_SIZE, cacheDir, getContext());
     }

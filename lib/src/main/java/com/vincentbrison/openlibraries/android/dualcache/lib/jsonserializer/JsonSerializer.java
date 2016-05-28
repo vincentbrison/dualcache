@@ -1,5 +1,7 @@
 package com.vincentbrison.openlibraries.android.dualcache.lib.jsonserializer;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vincentbrison.openlibraries.android.dualcache.lib.Serializer;
@@ -13,6 +15,9 @@ public class JsonSerializer<T> implements Serializer<T> {
     public JsonSerializer(Class<T> clazz) {
         this.clazz = clazz;
         mapper = new ObjectMapper();
+        mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
+        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
     }
 
     @Override
