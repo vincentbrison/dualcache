@@ -14,6 +14,6 @@ public class RamReferenceDiskCustomSerializer extends DualCacheTest {
         super.setUp();
         mCache = new DualCacheBuilder<AbstractVehicule>(CACHE_NAME, TEST_APP_VERSION, AbstractVehicule.class, true)
                 .useReferenceInRam(RAM_MAX_SIZE, new SizeOfVehiculeForTesting())
-                .useCustomSerializerInDisk(DISK_MAX_SIZE, true, new DualCacheTest.SerializerForTesting(), getContext());
+                .useSerializerInDisk(DISK_MAX_SIZE, true, new DualCacheTest.SerializerForTesting(), getContext());
     }
 }

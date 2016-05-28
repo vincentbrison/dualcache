@@ -14,15 +14,13 @@ import java.io.IOException;
 public class DualCacheDiskBuilder<T> {
 
     private DualCache<T> mDualCache;
-    private Class<T> clazz;
 
     /**
      * Construct this builder.
      * @param dualCache is the dualcache to configure.
      */
-    protected DualCacheDiskBuilder(DualCache<T> dualCache, Class<T> clazz) {
+    protected DualCacheDiskBuilder(DualCache<T> dualCache) {
         mDualCache = dualCache;
-        this.clazz = clazz;
     }
 
     /**
@@ -33,11 +31,11 @@ public class DualCacheDiskBuilder<T> {
      * @param context is used to access file system.
      * @return the "ready to use" dualcache.
      */
-    public DualCache<T> useCustomSerializerInDisk(
+    public DualCache<T> useSerializerInDisk(
         int maxDiskSize, boolean usePrivateFiles, CacheSerializer<T> serializer, Context context
     ) {
         File folder = getDefaultDiskCacheFolder(usePrivateFiles, context);
-        return useCustomSerializerInDiskIfProvided(maxDiskSize, folder, serializer, context);
+        return useSerializerInDiskIfProvided(maxDiskSize, folder, serializer, context);
     }
 
     /**
@@ -48,10 +46,10 @@ public class DualCacheDiskBuilder<T> {
      * @param context is used to access file system.
      * @return the "ready to use" dualcache.
      */
-    public DualCache<T> useCustomSerializerInDisk(
+    public DualCache<T> useSerializerInDisk(
         int maxDiskSize, File diskCacheFolder, CacheSerializer<T> serializer, Context context
     ) {
-        return useCustomSerializerInDiskIfProvided(maxDiskSize, diskCacheFolder, serializer, context);
+        return useSerializerInDiskIfProvided(maxDiskSize, diskCacheFolder, serializer, context);
     }
 
     private File getDefaultDiskCacheFolder(boolean usePrivateFiles, Context context) {
@@ -70,7 +68,7 @@ public class DualCacheDiskBuilder<T> {
         return folder;
     }
 
-    private DualCache<T> useCustomSerializerInDiskIfProvided(
+    private DualCache<T> useSerializerInDiskIfProvided(
         int maxDiskSize, File diskCacheFolder, CacheSerializer<T> serializer, Context context
     ) {
         File crtDiskCacheFolder = diskCacheFolder;
