@@ -10,12 +10,12 @@ public interface Serializer<T> {
      * @param data is the string representing the serialized data.
      * @return the deserialized data.
      */
-    public T fromString(String data);
+    T fromString(String data);
 
     /**
      * Serialization of an object into String.
      * @param object is the object to serialize.
      * @return the result of the serialization into a String.
      */
-    public String toString(T object);
+    String toString(T object);
 }

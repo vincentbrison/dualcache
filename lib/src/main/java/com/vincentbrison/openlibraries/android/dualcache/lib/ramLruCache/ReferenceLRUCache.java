@@ -1,4 +1,6 @@
-package com.vincentbrison.openlibraries.android.dualcache.lib;
+package com.vincentbrison.openlibraries.android.dualcache.lib.ramLruCache;
+
+import com.vincentbrison.openlibraries.android.dualcache.lib.SizeOf;
 
 /**
  * This is the LRU cache used for the RAM layer when configured to used references.

@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jakewharton.disklrucache.DiskLruCache;
+import com.vincentbrison.openlibraries.android.dualcache.lib.ramLruCache.CustomLruCache;
 
 import java.io.File;
 import java.io.IOException;
@@ -158,6 +159,7 @@ public class DualCache<T> {
 
     private final ConcurrentMap<String, Lock> mEditionLocks = new ConcurrentHashMap<>();
     private ReadWriteLock mInvalidationReadWriteLock = new ReentrantReadWriteLock();
+    private final DualCacheLogger logger;
 
     static {
         sMapper = new ObjectMapper();
@@ -168,15 +170,16 @@ public class DualCache<T> {
 
     /**
      * Constructor which only set global parameter of the cache.
-     *
-     * @param id         is the id of the cache.
+     *  @param id         is the id of the cache.
      * @param appVersion is the app version of the app. (Data in disk cache will be invalidate if their app version is inferior than this app version.
      * @param clazz      is the Class of object to store in cache.
+     * @param logger
      */
-    protected DualCache(String id, int appVersion, Class clazz) {
+    DualCache(String id, int appVersion, Class clazz, DualCacheLogger logger) {
         mId = id;
         mAppVersion = appVersion;
         mClazz = clazz;
+        this.logger = logger;
     }
 
     protected int getAppVersion() {
@@ -303,7 +306,7 @@ public class DualCache<T> {
                 editor.set(0, mDiskSerializer.toString(object));
                 editor.commit();
             } catch (IOException e) {
-                DualCacheLogUtils.logError(e);
+                logger.logError(e);
             } finally {
                 getLockForGivenEntry(key).unlock();
                 mInvalidationReadWriteLock.readLock().unlock();
@@ -314,7 +317,7 @@ public class DualCache<T> {
             try {
                 jsonStringObject = sMapper.writeValueAsString(object);
             } catch (JsonProcessingException e) {
-                DualCacheLogUtils.logError(e);
+                logger.logError(e);
             }
 
             if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_DEFAULT_SERIALIZER)) {
@@ -330,7 +333,7 @@ public class DualCache<T> {
                     editor.commit();
 
                 } catch (IOException e) {
-                    DualCacheLogUtils.logError(e);
+                    logger.logError(e);
                 } finally {
                     getLockForGivenEntry(key).unlock();
                     mInvalidationReadWriteLock.readLock().unlock();
@@ -365,7 +368,7 @@ public class DualCache<T> {
                     getLockForGivenEntry(key).lock();
                     snapshotObject = mDiskLruCache.get(key);
                 } catch (IOException e) {
-                    DualCacheLogUtils.logError(e);
+                    logger.logError(e);
                 } finally {
                     getLockForGivenEntry(key).unlock();
                     mInvalidationReadWriteLock.readLock().unlock();
@@ -376,7 +379,7 @@ public class DualCache<T> {
                     try {
                         diskResult = snapshotObject.getString(0);
                     } catch (IOException e) {
-                        DualCacheLogUtils.logError(e);
+                        logger.logError(e);
                     }
                 } else {
                     logEntryForKeyIsNotOnDisk(key);
@@ -400,7 +403,7 @@ public class DualCache<T> {
                                     sMapper.writeValueAsString(objectFromStringDisk
                                     ));
                         } catch (JsonProcessingException e) {
-                            DualCacheLogUtils.logError(e);
+                            logger.logError(e);
                         }
                     }
                 } else if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_REFERENCE)) {
@@ -410,7 +413,7 @@ public class DualCache<T> {
                             objectFromJsonDisk = sMapper.readValue(diskResult, mClazz);
                             mRamCacheLru.put(key, objectFromJsonDisk);
                         } catch (IOException e) {
-                            DualCacheLogUtils.logError(e);
+                            logger.logError(e);
                         }
                     } else if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
                         // Need to get an instance from string.
@@ -426,7 +429,7 @@ public class DualCache<T> {
                             objectFromJsonDisk = sMapper.readValue(diskResult, mClazz);
                             mRamCacheLru.put(key, mRamSerializer.toString(objectFromJsonDisk));
                         } catch (IOException e) {
-                            DualCacheLogUtils.logError(e);
+                            logger.logError(e);
                         }
                     } else if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
                         // Need to get an instance from string.
@@ -443,7 +446,7 @@ public class DualCache<T> {
                         }
                         return objectFromJsonDisk;
                     } catch (IOException e) {
-                        DualCacheLogUtils.logError(e);
+                        logger.logError(e);
                     }
                 } else if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
                     if (objectFromStringDisk == null) {
@@ -458,7 +461,7 @@ public class DualCache<T> {
                 try {
                     return sMapper.readValue((String) ramResult, mClazz);
                 } catch (IOException e) {
-                    DualCacheLogUtils.logError(e);
+                    logger.logError(e);
                 }
             } else if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_REFERENCE)) {
                 return (T) ramResult;
@@ -494,7 +497,7 @@ public class DualCache<T> {
                 getLockForGivenEntry(key).lock();
                 mDiskLruCache.remove(key);
             } catch (IOException e) {
-                DualCacheLogUtils.logError(e);
+                logger.logError(e);
             } finally {
                 getLockForGivenEntry(key).unlock();
                 mInvalidationReadWriteLock.readLock().unlock();
@@ -529,7 +532,7 @@ public class DualCache<T> {
                 mDiskLruCache.delete();
                 mDiskLruCache = DiskLruCache.open(mDiskCacheFolder, mAppVersion, 1, mDiskCacheSizeInBytes);
             } catch (IOException e) {
-                DualCacheLogUtils.logError(e);
+                logger.logError(e);
             } finally {
                 mInvalidationReadWriteLock.writeLock().unlock();
             }
@@ -547,22 +550,22 @@ public class DualCache<T> {
 
     // Logging helpers
     private void logEntrySavedForKey(String key) {
-        DualCacheLogUtils.logInfo(LOG_PREFIX + key + " is saved in cache.");
+        logger.logInfo(LOG_PREFIX + key + " is saved in cache.");
     }
 
     private void logEntryForKeyIsInRam(String key) {
-        DualCacheLogUtils.logInfo(LOG_PREFIX + key + " is in RAM.");
+        logger.logInfo(LOG_PREFIX + key + " is in RAM.");
     }
 
     private void logEntryForKeyIsNotInRam(String key) {
-        DualCacheLogUtils.logInfo(LOG_PREFIX + key + " is not in RAM.");
+        logger.logInfo(LOG_PREFIX + key + " is not in RAM.");
     }
 
     private void logEntryForKeyIsOnDisk(String key) {
-        DualCacheLogUtils.logInfo(LOG_PREFIX + key + " is on disk.");
+        logger.logInfo(LOG_PREFIX + key + " is on disk.");
     }
 
     private void logEntryForKeyIsNotOnDisk(String key) {
-        DualCacheLogUtils.logInfo(LOG_PREFIX + key + " is not on disk.");
+        logger.logInfo(LOG_PREFIX + key + " is not on disk.");
     }
 }

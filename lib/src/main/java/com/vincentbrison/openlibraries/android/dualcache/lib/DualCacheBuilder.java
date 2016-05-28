@@ -1,5 +1,8 @@
 package com.vincentbrison.openlibraries.android.dualcache.lib;
 
+import com.vincentbrison.openlibraries.android.dualcache.lib.ramLruCache.ReferenceLRUCache;
+import com.vincentbrison.openlibraries.android.dualcache.lib.ramLruCache.StringLRUCache;
+
 /**
  * Class used to build a cache.
  * @param <T> is the class of object to store in cache.
@@ -14,8 +17,8 @@ public class DualCacheBuilder<T> {
      * @param appVersion is the app version of the app. If data are already stored in disk cache with previous app version, it will be invalidate.
      * @param clazz is the class of object to store in cache.
      */
-    public DualCacheBuilder(String id, int appVersion, Class<T> clazz) {
-        mDualCache = new DualCache<T>(id, appVersion, clazz);
+    public DualCacheBuilder(String id, int appVersion, Class<T> clazz, boolean isLogEnable) {
+        mDualCache = new DualCache<T>(id, appVersion, clazz, new DualCacheLogger(isLogEnable));
     }
 
     /**

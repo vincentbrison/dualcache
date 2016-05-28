@@ -68,9 +68,9 @@ public class DemoActivity extends Activity {
         mDiskCacheSize = getIntent().getIntExtra(EXTRA_DISK_CACHE_SIZE, 100);
         mRamCacheSize = getIntent().getIntExtra(EXTRA_RAM_CACHE_SIZE, 50);
 
-        mCache = new DualCacheBuilder<String>(mCacheId, 1, String.class)
+        mCache = new DualCacheBuilder<>(mCacheId, 1, String.class, true)
                 .useDefaultSerializerInRam(mRamCacheSize)
-                .useDefaultSerializerInDisk(mDiskCacheSize, true);
+                .useDefaultSerializerInDisk(mDiskCacheSize, true, getApplicationContext());
 
         mHandler = new Handler();
         mHandler.post(new Runnable() {

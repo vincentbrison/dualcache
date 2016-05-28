@@ -8,8 +8,6 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.vb.openlibraries.android.dualcache.R;
-import com.vincentbrison.openlibraries.android.dualcache.lib.DualCacheContextUtils;
-import com.vincentbrison.openlibraries.android.dualcache.lib.DualCacheLogUtils;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -32,9 +30,6 @@ public class SettingsActivity extends Activity {
 
         setContentView(R.layout.activity_settings);
         ButterKnife.inject(this);
-
-        DualCacheLogUtils.enableLog();
-        DualCacheContextUtils.setContext(getApplicationContext());
 
         mButtonDemo.setOnClickListener(new View.OnClickListener() {
             @Override

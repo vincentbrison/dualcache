@@ -11,5 +11,5 @@ public interface SizeOf<T> {
      * @param object on which the computation has to be done.
      * @return the size in bytes of the object in RAM.
      */
-    public int sizeOf(T object);
+    int sizeOf(T object);
 }
