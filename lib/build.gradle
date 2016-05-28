@@ -4,12 +4,12 @@ apply from: 'maven_push.gradle'
 
 android {
 
-    compileSdkVersion 21
+    compileSdkVersion 23
     buildToolsVersion '21.1.2'
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 21
+        targetSdkVersion 23
         versionCode 1
         versionName project.VERSION_NAME
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
