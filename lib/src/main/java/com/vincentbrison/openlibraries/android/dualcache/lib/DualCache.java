@@ -17,7 +17,7 @@
 package com.vincentbrison.openlibraries.android.dualcache.lib;
 
 import com.jakewharton.disklrucache.DiskLruCache;
-import com.vincentbrison.openlibraries.android.dualcache.lib.ramlrucache.CustomLruCache;
+import com.vincentbrison.openlibraries.android.dualcache.lib.ramlrucache.RamLruCache;
 
 import java.io.File;
 import java.io.IOException;
@@ -88,7 +88,7 @@ public class DualCache<T> {
     /**
      * RAM cache.
      */
-    private CustomLruCache mRamCacheLru;
+    private RamLruCache mRamCacheLru;
 
     /**
      * Disk cache.
@@ -173,7 +173,7 @@ public class DualCache<T> {
         mDiskSerializer = diskSerializer;
     }
 
-    protected void setRamCacheLru(CustomLruCache ramLruCache) {
+    protected void setRamCacheLru(RamLruCache ramLruCache) {
         mRamCacheLru = ramLruCache;
     }
 
@@ -256,7 +256,7 @@ public class DualCache<T> {
         }
 
         if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
-            mRamCacheLru.put(key, mRamSerializer.toString(object));
+            mRamCacheLru.put(key, mRamSerializer.toBytes(object));
         }
 
         if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
@@ -264,7 +264,7 @@ public class DualCache<T> {
                 mInvalidationReadWriteLock.readLock().lock();
                 getLockForGivenEntry(key).lock();
                 DiskLruCache.Editor editor = mDiskLruCache.edit(key);
-                editor.set(0, mDiskSerializer.toString(object));
+                editor.set(0, new String(mDiskSerializer.toBytes(object)));
                 editor.commit();
             } catch (IOException e) {
                 logger.logError(e);
@@ -284,7 +284,7 @@ public class DualCache<T> {
     public T get(String key) {
 
         Object ramResult = null;
-        String diskResult = null;
+        byte[] diskResult = null;
         DiskLruCache.Snapshot snapshotObject = null;
 
         // Try to get the object from RAM.
@@ -310,7 +310,7 @@ public class DualCache<T> {
                 if (snapshotObject != null) {
                     logEntryForKeyIsOnDisk(key);
                     try {
-                        diskResult = snapshotObject.getString(0);
+                        diskResult = snapshotObject.getString(0).getBytes();
                     } catch (IOException e) {
                         logger.logError(e);
                     }
@@ -328,7 +328,7 @@ public class DualCache<T> {
                     if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
                         // Need to get an instance from string.
                         if (objectFromStringDisk == null) {
-                            objectFromStringDisk = mDiskSerializer.fromString(diskResult);
+                            objectFromStringDisk = mDiskSerializer.fromBytes(diskResult);
                         }
                         mRamCacheLru.put(key, objectFromStringDisk);
                     }
@@ -336,14 +336,14 @@ public class DualCache<T> {
                     if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
                         // Need to get an instance from string.
                         if (objectFromStringDisk == null) {
-                            objectFromStringDisk = mDiskSerializer.fromString(diskResult);
+                            objectFromStringDisk = mDiskSerializer.fromBytes(diskResult);
                         }
-                        mRamCacheLru.put(key, mRamSerializer.toString(objectFromStringDisk));
+                        mRamCacheLru.put(key, mRamSerializer.toBytes(objectFromStringDisk));
                     }
                 }
                 if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
                     if (objectFromStringDisk == null) {
-                        objectFromStringDisk = mDiskSerializer.fromString(diskResult);
+                        objectFromStringDisk = mDiskSerializer.fromBytes(diskResult);
                     }
                     return objectFromStringDisk;
                 }
@@ -353,7 +353,7 @@ public class DualCache<T> {
             if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_REFERENCE)) {
                 return (T) ramResult;
             } else if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
-                return mRamSerializer.fromString((String) ramResult);
+                return mRamSerializer.fromBytes((byte[]) ramResult);
             }
         }
 

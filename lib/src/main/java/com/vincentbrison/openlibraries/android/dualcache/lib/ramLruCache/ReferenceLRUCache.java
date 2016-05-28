@@ -6,7 +6,7 @@ import com.vincentbrison.openlibraries.android.dualcache.lib.RamSizeOf;
  * This is the LRU cache used for the RAM layer when configured to used references.
  * @param <T> is the class of object stored in the cache.
  */
-public class ReferenceLRUCache<T> extends CustomLruCache<String, T> {
+public class ReferenceLRUCache<T> extends RamLruCache<String, T> {
 
     private RamSizeOf<T> mHandlerRamSizeOf;
 

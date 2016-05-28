@@ -21,7 +21,7 @@ public class JsonSerializer<T> implements Serializer<T> {
     }
 
     @Override
-    public T fromString(String data) {
+    public T fromBytes(byte[] data) {
         try {
             return mapper.readValue(data, clazz);
         } catch (IOException e) {
@@ -31,9 +31,9 @@ public class JsonSerializer<T> implements Serializer<T> {
     }
 
     @Override
-    public String toString(T object) {
+    public byte[] toBytes(T object) {
         try {
-            return mapper.writeValueAsString(object);
+            return mapper.writeValueAsBytes(object);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }

@@ -7,15 +7,15 @@ package com.vincentbrison.openlibraries.android.dualcache.lib;
 public interface Serializer<T> {
     /**
      * Deserialization of a String into an object.
-     * @param data is the string representing the serialized data.
+     * @param data is the byte array representing the serialized data.
      * @return the deserialized data.
      */
-    T fromString(String data);
+    T fromBytes(byte[] data);
 
     /**
      * Serialization of an object into String.
      * @param object is the object to serialize.
-     * @return the result of the serialization into a String.
+     * @return the result of the serialization into a byte array.
      */
-    String toString(T object);
+    byte[] toBytes(T object);
 }

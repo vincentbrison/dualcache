@@ -16,13 +16,10 @@
 
 package com.vincentbrison.openlibraries.android.dualcache.lib.ramlrucache;
 
-import java.nio.charset.Charset;
-
-
 /**
  * LRU cache used by the RAM cache layer when storing serialized object.
  */
-public class StringLRUCache extends CustomLruCache<String, String> {
+public class StringLRUCache extends RamLruCache<String, byte[]> {
 
     /**
      * @param maxSize for caches that do not override {@link #sizeOf}, this is
@@ -34,7 +31,7 @@ public class StringLRUCache extends CustomLruCache<String, String> {
     }
 
     @Override
-    protected int sizeOf(String key, String value) {
-        return value.getBytes(Charset.forName("UTF-8")).length;
+    protected int sizeOf(String key, byte[] value) {
+        return value.length;
     }
 }
