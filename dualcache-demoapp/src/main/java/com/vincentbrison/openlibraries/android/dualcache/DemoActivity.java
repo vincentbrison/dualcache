@@ -68,9 +68,11 @@ public class DemoActivity extends Activity {
 
         CacheSerializer<String> jsonSerializer = new JsonSerializer<>(String.class);
 
-        mCache = new DualCacheBuilder<>(mCacheId, 1, String.class, true)
+        mCache = new DualCacheBuilder<>(mCacheId, 1, String.class)
+            .logEnabled(true)
             .useSerializerInRam(mRamCacheSize, jsonSerializer)
-            .useSerializerInDisk(mDiskCacheSize, true, jsonSerializer, getApplicationContext());
+            .useSerializerInDisk(mDiskCacheSize, true, jsonSerializer, getApplicationContext())
+            .build();
 
         mHandler = new Handler();
         mHandler.post(new Runnable() {

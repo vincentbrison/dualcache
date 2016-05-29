@@ -9,8 +9,10 @@ public class RamReferenceDiskDefaultSerializer extends DualCacheTest {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        mCache = new DualCacheBuilder<AbstractVehicule>(CACHE_NAME, TEST_APP_VERSION, AbstractVehicule.class, true)
-                .useReferenceInRam(RAM_MAX_SIZE, new SizeOfVehiculeForTesting())
-                .useSerializerInDisk(DISK_MAX_SIZE, true, defaultCacheSerializer, getContext());
+        mCache = new DualCacheBuilder<AbstractVehicule>(CACHE_NAME, TEST_APP_VERSION, AbstractVehicule.class)
+            .logEnabled(true)
+            .useReferenceInRam(RAM_MAX_SIZE, new SizeOfVehiculeForTesting())
+            .useSerializerInDisk(DISK_MAX_SIZE, true, defaultCacheSerializer, getContext())
+            .build();
     }
 }

@@ -19,14 +19,14 @@ package com.vincentbrison.openlibraries.android.dualcache.ramlrucache;
 /**
  * LRU cache used by the RAM cache layer when storing serialized object.
  */
-public class StringLRUCache extends RamLruCache<String, byte[]> {
+public class BytesLRUCache extends RamLruCache<String, byte[]> {
 
     /**
      * @param maxSize for caches that do not override {@link #sizeOf}, this is
      *                the maximum number of entries in the cache. For all other caches,
      *                this is the maximum sum of the sizes of the entries in this cache.
      */
-    public StringLRUCache(int maxSize) {
+    public BytesLRUCache(int maxSize) {
         super(maxSize);
     }
 
