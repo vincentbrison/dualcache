@@ -139,7 +139,7 @@ public class DualCache<T> {
 
     private final ConcurrentMap<String, Lock> mEditionLocks = new ConcurrentHashMap<>();
     private ReadWriteLock mInvalidationReadWriteLock = new ReentrantReadWriteLock();
-    private final DualCacheLogger logger;
+    private final Logger logger;
 
     /**
      * Constructor which only set global parameter of the cache.
@@ -150,7 +150,7 @@ public class DualCache<T> {
      * @param clazz      is the Class of object to store in cache.
      * @param logger
      */
-    DualCache(String id, int appVersion, Class clazz, DualCacheLogger logger) {
+    DualCache(String id, int appVersion, Class clazz, Logger logger) {
         mId = id;
         mAppVersion = appVersion;
         mClazz = clazz;

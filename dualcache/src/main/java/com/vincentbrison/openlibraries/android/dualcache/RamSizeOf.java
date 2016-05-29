@@ -7,7 +7,7 @@ package com.vincentbrison.openlibraries.android.dualcache;
 public interface RamSizeOf<T> {
 
     /**
-     * Compute the amount of RAM used by this object.
+     * Compute the amount of RAM in bytes used by this object.
      * @param object on which the computation has to be done.
      * @return the size in bytes of the object in RAM.
      */

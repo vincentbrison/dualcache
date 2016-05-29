@@ -5,7 +5,7 @@ import android.test.AndroidTestCase;
 
 import com.vincentbrison.openlibraries.android.dualcache.CacheSerializer;
 import com.vincentbrison.openlibraries.android.dualcache.DualCache;
-import com.vincentbrison.openlibraries.android.dualcache.DualCacheBuilder;
+import com.vincentbrison.openlibraries.android.dualcache.Builder;
 import com.vincentbrison.openlibraries.android.dualcache.JsonSerializer;
 
 import org.junit.After;
@@ -33,7 +33,7 @@ public class TestIssue11 extends AndroidTestCase {
         setContext(InstrumentationRegistry.getTargetContext());
         File cacheDir = new File(mContext.getCacheDir(), CACHE_NAME);
         CacheSerializer<String> jsonSerializer = new JsonSerializer<>(String.class);
-        mCache = new DualCacheBuilder<>(CACHE_NAME, 0, String.class)
+        mCache = new Builder<>(CACHE_NAME, 0, String.class)
             .logEnabled(false)
             .useSerializerInRam(CACHE_RAM_ENTRIES, jsonSerializer)
             .useSerializerInDisk(CACHE_SIZE, cacheDir, jsonSerializer)

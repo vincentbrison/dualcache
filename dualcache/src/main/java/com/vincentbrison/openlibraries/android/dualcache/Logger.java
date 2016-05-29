@@ -22,12 +22,12 @@ import android.util.Log;
  * Created by Vincent Brison.
  * This class provide a log utility to the library.
  */
-final class DualCacheLogger {
+final class Logger {
 
     private static final String DEFAULT_LOG_TAG = "dualcache";
     private final boolean isLogEnable;
 
-    DualCacheLogger(boolean isLogEnable) {
+    Logger(boolean isLogEnable) {
         this.isLogEnable = isLogEnable;
     }
 

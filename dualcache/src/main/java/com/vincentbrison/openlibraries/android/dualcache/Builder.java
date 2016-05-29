@@ -13,7 +13,7 @@ import java.io.IOException;
  * Class used to build a cache.
  * @param <T> is the class of object to store in cache.
  */
-public class DualCacheBuilder<T> {
+public class Builder<T> {
 
     private String id;
     private int appVersion;
@@ -21,12 +21,12 @@ public class DualCacheBuilder<T> {
 
     private boolean logEnabled;
 
-    private int maxRamSize;
+    private int maxRamSizeBytes;
     private DualCache.DualCacheRAMMode ramMode;
     private CacheSerializer<T> ramSerializer;
     private RamSizeOf<T> ramSizeOf;
 
-    private int maxDiskSize;
+    private int maxDiskSizeBytes;
     private DualCache.DualCacheDiskMode diskMode;
     private CacheSerializer<T> diskSerializer;
     private File diskFolder;
@@ -38,7 +38,7 @@ public class DualCacheBuilder<T> {
      *                   with previous app version, it will be invalidate.
      * @param clazz is the class of object to store in cache.
      */
-    public DualCacheBuilder(String id, int appVersion, Class<T> clazz) {
+    public Builder(String id, int appVersion, Class<T> clazz) {
         this.id = id;
         this.appVersion = appVersion;
         this.clazz = clazz;
@@ -47,7 +47,7 @@ public class DualCacheBuilder<T> {
         this.logEnabled = false;
     }
 
-    public DualCacheBuilder<T> logEnabled(boolean logEnabled) {
+    public Builder<T> logEnabled(boolean logEnabled) {
         this.logEnabled = logEnabled;
         return this;
     }
@@ -61,16 +61,16 @@ public class DualCacheBuilder<T> {
         }
 
         DualCache<T> cache =
-            new DualCache<>(id, appVersion, clazz, new DualCacheLogger(logEnabled));
+            new DualCache<>(id, appVersion, clazz, new Logger(logEnabled));
 
         cache.setRAMMode(ramMode);
         switch (ramMode) {
             case ENABLE_WITH_CUSTOM_SERIALIZER:
                 cache.setRAMSerializer(ramSerializer);
-                cache.setRamCacheLru(new BytesLRUCache(maxRamSize));
+                cache.setRamCacheLru(new BytesLRUCache(maxRamSizeBytes));
                 break;
             case ENABLE_WITH_REFERENCE:
-                cache.setRamCacheLru(new ReferenceLRUCache<>(maxRamSize, ramSizeOf));
+                cache.setRamCacheLru(new ReferenceLRUCache<>(maxRamSizeBytes, ramSizeOf));
                 break;
         }
 
@@ -78,10 +78,10 @@ public class DualCacheBuilder<T> {
         switch (diskMode) {
             case ENABLE_WITH_CUSTOM_SERIALIZER:
                 cache.setDiskSerializer(this.diskSerializer);
-                cache.setDiskCacheSizeInBytes(this.maxDiskSize);
+                cache.setDiskCacheSizeInBytes(this.maxDiskSizeBytes);
                 try {
                     DiskLruCache diskLruCache =
-                        DiskLruCache.open(this.diskFolder, this.appVersion, 1, this.maxDiskSize);
+                        DiskLruCache.open(this.diskFolder, this.appVersion, 1, this.maxDiskSizeBytes);
                     cache.setDiskLruCache(diskLruCache);
                     cache.setDiskCacheFolder(this.diskFolder);
                 } catch (IOException e) {
@@ -103,16 +103,16 @@ public class DualCacheBuilder<T> {
 
     /**
      * Use Json serialization/deserialization to store and retrieve object from ram cache.
-     * @param maxRamSize is the max amount of ram which can be used by the ram cache.
+     * @param maxRamSizeBytes is the max amount of ram in bytes which can be used by the ram cache.
      * @param serializer is the cacheinterface with provide serialization/deserialization methods
      *                   for the ram cache layer.
      * @return the builder for the disk cache layer.
      */
-    public DualCacheBuilder<T> useSerializerInRam(
-        int maxRamSize, CacheSerializer<T> serializer
+    public Builder<T> useSerializerInRam(
+        int maxRamSizeBytes, CacheSerializer<T> serializer
     ) {
         this.ramMode = DualCache.DualCacheRAMMode.ENABLE_WITH_CUSTOM_SERIALIZER;
-        this.maxRamSize = maxRamSize;
+        this.maxRamSizeBytes = maxRamSizeBytes;
         this.ramSerializer = serializer;
         return this;
     }
@@ -120,16 +120,16 @@ public class DualCacheBuilder<T> {
     /**
      * Store directly object in ram. You have to provide a way to compute the size of an object in
      * ram to be able to used the LRU capacity of the ram cache.
-     * @param maxRamSize is the max amount of ram which can be used by the ram cache.
+     * @param maxRamSizeBytes is the max amount of ram which can be used by the ram cache.
      * @param handlerRamSizeOf is the cacheinterface which let compute the size of object stored in
      *                         ram.
      * @return the builder for the disk cache layer.
      */
-    public DualCacheBuilder<T> useReferenceInRam(
-        int maxRamSize, RamSizeOf<T> handlerRamSizeOf
+    public Builder<T> useReferenceInRam(
+        int maxRamSizeBytes, RamSizeOf<T> handlerRamSizeOf
     ) {
         this.ramMode = DualCache.DualCacheRAMMode.ENABLE_WITH_REFERENCE;
-        this.maxRamSize = maxRamSize;
+        this.maxRamSizeBytes = maxRamSizeBytes;
         this.ramSizeOf = handlerRamSizeOf;
         return this;
     }
@@ -138,39 +138,39 @@ public class DualCacheBuilder<T> {
      * The ram cache will not be used, meaning that only the disk cache will be used.
      * @return the builder for the disk cache layer.
      */
-    public DualCacheBuilder<T> noRam() {
+    public Builder<T> noRam() {
         this.ramMode = DualCache.DualCacheRAMMode.DISABLE;
         return this;
     }
 
     /**
      * Use custom serialization/deserialization to store and retrieve object from disk cache.
-     * @param maxDiskSize is the max size of disk in bytes which an be used by the disk cache layer.
+     * @param maxDiskSizeBytes is the max size of disk in bytes which an be used by the disk cache layer.
      * @param usePrivateFiles is true if you want to use {@link Context#MODE_PRIVATE} with the default disk cache folder.
      * @param serializer is the cacheinterface with provide serialization/deserialization methods for the disk cache layer.
      * @param context is used to access file system.
      * @return the "ready to use" dualcache.
      */
-    public DualCacheBuilder<T> useSerializerInDisk(
-        int maxDiskSize, boolean usePrivateFiles, CacheSerializer<T> serializer, Context context
+    public Builder<T> useSerializerInDisk(
+        int maxDiskSizeBytes, boolean usePrivateFiles, CacheSerializer<T> serializer, Context context
     ) {
         File folder = getDefaultDiskCacheFolder(usePrivateFiles, context);
-        return useSerializerInDisk(maxDiskSize, folder, serializer);
+        return useSerializerInDisk(maxDiskSizeBytes, folder, serializer);
     }
 
     /**
      * Use custom serialization/deserialization to store and retrieve object from disk cache.
-     * @param maxDiskSize is the max size of disk in bytes which an be used by the disk cache layer.
+     * @param maxDiskSizeBytes is the max size of disk in bytes which an be used by the disk cache layer.
      * @param diskCacheFolder is the folder where the disk cache will be stored.
      * @param serializer is the cacheinterface with provide serialization/deserialization methods for the disk cache layer.
      * @return the "ready to use" dualcache.
      */
-    public DualCacheBuilder<T> useSerializerInDisk(
-        int maxDiskSize, File diskCacheFolder, CacheSerializer<T> serializer
+    public Builder<T> useSerializerInDisk(
+        int maxDiskSizeBytes, File diskCacheFolder, CacheSerializer<T> serializer
     ) {
         this.diskFolder = diskCacheFolder;
         this.diskMode = DualCache.DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER;
-        this.maxDiskSize = maxDiskSize;
+        this.maxDiskSizeBytes = maxDiskSizeBytes;
         this.diskSerializer = serializer;
         return this;
     }
@@ -195,7 +195,7 @@ public class DualCacheBuilder<T> {
      * Use this if you do not want use the disk cache layer, meaning that only the ram cache layer will be used.
      * @return the "ready to use" dualcache.
      */
-    public DualCacheBuilder<T> noDisk() {
+    public Builder<T> noDisk() {
         this.diskMode = DualCache.DualCacheDiskMode.DISABLE;
         return this;
     }
