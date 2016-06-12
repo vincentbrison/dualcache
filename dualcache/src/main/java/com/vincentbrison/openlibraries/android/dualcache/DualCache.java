@@ -17,7 +17,6 @@
 package com.vincentbrison.openlibraries.android.dualcache;
 
 import com.jakewharton.disklrucache.DiskLruCache;
-import com.vincentbrison.openlibraries.android.dualcache.ramlrucache.RamLruCache;
 
 import java.io.File;
 import java.io.IOException;
@@ -131,7 +130,7 @@ public class DualCache<T> {
      * {@link DualCache
      * .DualCacheRAMMode#ENABLE_WITH_REFERENCE}
      */
-    private RamSizeOf<T> mHandlerRamSizeOf;
+    private SizeOf<T> mHandlerSizeOf;
 
     private CacheSerializer<T> mDiskSerializer;
 

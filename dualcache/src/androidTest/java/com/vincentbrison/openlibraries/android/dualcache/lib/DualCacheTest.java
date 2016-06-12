@@ -7,7 +7,7 @@ import android.util.Log;
 
 import com.vincentbrison.openlibraries.android.dualcache.DualCache;
 import com.vincentbrison.openlibraries.android.dualcache.JsonSerializer;
-import com.vincentbrison.openlibraries.android.dualcache.RamSizeOf;
+import com.vincentbrison.openlibraries.android.dualcache.SizeOf;
 import com.vincentbrison.openlibraries.android.dualcache.CacheSerializer;
 import com.vincentbrison.openlibraries.android.dualcache.lib.testobjects.AbstractVehicule;
 import com.vincentbrison.openlibraries.android.dualcache.lib.testobjects.CoolBike;
@@ -218,7 +218,7 @@ public abstract class DualCacheTest extends AndroidTestCase {
         }
     }
 
-    public static class SizeOfVehiculeForTesting implements RamSizeOf<AbstractVehicule> {
+    public static class SizeOfVehiculeForTesting implements SizeOf<AbstractVehicule> {
 
         @Override
         public int sizeOf(AbstractVehicule object) {

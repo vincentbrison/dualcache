@@ -19,8 +19,7 @@ package com.vincentbrison.openlibraries.android.dualcache;
 import android.util.Log;
 
 /**
- * Created by Vincent Brison.
- * This class provide a log utility to the library.
+ * This class provide a logging instance to the library.
  */
 final class Logger {
 
@@ -38,7 +37,7 @@ final class Logger {
     }
 
     /**
-     * Log with lvl info.
+     * Log with level info.
      * @param tag is the tag to used.
      * @param msg is the msg to log.
      */
@@ -55,7 +54,7 @@ final class Logger {
     }
 
     /**
-     * Log with lvl verbose and tag {@link #DEFAULT_LOG_TAG}.
+     * Log with level verbose and tag {@link #DEFAULT_LOG_TAG}.
      * @param msg is the msg to log.
      */
     void logVerbose(String msg) {
@@ -63,7 +62,7 @@ final class Logger {
     }
 
     /**
-     * Log with lvl warning and tag {@link #DEFAULT_LOG_TAG}.
+     * Log with level warning and tag {@link #DEFAULT_LOG_TAG}.
      * @param msg is the msg to log.
      */
     void logWarning(String msg) {
@@ -71,7 +70,7 @@ final class Logger {
     }
 
     /**
-     * Log with lvl error and tag {@link #DEFAULT_LOG_TAG}.
+     * Log with level error and tag {@link #DEFAULT_LOG_TAG}.
      * @param error is the error to log.
      */
     void logError(Throwable error) {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.vincentbrison.openlibraries.android.dualcache.ramlrucache;
+package com.vincentbrison.openlibraries.android.dualcache;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashMap;
@@ -60,7 +60,7 @@ import java.util.Map;
  * of <a href="http://developer.android.com/sdk/compatibility-library.html">Android's
  * Support Package</a> for earlier releases.
  */
-public class RamLruCache<K, V> {
+class RamLruCache<K, V> {
     private final LinkedHashMap<K, V> map;
 
     /** Size of this cache in units. Not necessarily the number of elements. */

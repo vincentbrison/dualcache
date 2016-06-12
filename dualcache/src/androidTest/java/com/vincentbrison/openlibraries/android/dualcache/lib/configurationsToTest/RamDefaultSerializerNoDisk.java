@@ -10,7 +10,7 @@ public class RamDefaultSerializerNoDisk extends DualCacheTest {
     public void setUp() throws Exception {
         super.setUp();
         mCache = new Builder<>(CACHE_NAME, TEST_APP_VERSION, AbstractVehicule.class)
-            .logEnabled(true)
+            .enableLog()
             .useSerializerInRam(RAM_MAX_SIZE, defaultCacheSerializer)
             .noDisk()
             .build();
