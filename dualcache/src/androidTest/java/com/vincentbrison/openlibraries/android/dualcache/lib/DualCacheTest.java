@@ -50,7 +50,7 @@ public abstract class DualCacheTest extends AndroidTestCase {
     public void testBasicOperations() throws Exception {
         CoolCar car = new CoolCar();
         mCache.put("key", car);
-        if (mCache.getRAMMode().equals(DualCache.DualCacheRAMMode.DISABLE) &&
+        if (mCache.getRAMMode().equals(DualCache.DualCacheRamMode.DISABLE) &&
                 mCache.getDiskMode().equals(DualCache.DualCacheDiskMode.DISABLE)) {
             assertNull(mCache.get("key"));
         } else {
@@ -65,7 +65,7 @@ public abstract class DualCacheTest extends AndroidTestCase {
         }
 
         mCache.put("key", car);
-        if (mCache.getRAMMode().equals(DualCache.DualCacheRAMMode.DISABLE) &&
+        if (mCache.getRAMMode().equals(DualCache.DualCacheRamMode.DISABLE) &&
                 mCache.getDiskMode().equals(DualCache.DualCacheDiskMode.DISABLE)) {
             assertNull(mCache.get("key"));
         } else {
@@ -78,7 +78,7 @@ public abstract class DualCacheTest extends AndroidTestCase {
         CoolBike bike = new CoolBike();
         mCache.put("car", car);
         mCache.put("bike", bike);
-        if (mCache.getRAMMode().equals(DualCache.DualCacheRAMMode.DISABLE) &&
+        if (mCache.getRAMMode().equals(DualCache.DualCacheRamMode.DISABLE) &&
                 mCache.getDiskMode().equals(DualCache.DualCacheDiskMode.DISABLE)) {
             assertNull(mCache.get("car"));
             assertNull(mCache.get("bike"));

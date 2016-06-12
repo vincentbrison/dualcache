@@ -20,7 +20,7 @@ public class Builder<T> {
     private Class<T> clazz;
     private boolean logEnabled;
     private int maxRamSizeBytes;
-    private DualCache.DualCacheRAMMode ramMode;
+    private DualCache.DualCacheRamMode ramMode;
     private CacheSerializer<T> ramSerializer;
     private SizeOf<T> sizeOf;
     private int maxDiskSizeBytes;
@@ -68,9 +68,9 @@ public class Builder<T> {
         DualCache<T> cache =
             new DualCache<>(id, appVersion, clazz, new Logger(logEnabled));
 
-        cache.setRAMMode(ramMode);
+        cache.setRamMode(ramMode);
         switch (ramMode) {
-            case ENABLE_WITH_CUSTOM_SERIALIZER:
+            case ENABLE_WITH_SPECIFIC_SERIALIZER:
                 cache.setRAMSerializer(ramSerializer);
                 cache.setRamCacheLru(new BytesLruCache(maxRamSizeBytes));
                 break;
@@ -81,7 +81,7 @@ public class Builder<T> {
 
         cache.setDiskMode(diskMode);
         switch (diskMode) {
-            case ENABLE_WITH_CUSTOM_SERIALIZER:
+            case ENABLE_WITH_SPECIFIC_SERIALIZER:
                 cache.setDiskSerializer(this.diskSerializer);
                 cache.setDiskCacheSizeInBytes(this.maxDiskSizeBytes);
                 try {
@@ -99,7 +99,7 @@ public class Builder<T> {
                 break;
         }
 
-        boolean isRamDisable = cache.getRAMMode().equals(DualCache.DualCacheRAMMode.DISABLE);
+        boolean isRamDisable = cache.getRAMMode().equals(DualCache.DualCacheRamMode.DISABLE);
         boolean isDiskDisable = cache.getDiskMode().equals(DualCache.DualCacheDiskMode.DISABLE);
 
         if (isRamDisable && isDiskDisable) {
@@ -120,7 +120,7 @@ public class Builder<T> {
     public Builder<T> useSerializerInRam(
         int maxRamSizeBytes, CacheSerializer<T> serializer
     ) {
-        this.ramMode = DualCache.DualCacheRAMMode.ENABLE_WITH_CUSTOM_SERIALIZER;
+        this.ramMode = DualCache.DualCacheRamMode.ENABLE_WITH_SPECIFIC_SERIALIZER;
         this.maxRamSizeBytes = maxRamSizeBytes;
         this.ramSerializer = serializer;
         return this;
@@ -137,7 +137,7 @@ public class Builder<T> {
     public Builder<T> useReferenceInRam(
         int maxRamSizeBytes, SizeOf<T> handlerSizeOf
     ) {
-        this.ramMode = DualCache.DualCacheRAMMode.ENABLE_WITH_REFERENCE;
+        this.ramMode = DualCache.DualCacheRamMode.ENABLE_WITH_REFERENCE;
         this.maxRamSizeBytes = maxRamSizeBytes;
         this.sizeOf = handlerSizeOf;
         return this;
@@ -148,7 +148,7 @@ public class Builder<T> {
      * @return the builder for the disk cache layer.
      */
     public Builder<T> noRam() {
-        this.ramMode = DualCache.DualCacheRAMMode.DISABLE;
+        this.ramMode = DualCache.DualCacheRamMode.DISABLE;
         return this;
     }
 
@@ -181,7 +181,7 @@ public class Builder<T> {
         int maxDiskSizeBytes, File diskCacheFolder, CacheSerializer<T> serializer
     ) {
         this.diskFolder = diskCacheFolder;
-        this.diskMode = DualCache.DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER;
+        this.diskMode = DualCache.DualCacheDiskMode.ENABLE_WITH_SPECIFIC_SERIALIZER;
         this.maxDiskSizeBytes = maxDiskSizeBytes;
         this.diskSerializer = serializer;
         return this;

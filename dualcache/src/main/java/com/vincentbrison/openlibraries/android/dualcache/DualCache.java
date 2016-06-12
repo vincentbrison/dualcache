@@ -28,9 +28,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Created by Vincent Brison.
- * This class intent to provide a very easy to use, reliable, highly configurable
- * caching library for Android.
+ * This class intent to provide a very easy to use, reliable, highly configurable caching library
+ * for Android.
  *
  * @param <T> is the Class of object to cache.
  */
@@ -39,14 +38,14 @@ public class DualCache<T> {
     /**
      * Define the behaviour of the RAM layer.
      */
-    public enum DualCacheRAMMode {
+    public enum DualCacheRamMode {
         /**
-         * Means that object will be serialized with a custom serializer in RAM.
+         * Means that object will be serialized with a specific serializer in RAM.
          */
-        ENABLE_WITH_CUSTOM_SERIALIZER,
+        ENABLE_WITH_SPECIFIC_SERIALIZER,
 
         /**
-         * Means that only reference to objects will be store in the RAM layer.
+         * Means that only references to objects will be stored in the RAM layer.
          */
         ENABLE_WITH_REFERENCE,
 
@@ -61,9 +60,9 @@ public class DualCache<T> {
      */
     public enum DualCacheDiskMode {
         /**
-         * Enable with custom mDiskSerializer
+         * Means that object will be serialized with a specific serializer in disk.
          */
-        ENABLE_WITH_CUSTOM_SERIALIZER,
+        ENABLE_WITH_SPECIFIC_SERIALIZER,
 
         /**
          * The disk layer is not used.
@@ -118,7 +117,7 @@ public class DualCache<T> {
     /**
      * By default the RAM layer use JSON serialization to store cached object.
      */
-    private DualCacheRAMMode mRAMMode;
+    private DualCacheRamMode mRamMode;
 
     /**
      * By default the disk layer use JSON serialization to store cached object.
@@ -212,8 +211,8 @@ public class DualCache<T> {
      *
      * @return the way objects are cached in RAM layer.
      */
-    public DualCacheRAMMode getRAMMode() {
-        return mRAMMode;
+    public DualCacheRamMode getRAMMode() {
+        return mRamMode;
     }
 
     /**
@@ -221,8 +220,8 @@ public class DualCache<T> {
      *
      * @param ramMode is the value to set.
      */
-    protected void setRAMMode(DualCacheRAMMode ramMode) {
-        this.mRAMMode = ramMode;
+    protected void setRamMode(DualCacheRamMode ramMode) {
+        this.mRamMode = ramMode;
     }
 
     protected void setDiskCacheSizeInBytes(int diskCacheSizeInBytes) {
@@ -255,15 +254,15 @@ public class DualCache<T> {
     public void put(String key, T object) {
         // Synchronize put on each entry. Gives concurrent editions on different entries, and atomic
         // modification on the same entry.
-        if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_REFERENCE)) {
+        if (mRamMode.equals(DualCacheRamMode.ENABLE_WITH_REFERENCE)) {
             mRamCacheLru.put(key, object);
         }
 
-        if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
+        if (mRamMode.equals(DualCacheRamMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
             mRamCacheLru.put(key, mRamSerializer.toBytes(object));
         }
 
-        if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
+        if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
             try {
                 mInvalidationReadWriteLock.readLock().lock();
                 getLockForGivenEntry(key).lock();
@@ -294,8 +293,8 @@ public class DualCache<T> {
         DiskLruCache.Snapshot snapshotObject = null;
 
         // Try to get the object from RAM.
-        boolean isRamSerialized = mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_CUSTOM_SERIALIZER);
-        boolean isRamReferenced = mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_REFERENCE);
+        boolean isRamSerialized = mRamMode.equals(DualCacheRamMode.ENABLE_WITH_SPECIFIC_SERIALIZER);
+        boolean isRamReferenced = mRamMode.equals(DualCacheRamMode.ENABLE_WITH_REFERENCE);
         if (isRamSerialized || isRamReferenced) {
             ramResult = mRamCacheLru.get(key);
         }
@@ -303,7 +302,7 @@ public class DualCache<T> {
         if (ramResult == null) {
             // Try to get the cached object from disk.
             logEntryForKeyIsNotInRam(key);
-            if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
+            if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
                 try {
                     mInvalidationReadWriteLock.readLock().lock();
                     getLockForGivenEntry(key).lock();
@@ -331,16 +330,16 @@ public class DualCache<T> {
 
             if (diskResult != null) {
                 // Refresh object in ram.
-                if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_REFERENCE)) {
-                    if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
+                if (mRamMode.equals(DualCacheRamMode.ENABLE_WITH_REFERENCE)) {
+                    if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
                         // Need to get an instance from string.
                         if (objectFromStringDisk == null) {
                             objectFromStringDisk = mDiskSerializer.fromBytes(diskResult);
                         }
                         mRamCacheLru.put(key, objectFromStringDisk);
                     }
-                } else if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
-                    if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
+                } else if (mRamMode.equals(DualCacheRamMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
+                    if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
                         // Need to get an instance from string.
                         if (objectFromStringDisk == null) {
                             objectFromStringDisk = mDiskSerializer.fromBytes(diskResult);
@@ -348,7 +347,7 @@ public class DualCache<T> {
                         mRamCacheLru.put(key, mRamSerializer.toBytes(objectFromStringDisk));
                     }
                 }
-                if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
+                if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
                     if (objectFromStringDisk == null) {
                         objectFromStringDisk = mDiskSerializer.fromBytes(diskResult);
                     }
@@ -357,9 +356,9 @@ public class DualCache<T> {
             }
         } else {
             logEntryForKeyIsInRam(key);
-            if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_REFERENCE)) {
+            if (mRamMode.equals(DualCacheRamMode.ENABLE_WITH_REFERENCE)) {
                 return (T) ramResult;
-            } else if (mRAMMode.equals(DualCacheRAMMode.ENABLE_WITH_CUSTOM_SERIALIZER)) {
+            } else if (mRamMode.equals(DualCacheRamMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
                 return mRamSerializer.fromBytes((byte[]) ramResult);
             }
         }
@@ -382,7 +381,7 @@ public class DualCache<T> {
      * @param key is the key of the object.
      */
     public void delete(String key) {
-        if (!mRAMMode.equals(DualCacheRAMMode.DISABLE)) {
+        if (!mRamMode.equals(DualCacheRamMode.DISABLE)) {
             mRamCacheLru.remove(key);
         }
         if (!mDiskMode.equals(DualCacheDiskMode.DISABLE)) {
@@ -411,7 +410,7 @@ public class DualCache<T> {
      * Remove all objects from RAM.
      */
     public void invalidateRAM() {
-        if (!mRAMMode.equals(DualCacheRAMMode.DISABLE)) {
+        if (!mRamMode.equals(DualCacheRamMode.DISABLE)) {
             mRamCacheLru.evictAll();
         }
     }

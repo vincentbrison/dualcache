@@ -1,7 +1,8 @@
 package com.vincentbrison.openlibraries.android.dualcache;
 
 /**
- * This cacheinterface describe the way an object should be serialized/deserialized into String.
+ * This cache interface describe the way an object should be serialized/deserialized into a
+ * byte array.
  * @param <T> is the class of object to serialized/deserialized.
  */
 public interface CacheSerializer<T> {
