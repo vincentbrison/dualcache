@@ -29,7 +29,7 @@ android {
 }
 
 dependencies {
-    compile project (':dualcache')
-    //compile 'com.vincentbrison.openlibraries.android:dualcache:3.0.0-SNAPSHOT'
+    compile 'com.vincentbrison.openlibraries.android:dualcache:3.0.0-SNAPSHOT'
+    compile 'com.vincentbrison.openlibraries.android:dualcache-jsonserializer:3.0.0-SNAPSHOT'
     compile 'com.jakewharton:butterknife:5.1.2'
 }
