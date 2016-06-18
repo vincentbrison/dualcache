@@ -59,6 +59,15 @@ to ask yourself anymore "Should I use this one or this one ? But this one is per
 With this library you only use one cache, with two layers, one in RAM, and one in Disk and you configure how they have to work
 to provide exactly what you need in term of caching for you application.
 
+What's new in 3.0.0
+===================
+- Only one dependency to [DiskLruCache](https://github.com/JakeWharton/DiskLruCache) because apk size matters.
+- Non coupled serializer, with cleaner implementation. Previously `default` json serializer
+is now a specific serializer which is available at `com.vincentbrison.openlibraries.android:dualcache-jsonserializer:3.0.0`.
+- Internal optimizations for better performances.
+- All the configuration is now done through `Builder`.
+- Better access modifiers to fully hide internal classes.
+
 Concurrent access
 =================
 Starting with version `2.2.1`, the cache is supporting concurrent access. You can perform whatever operations from multiple threads and the cache
