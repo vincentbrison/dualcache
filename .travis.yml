@@ -30,4 +30,4 @@ before_script:
 
 script:
   - ./gradlew dualcache:connectedAndroidTest -Ptravis --stacktrace
-  - ./gradlew dualcache:check -Ptravis --stacktrace
+  #- ./gradlew dualcache:check -Ptravis --stacktrace
