@@ -1,1 +1,1 @@
-include ':dualcache-demoapp', ':dualcache', ':dualcache-serializerinterface', ':dualcache-jsonserializer'
+include ':dualcache-demoapp', ':dualcache-library', ':dualcache-serializerinterface', ':dualcache-jsonserializer'
