@@ -258,8 +258,10 @@ public class DualCache<T> {
             mRamCacheLru.put(key, object);
         }
 
+        byte[] ramSerialized = null;
         if (mRamMode.equals(DualCacheRamMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
-            mRamCacheLru.put(key, mRamSerializer.toBytes(object));
+            ramSerialized = mRamSerializer.toBytes(object);
+            mRamCacheLru.put(key, ramSerialized);
         }
 
         if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
@@ -267,7 +269,12 @@ public class DualCache<T> {
                 mInvalidationReadWriteLock.readLock().lock();
                 getLockForGivenEntry(key).lock();
                 DiskLruCache.Editor editor = mDiskLruCache.edit(key);
-                editor.set(0, new String(mDiskSerializer.toBytes(object)));
+                if (mRamSerializer == mDiskSerializer) {
+                    // Optimization if using same serializer
+                    editor.set(0, new String(ramSerialized));
+                } else {
+                    editor.set(0, new String(mDiskSerializer.toBytes(object)));
+                }
                 editor.commit();
             } catch (IOException e) {
                 logger.logError(e);
@@ -329,30 +336,24 @@ public class DualCache<T> {
             T objectFromStringDisk = null;
 
             if (diskResult != null) {
+                // Load object, no need to check disk configuration since diskresult != null.
+                if (objectFromStringDisk == null) {
+                    objectFromStringDisk = mDiskSerializer.fromBytes(diskResult);
+                }
+
                 // Refresh object in ram.
                 if (mRamMode.equals(DualCacheRamMode.ENABLE_WITH_REFERENCE)) {
                     if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
-                        // Need to get an instance from string.
-                        if (objectFromStringDisk == null) {
-                            objectFromStringDisk = mDiskSerializer.fromBytes(diskResult);
-                        }
                         mRamCacheLru.put(key, objectFromStringDisk);
                     }
                 } else if (mRamMode.equals(DualCacheRamMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
-                    if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
-                        // Need to get an instance from string.
-                        if (objectFromStringDisk == null) {
-                            objectFromStringDisk = mDiskSerializer.fromBytes(diskResult);
-                        }
+                    if (mDiskSerializer == mRamSerializer) {
+                        mRamCacheLru.put(key, diskResult);
+                    } else {
                         mRamCacheLru.put(key, mRamSerializer.toBytes(objectFromStringDisk));
                     }
                 }
-                if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
-                    if (objectFromStringDisk == null) {
-                        objectFromStringDisk = mDiskSerializer.fromBytes(diskResult);
-                    }
-                    return objectFromStringDisk;
-                }
+                return objectFromStringDisk;
             }
         } else {
             logEntryForKeyIsInRam(key);
