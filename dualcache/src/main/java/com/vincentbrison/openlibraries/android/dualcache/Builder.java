@@ -72,7 +72,7 @@ public class Builder<T> {
         switch (ramMode) {
             case ENABLE_WITH_SPECIFIC_SERIALIZER:
                 cache.setRAMSerializer(ramSerializer);
-                cache.setRamCacheLru(new BytesLruCache(maxRamSizeBytes));
+                cache.setRamCacheLru(new StringLruCache(maxRamSizeBytes));
                 break;
             case ENABLE_WITH_REFERENCE:
                 cache.setRamCacheLru(new ReferenceLruCache<>(maxRamSizeBytes, sizeOf));

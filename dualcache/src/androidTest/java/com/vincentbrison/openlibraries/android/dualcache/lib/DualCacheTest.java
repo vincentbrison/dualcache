@@ -202,7 +202,7 @@ public abstract class DualCacheTest extends AndroidTestCase {
     public static class SerializerForTesting implements CacheSerializer<AbstractVehicule> {
 
         @Override
-        public AbstractVehicule fromBytes(byte[] data) {
+        public AbstractVehicule fromString(String data) {
             if (new String(data).equals(CoolBike.class.getSimpleName())) {
                 return new CoolBike();
             } else if (new String(data).equals(CoolCar.class.getSimpleName())) {
@@ -213,8 +213,8 @@ public abstract class DualCacheTest extends AndroidTestCase {
         }
 
         @Override
-        public byte[] toBytes(AbstractVehicule object) {
-            return object.getClass().getSimpleName().getBytes();
+        public String toString(AbstractVehicule object) {
+            return object.getClass().getSimpleName();
         }
     }
 

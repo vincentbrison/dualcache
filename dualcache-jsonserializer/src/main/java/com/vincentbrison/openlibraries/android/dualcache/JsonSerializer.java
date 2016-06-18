@@ -29,7 +29,7 @@ public class JsonSerializer<T> implements CacheSerializer<T> {
     }
 
     @Override
-    public T fromBytes(byte[] data) {
+    public T fromString(String data) {
         try {
             return mapper.readValue(data, clazz);
         } catch (IOException e) {
@@ -39,9 +39,9 @@ public class JsonSerializer<T> implements CacheSerializer<T> {
     }
 
     @Override
-    public byte[] toBytes(T object) {
+    public String toString(T object) {
         try {
-            return mapper.writeValueAsBytes(object);
+            return mapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
