@@ -8,25 +8,29 @@ This android library provide a cache with 2 layers, one in RAM in top of one on 
 This library is highly configurable :
 
 
-| Configurations | Disk : `Custom serializer` | Disk : `disable` |
+| Configurations | Disk : `Specific serializer` | Disk : `disable` |
 | -------------- | -------------------------- | ---------------- |
-| Ram : `custom serializer` | YES | YES |
+| Ram : `Specific serializer` | YES | YES |
 | Ram : `References` | YES | YES |
 | Ram : `disable` | YES | NO |
 
- - `Custom serializer` : the object stored in cache will be serialized through a serializer provided by yourself.
+ - `Specific serializer` : the object stored in cache will be serialized through a serializer provided by yourself.
  - `References` : the objects stored in Ram are cached through there references (no serialization is done).
  - `Disable` : the corresponding layer (Ram or disk) is disable.
 
-If you work with `custom serializer` or `references` you will have to provide (through an interface) the
+If you work with `specific serializer` or `references` you will have to provide (through an interface) the
 way of compute the size of cached objects, to be able to correctly execute the [LRU policy] (http://en.wikipedia.org/wiki/Cache_algorithms).
 
 If you do not want to write your own serializer and a json serializer is enough for you, you can use
 `dualcache-jsonserializer` which will serialize object using [Jackson](https://github.com/FasterXML/jackson-databind)
 
 The following diagrams are showing how the `dualcache` is working :
-[dualcache-serializer](doc-assets/dualcache-serializer.png)
-[dualcache-serializer-ref](doc-assets/dualcache-serializer-ref.png)
+- DualCache with references in RAM and specific serializer in disk.
+![dualcache-serializer](doc-assets/dualcache-serializer.png)
+
+
+- DualCache with specific serializer in RAM and specific serializer in disk.
+![dualcache-serializer-ref](doc-assets/dualcache-serializer-ref.png)
 
 To get the best performance from this library, I recommend that you use larger size for the disk layer than
 for the Ram layer. When you try to get an object from the cache which is already in the Ram layer, the disk wont be
@@ -81,7 +85,9 @@ android {
 
 dependencies {
     compile 'com.vincentbrison.openlibraries.android:dualcache:3.0.0'
-    //compile 'com.vincentbrison.openlibraries.android:dualcache-jsonserializer:3.0.0' // If you want a ready to use json serializer
+
+    //compile 'com.vincentbrison.openlibraries.android:dualcache-jsonserializer:3.0.0' // If you
+    // want a ready to use json serializer
 }
 ```
 
