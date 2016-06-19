@@ -276,7 +276,7 @@
                       value="INTERFACE_DEF, CLASS_DEF, METHOD_DEF, CTOR_DEF, VARIABLE_DEF"/>
         </module>
 
-        <!-- Checks Javadoc comments for class and interface definitions. !-->
+        <!-- Checks Javadoc comments for class and cacheinterface definitions. !-->
         <!-- See http://checkstyle.sf.net/config_javadoc.html#JavadocType !-->
         <module name="JavadocType">
             <property name="scope" value="package"/>
