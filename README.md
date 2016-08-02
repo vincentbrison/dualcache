@@ -25,11 +25,11 @@ If you do not want to write your own serializer and a json serializer is enough 
 `dualcache-jsonserializer` which will serialize object using [Jackson](https://github.com/FasterXML/jackson-databind)
 
 The following diagrams are showing how the `dualcache` is working :
-- DualCache with references in RAM and specific serializer in disk.
+- DualCache with specific serializer in RAM and specific serializer in disk.
 ![dualcache-serializer](doc-assets/dualcache-serializer.png)
 
 
-- DualCache with specific serializer in RAM and specific serializer in disk.
+- DualCache with references in RAM and specific serializer in disk.
 ![dualcache-serializer-ref](doc-assets/dualcache-serializer-ref.png)
 
 To get the best performance from this library, I recommend that you use larger size for the disk layer than
@@ -101,7 +101,7 @@ dependencies {
 ```
 
 All the configuration of the cache is done when you are building the cache through its `Builder` class.
-  
+
 Basic examples
 ==============
 
@@ -109,7 +109,7 @@ Build your cache
 ---------------
  First of all, you need to build you cache, through the `Builder` class.
  1. A cache with a serializer for RAM and disk disable :
- 
+
 ```Java
 cache = new Builder<>(CACHE_NAME, TEST_APP_VERSION, AbstractVehicule.class)
     .enableLog()
