@@ -436,6 +436,20 @@ public class DualCache<T> {
         this.mDiskMode = diskMode;
     }
 
+    public boolean contains(String key) {
+        if (!mRamMode.equals(DualCacheRamMode.DISABLE) && mRamCacheLru.snapshot().containsKey(key)) {
+            return true;
+        }
+        try {
+            if (!mDiskMode.equals(DualCacheRamMode.DISABLE) && mDiskLruCache.get(key) != null) {
+                return true;
+            }
+        } catch (IOException e) {
+            logger.logError(e);
+        }
+        return false;
+    }
+
     // Logging helpers
     private void logEntrySavedForKey(String key) {
         logger.logInfo(LOG_PREFIX + key + " is saved in cache.");
