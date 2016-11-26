@@ -1,0 +1,11 @@
+ext {
+    compileSdkVersion = 25
+    buildToolsVersion = '25.0.1'
+    minSdkVersion = 9
+    targetSdkVersion = 25
+
+    diskLruVersion = '2.0.2'
+    jacksonDatabindVersion = '2.4.2'
+
+    androidSupportTestRunner = '0.5'
+}

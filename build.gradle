@@ -21,3 +21,5 @@ allprojects {
         mavenCentral()
     }
 }
+
+apply from: 'dependencies.gradle'
