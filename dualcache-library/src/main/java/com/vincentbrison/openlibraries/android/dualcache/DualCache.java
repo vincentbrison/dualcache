@@ -94,11 +94,6 @@ public class DualCache<T> {
     private DiskLruCache mDiskLruCache;
 
     /**
-     * Define the class store in this cache.
-     */
-    private Class<T> mClazz;
-
-    /**
      * Hold the max size in bytes of the disk cache.
      */
     private int mDiskCacheSizeInBytes;
@@ -145,13 +140,11 @@ public class DualCache<T> {
      * @param id         is the id of the cache.
      * @param appVersion is the app version of the app. (Data in disk cache will be invalidate if
      *                   their app version is inferior than this app version.
-     * @param clazz      is the Class of object to store in cache.
      * @param logger
      */
-    DualCache(String id, int appVersion, Class clazz, Logger logger) {
+    DualCache(String id, int appVersion, Logger logger) {
         mId = id;
         mAppVersion = appVersion;
-        mClazz = clazz;
         this.logger = logger;
     }
 

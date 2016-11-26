@@ -33,7 +33,7 @@ public class TestIssue11 extends AndroidTestCase {
         setContext(InstrumentationRegistry.getTargetContext());
         File cacheDir = new File(mContext.getCacheDir(), CACHE_NAME);
         CacheSerializer<String> jsonSerializer = new JsonSerializer<>(String.class);
-        mCache = new Builder<>(CACHE_NAME, 0, String.class)
+        mCache = new Builder<String>(CACHE_NAME, 0)
             .enableLog()
             .useSerializerInRam(CACHE_RAM_ENTRIES, jsonSerializer)
             .useSerializerInDisk(CACHE_SIZE, cacheDir, jsonSerializer)

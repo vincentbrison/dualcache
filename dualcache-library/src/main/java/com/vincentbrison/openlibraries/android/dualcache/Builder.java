@@ -17,7 +17,6 @@ public class Builder<T> {
 
     private String id;
     private int appVersion;
-    private Class<T> clazz;
     private boolean logEnabled;
     private int maxRamSizeBytes;
     private DualCache.DualCacheRamMode ramMode;
@@ -33,12 +32,10 @@ public class Builder<T> {
      * @param id is the id of the cache (should be unique).
      * @param appVersion is the app version of the app. If data are already stored in disk cache
      * with previous app version, it will be invalidate.
-     * @param clazz is the class of object to store in cache.
      */
-    public Builder(String id, int appVersion, Class<T> clazz) {
+    public Builder(String id, int appVersion) {
         this.id = id;
         this.appVersion = appVersion;
-        this.clazz = clazz;
         this.ramMode = null;
         this.diskMode = null;
         this.logEnabled = false;
@@ -66,7 +63,7 @@ public class Builder<T> {
         }
 
         DualCache<T> cache =
-            new DualCache<>(id, appVersion, clazz, new Logger(logEnabled));
+            new DualCache<>(id, appVersion, new Logger(logEnabled));
 
         cache.setRamMode(ramMode);
         switch (ramMode) {
@@ -163,7 +160,10 @@ public class Builder<T> {
      * @return the builder.
      */
     public Builder<T> useSerializerInDisk(
-        int maxDiskSizeBytes, boolean usePrivateFiles, CacheSerializer<T> serializer, Context context
+        int maxDiskSizeBytes,
+        boolean usePrivateFiles,
+        CacheSerializer<T> serializer,
+        Context context
     ) {
         File folder = getDefaultDiskCacheFolder(usePrivateFiles, context);
         return useSerializerInDisk(maxDiskSizeBytes, folder, serializer);
