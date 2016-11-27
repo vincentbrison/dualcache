@@ -49,101 +49,128 @@ public abstract class DualCacheTest extends AndroidTestCase {
     @Test
     public void testBasicOperations() throws Exception {
         CoolCar car = new CoolCar();
-        mCache.put("key", car);
+        String keyCar = "car";
+        mCache.put(keyCar, car);
         if (mCache.getRAMMode().equals(DualCache.DualCacheRamMode.DISABLE) &&
                 mCache.getDiskMode().equals(DualCache.DualCacheDiskMode.DISABLE)) {
-            assertNull(mCache.get("key"));
+            assertNull(mCache.get(keyCar));
+            assertEquals(false, mCache.contains(keyCar));
         } else {
-            assertEquals(car, mCache.get("key"));
+            assertEquals(car, mCache.get(keyCar));
+            assertEquals(true, mCache.contains(keyCar));
         }
 
         mCache.invalidateRAM();
         if (mCache.getDiskMode().equals(DualCache.DualCacheDiskMode.DISABLE)) {
-            assertNull(mCache.get("key"));
+            assertNull(mCache.get(keyCar));
+            assertEquals(false, mCache.contains(keyCar));
         } else {
-            assertEquals(car, mCache.get("key"));
+            assertEquals(car, mCache.get(keyCar));
+            assertEquals(true, mCache.contains(keyCar));
         }
 
-        mCache.put("key", car);
+        mCache.put(keyCar, car);
         if (mCache.getRAMMode().equals(DualCache.DualCacheRamMode.DISABLE) &&
                 mCache.getDiskMode().equals(DualCache.DualCacheDiskMode.DISABLE)) {
-            assertNull(mCache.get("key"));
+            assertNull(mCache.get(keyCar));
+            assertEquals(false, mCache.contains(keyCar));
         } else {
-            assertEquals(car, mCache.get("key"));
+            assertEquals(car, mCache.get(keyCar));
+            assertEquals(true, mCache.contains(keyCar));
         }
 
         mCache.invalidate();
-        assertNull(mCache.get("key"));
+        assertNull(mCache.get(keyCar));
+        assertEquals(false, mCache.contains(keyCar));
 
         CoolBike bike = new CoolBike();
-        mCache.put("car", car);
-        mCache.put("bike", bike);
+        mCache.put(keyCar, car);
+        String keyBike = "bike";
+        mCache.put(keyBike, bike);
         if (mCache.getRAMMode().equals(DualCache.DualCacheRamMode.DISABLE) &&
                 mCache.getDiskMode().equals(DualCache.DualCacheDiskMode.DISABLE)) {
-            assertNull(mCache.get("car"));
-            assertNull(mCache.get("bike"));
+            assertNull(mCache.get(keyCar));
+            assertEquals(false, mCache.contains(keyCar));
+            assertNull(mCache.get(keyBike));
+            assertEquals(false, mCache.contains(keyBike));
         } else {
-            assertEquals(mCache.get("car"), car);
-            assertEquals(mCache.get("bike"), bike);
+            assertEquals(mCache.get(keyCar), car);
+            assertEquals(true, mCache.contains(keyCar));
+            assertEquals(mCache.get(keyBike), bike);
+            assertEquals(true, mCache.contains(keyBike));
         }
     }
 
     @Test
     public void testBasicOperations2() throws Exception {
         CoolCar car = new CoolCar();
-        mCache.put("key", car);
+        String keyCar = "car";
+        mCache.put(keyCar, car);
         mCache.invalidateRAM();
         if (mCache.getDiskMode().equals(DualCache.DualCacheDiskMode.DISABLE)) {
-            assertNull(mCache.get("key"));
+            assertNull(mCache.get(keyCar));
+            assertEquals(false, mCache.contains(keyCar));
         } else {
-            assertEquals(car, mCache.get("key"));
+            assertEquals(car, mCache.get(keyCar));
+            assertEquals(true, mCache.contains(keyCar));
             mCache.invalidateRAM();
         }
 
         mCache.invalidateDisk();
-        assertNull(mCache.get("key"));
+        assertNull(mCache.get(keyCar));
+        assertEquals(false, mCache.contains(keyCar));
 
-        mCache.put("key", car);
+        mCache.put(keyCar, car);
         mCache.invalidateRAM();
         if (mCache.getDiskMode().equals(DualCache.DualCacheDiskMode.DISABLE)) {
-            assertNull(mCache.get("key"));
+            assertNull(mCache.get(keyCar));
+            assertEquals(false, mCache.contains(keyCar));
         } else {
-            assertEquals(car, mCache.get("key"));
+            assertEquals(car, mCache.get(keyCar));
+            assertEquals(true, mCache.contains(keyCar));
         }
 
         mCache.invalidate();
-        assertNull(mCache.get("key"));
+        assertNull(mCache.get(keyCar));
+        assertEquals(false, mCache.contains(keyCar));
 
         CoolBike bike = new CoolBike();
-        mCache.put("car", car);
-        mCache.put("bike", bike);
-        mCache.delete("car");
-        mCache.delete("bike");
-        assertNull(mCache.get("car"));
-        assertNull(mCache.get("bike"));
+        String keyBike = "bike";
+        mCache.put(keyCar, car);
+        mCache.put(keyBike, bike);
+        mCache.delete(keyCar);
+        mCache.delete(keyBike);
+        assertNull(mCache.get(keyCar));
+        assertEquals(false, mCache.contains(keyCar));
+        assertNull(mCache.get(keyBike));
+        assertEquals(false, mCache.contains(keyBike));
     }
 
     @Test
     public void testLRUPolicy() {
         mCache.invalidate();
         CoolCar carToEvict = new CoolCar();
-        mCache.put("car", carToEvict);
+        String keyCar = "car";
+        mCache.put(keyCar, carToEvict);
         long size = mCache.getRamSize();
         int numberOfItemsToAddForRAMEviction = (int) (RAM_MAX_SIZE / size);
         for (int i = 0; i < numberOfItemsToAddForRAMEviction; i++) {
-            mCache.put("car" + i, new CoolCar());
+            mCache.put(keyCar + i, new CoolCar());
         }
         mCache.invalidateDisk();
-        assertNull(mCache.get("car"));
+        assertNull(mCache.get(keyCar));
+        assertEquals(false, mCache.contains(keyCar));
 
-        mCache.put("car", carToEvict);
+        mCache.put(keyCar, carToEvict);
         for (int i = 0; i < numberOfItemsToAddForRAMEviction; i++) {
-            mCache.put("car" + i, new CoolCar());
+            mCache.put(keyCar + i, new CoolCar());
         }
         if (!mCache.getDiskMode().equals(DualCache.DualCacheDiskMode.DISABLE)) {
-            assertEquals(carToEvict, mCache.get("car"));
+            assertEquals(carToEvict, mCache.get(keyCar));
+            assertEquals(true, mCache.contains(keyCar));
         } else {
-            assertNull(mCache.get("car"));
+            assertNull(mCache.get(keyCar));
+            assertEquals(false, mCache.contains(keyCar));
         }
     }
 
@@ -175,17 +202,20 @@ public abstract class DualCacheTest extends AndroidTestCase {
             int sMaxNumberOfRun = 1000;
             @Override
             public void run() {
+                String key = "key";
                 try {
                     int numberOfRun = 0;
                     while (numberOfRun++ < sMaxNumberOfRun) {
                         Thread.sleep((long) (Math.random() * 2));
                         double choice = Math.random();
                         if (choice < 0.4) {
-                            cache.put("key", new CoolCar());
+                            cache.put(key, new CoolCar());
                         } else if (choice < 0.5) {
-                            cache.delete("key");
+                            cache.delete(key);
                         } else if (choice < 0.8) {
-                            cache.get("key");
+                            cache.get(key);
+                        } else if (choice < 0.9) {
+                            cache.contains(key);
                         } else if (choice < 1) {
                             cache.invalidate();
                         } else {
