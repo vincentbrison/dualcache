@@ -441,11 +441,16 @@ public class DualCache<T> {
             return true;
         }
         try {
-            if (!mDiskMode.equals(DualCacheRamMode.DISABLE) && mDiskLruCache.get(key) != null) {
+            mInvalidationReadWriteLock.readLock().lock();
+            getLockForGivenEntry(key).lock();
+            if (!mDiskMode.equals(DualCacheDiskMode.DISABLE) && mDiskLruCache.get(key) != null) {
                 return true;
             }
         } catch (IOException e) {
             logger.logError(e);
+        } finally {
+            getLockForGivenEntry(key).unlock();
+            mInvalidationReadWriteLock.readLock().unlock();
         }
         return false;
     }
