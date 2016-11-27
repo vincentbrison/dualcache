@@ -12,26 +12,25 @@ class DualCacheLock {
     private final ConcurrentMap<String, Lock> editionLocks = new ConcurrentHashMap<>();
     private final ReadWriteLock invalidationReadWriteLock = new ReentrantReadWriteLock();
 
-    public void lockDiskEntryWrite(String key) {
+    void lockDiskEntryWrite(String key) {
         invalidationReadWriteLock.readLock().lock();
-        getLockForGivenEntry(key).lock();
+        getLockForGivenDiskEntry(key).lock();
     }
 
-    public void unLockDiskEntryWrite(String key) {
-        getLockForGivenEntry(key).unlock();
+    void unLockDiskEntryWrite(String key) {
+        getLockForGivenDiskEntry(key).unlock();
         invalidationReadWriteLock.readLock().unlock();
     }
 
-    public void lockFullDiskWrite() {
+    void lockFullDiskWrite() {
         invalidationReadWriteLock.writeLock().lock();
     }
 
-    public void unLockFullDiskWrite() {
+    void unLockFullDiskWrite() {
         invalidationReadWriteLock.writeLock().unlock();
     }
 
-    // Let concurrent modification on different keys.
-    private Lock getLockForGivenEntry(String key) {
+    private Lock getLockForGivenDiskEntry(String key) {
         if (!editionLocks.containsKey(key)) {
             editionLocks.putIfAbsent(key, new ReentrantLock());
         }

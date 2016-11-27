@@ -9,7 +9,7 @@ public class NoRamDiskCustomSerializer extends DualCacheTest {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        mCache = new Builder<AbstractVehicule>(CACHE_NAME, TEST_APP_VERSION)
+        cache = new Builder<AbstractVehicule>(CACHE_NAME, TEST_APP_VERSION)
             .enableLog()
             .noRam()
             .useSerializerInDisk(
