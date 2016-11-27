@@ -4,6 +4,8 @@ ext {
     minSdkVersion = 9
     targetSdkVersion = 25
 
+    javaVersion = 1.7
+
     diskLruVersion = '2.0.2'
     jacksonDatabindVersion = '2.4.2'
 
