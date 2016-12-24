@@ -10,7 +10,15 @@ android:
       - android-25
       - extra-google-m2repository
       - extra-android-m2repository
+      - sys-img-armeabi-v7a-android-25
+
+before_script:
+  - echo no | android create avd --force -n test -t android-25 --abi armeabi-v7a
+  - emulator -avd test -no-skin -no-audio -no-window &
+  - android-wait-for-emulator
+  - adb shell input keyevent 82 &
 
 script:
   - ./gradlew clean
-  - ./gradlew dualcache-library:check -Ptravis --stacktrace
+  - ./gradlew dualcache-library:check -Ptravis
+  - ./gradlew dualcache-library:connectedCheck -Ptravis
