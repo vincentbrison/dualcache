@@ -6,8 +6,8 @@ apply plugin: 'pmd'
 check.dependsOn  'checkstyle', 'findbugs', 'pmd', 'lint'
 
 task checkstyle(type: Checkstyle) {
-    configFile file("${project.rootDir}/config/quality/checkstyle/checkstyle.xml")
-    configProperties.checkstyleSuppressionsPath = file("${project.rootDir}/config/quality/checkstyle/suppressions.xml").absolutePath
+    configFile file("${project.rootDir}/quality/checkstyle/checkstyle.xml")
+    configProperties.checkstyleSuppressionsPath = file("${project.rootDir}/quality/checkstyle/suppressions.xml").absolutePath
     source 'src/main/java'
     include '**/*.java'
     exclude '**/gen/**'
@@ -20,8 +20,8 @@ task findbugs(type: FindBugs, dependsOn: "assembleDebug") {
     ignoreFailures = false
     effort = "max"
     reportLevel = "high"
-    excludeFilter = new File("${project.rootDir}/config/quality/findbugs/findbugs-filter.xml")
-    classes = files("${project.rootDir}/lib/build/intermediates/classes")
+    excludeFilter = new File("${project.rootDir}/quality/findbugs/findbugs-filter.xml")
+    classes = files("${project.rootDir}/dualcache-library/build/intermediates/classes")
 
     source 'src/main/java'
     include '**/*.java'
@@ -42,7 +42,7 @@ task findbugs(type: FindBugs, dependsOn: "assembleDebug") {
 }
 
 task pmd(type: Pmd) {
-    ruleSetFiles = files("${project.rootDir}/config/quality/pmd/pmd-ruleset.xml")
+    ruleSetFiles = files("${project.rootDir}/quality/pmd/pmd-ruleset.xml")
     ignoreFailures = false
     ruleSets = []
 
@@ -67,7 +67,7 @@ android {
     lintOptions {
         abortOnError true
 
-        lintConfig file("${project.rootDir}/config/quality/lint/lint.xml")
+        lintConfig file("${project.rootDir}/quality/lint/lint.xml")
 
         // if true, generate an HTML report (with issue explanations, sourcecode, etc)
         htmlReport true

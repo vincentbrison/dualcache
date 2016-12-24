@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
-apply from: '../config/quality.gradle'
+apply from: '../quality/quality.gradle'
 
 android {
     compileSdkVersion project.compileSdkVersion

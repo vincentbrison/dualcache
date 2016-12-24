@@ -16,6 +16,8 @@
 
 package com.vincentbrison.openlibraries.android.dualcache;
 
+import java.nio.charset.Charset;
+
 /**
  * LRU cache used by the RAM cache layer when storing serialized object.
  */
@@ -32,6 +34,6 @@ class StringLruCache extends RamLruCache<String, String> {
 
     @Override
     protected int sizeOf(String key, String value) {
-        return value.getBytes().length;
+        return value.getBytes(Charset.defaultCharset()).length;
     }
 }

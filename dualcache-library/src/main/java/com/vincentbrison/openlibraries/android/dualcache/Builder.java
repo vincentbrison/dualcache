@@ -67,27 +67,27 @@ public class Builder<T> {
             throw new IllegalStateException("No disk mode set");
         }
 
-        DualCache<T> cache =
-            new DualCache<>(
-                appVersion,
-                new Logger(logEnabled),
-                ramMode,
-                ramSerializer,
-                maxRamSizeBytes,
-                sizeOf,
-                diskMode,
-                diskSerializer,
-                maxDiskSizeBytes,
-                diskFolder
-            );
+        DualCache<T> cache = new DualCache<>(
+            appVersion,
+            new Logger(logEnabled),
+            ramMode,
+            ramSerializer,
+            maxRamSizeBytes,
+            sizeOf,
+            diskMode,
+            diskSerializer,
+            maxDiskSizeBytes,
+            diskFolder
+        );
 
         boolean isRamDisable = cache.getRAMMode().equals(DualCacheRamMode.DISABLE);
         boolean isDiskDisable = cache.getDiskMode().equals(DualCacheDiskMode.DISABLE);
 
         if (isRamDisable && isDiskDisable) {
-            throw new IllegalStateException("The ram cache layer and the disk cache layer are " +
-                                                "disable. You have to use at least one of those " +
-                                                "layers.");
+            throw new IllegalStateException(
+                "The ram cache layer and the disk cache layer are "
+                    + "disable. You have to use at least one of those "
+                    + "layers.");
         }
 
         return cache;

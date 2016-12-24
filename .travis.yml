@@ -13,4 +13,4 @@ android:
 
 script:
   - ./gradlew clean
-  - ./gradlew dualcache:check -Ptravis --stacktrace
+  - ./gradlew dualcache-library:check -Ptravis --stacktrace

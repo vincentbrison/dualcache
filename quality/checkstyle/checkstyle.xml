@@ -6,7 +6,7 @@
 
 <module name="Checker">
     <module name="FileLength">
-        <property name="max" value="1000"/>
+        <property name="max" value="500"/>
         <property name="fileExtensions" value=""/>
     </module>
 
@@ -22,7 +22,7 @@
         <!-- Checks for long lines. !-->
         <module name="LineLength">
             <property name="ignorePattern" value="[^ *\* *[^ ]+$]"/>
-            <property name="max" value="150"/>
+            <property name="max" value="100"/>
         </module>
 
         <!-- Checks the number of methods declared in each type. This includes the number of each scope !-->
@@ -39,7 +39,7 @@
         <!-- Checks for long methods and constructors. !-->
         <!-- See http://checkstyle.sf.net/config_sizes.html !-->
         <module name="MethodLength">
-            <property name="max" value="150"/>
+            <property name="max" value="100"/>
             <property name="countEmpty" value="true"/>
             <property name="tokens" value="METHOD_DEF, CTOR_DEF"/>
         </module>
@@ -54,7 +54,7 @@
         <!-- See http://checkstyle.sf.net/config_sizes.html !-->
         <module name="ParameterNumber">
             <property name="max" value="7"/>
-            <property name="tokens" value="METHOD_DEF, CTOR_DEF"/>
+            <property name="tokens" value="METHOD_DEF"/>
         </module>
 
     </module>
@@ -115,11 +115,7 @@
 
         <!-- Checks the policy on the padding of parentheses. !-->
         <!-- See http://checkstyle.sf.net/config_whitespace.html !-->
-        <module name="ParenPad">
-            <property name="option" value="nospace"/>
-            <property name="tokens"
-                      value="CTOR_CALL, LPAREN, METHOD_CALL, RPAREN, SUPER_CTOR_CALL"/>
-        </module>
+        <module name="ParenPad"/>
 
         <!-- Checks the policy on the padding of parentheses for typecasts. !-->
         <!-- See http://checkstyle.sf.net/config_whitespace.html !-->
@@ -196,10 +192,7 @@
 
         <!-- Checks for local variable name naming conventions. !-->
         <!-- See http://checkstyle.sf.net/config_naming.html !-->
-        <module name="LocalVariableName">
-            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
-            <property name="tokens" value="VARIABLE_DEF, PARAMETER_DEF"/>
-        </module>
+        <module name="LocalVariableName"/>
 
         <!-- Checks for member variable name naming conventions. !-->
         <!-- See http://checkstyle.sf.net/config_naming.html !-->
@@ -276,48 +269,6 @@
                       value="INTERFACE_DEF, CLASS_DEF, METHOD_DEF, CTOR_DEF, VARIABLE_DEF"/>
         </module>
 
-        <!-- Checks Javadoc comments for class and cacheinterface definitions. !-->
-        <!-- See http://checkstyle.sf.net/config_javadoc.html#JavadocType !-->
-        <module name="JavadocType">
-            <property name="scope" value="package"/>
-            <!--
-            <property name="excludeScope"          value=""/>
-            !-->
-            <!--<property name="authorFormat"          value=""/>!-->
-            <!--<property name="versionFormat"         value=""/>!-->
-            <property name="allowMissingParamTags" value="false"/>
-            <property name="allowUnknownTags" value="false"/>
-            <property name="tokens" value="INTERFACE_DEF, CLASS_DEF"/>
-        </module>
-
-        <!-- Checks to ensure that the javadoc tags exist (if required) !-->
-        <!-- See http://checkstyle.sf.net/config_javadoc.html#JavadocMethod !-->
-        <module name="JavadocMethod">
-            <property name="scope" value="package"/>
-            <!--
-            <property name="excludeScope"                 value=""/>
-            !-->
-            <property name="allowUndeclaredRTE" value="false"/>
-            <property name="allowThrowsTagsForSubclasses" value="false"/>
-            <property name="allowMissingParamTags" value="false"/>
-            <property name="allowMissingThrowsTags" value="false"/>
-            <property name="allowMissingReturnTag" value="false"/>
-            <property name="allowMissingJavadoc" value="false"/>
-            <property name="allowMissingPropertyJavadoc" value="true"/>
-            <property name="logLoadErrors" value="true"/>
-            <property name="suppressLoadErrors" value="false"/>
-            <property name="tokens" value="METHOD_DEF, CTOR_DEF"/>
-        </module>
-
-        <!-- Checks that variables have Javadoc comments. !-->
-        <!-- See http://checkstyle.sf.net/config_javadoc.html#JavadocVariable !-->
-        <module name="JavadocVariable">
-            <property name="scope" value="package"/>
-            <!--
-            <property name="excludeScope" value=""/>
-            !-->
-        </module>
-
     </module>
     <module name="TreeWalker">
 
@@ -325,9 +276,7 @@
 
         <!-- Ensure a class has a package declaration. !-->
         <!-- See http://checkstyle.sf.net/config_coding.html !-->
-        <module name="PackageDeclaration">
-            <property name="ignoreDirectoryName" value="true"/>
-        </module>
+        <module name="PackageDeclaration"/>
 
     </module>
     <module name="TreeWalker">
@@ -359,13 +308,6 @@
         <!-- sections 8.1.1, 8.3.1 and 8.4.3. !-->
         <!-- See http://checkstyle.sf.net/config_modifiers.html !-->
         <module name="ModifierOrder"/>
-
-        <!-- Checks that there are no redundant modifiers. !-->
-        <!-- See http://checkstyle.sf.net/config_modifiers.html
-        <module name="RedundantModifier">
-            <property name="tokens" value="METHOD_DEF, VARIABLE_DEF, ANNOTATION_FIELD_DEF"/>
-        </module>
-         !-->
 
         <!-- Checks that a class which has only private constructors is declared as final. !-->
         <!-- See http://checkstyle.sf.net/config_design.html !-->

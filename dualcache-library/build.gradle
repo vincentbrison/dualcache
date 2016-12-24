@@ -1,7 +1,7 @@
 import com.android.builder.core.BuilderConstants
 
 apply plugin: 'com.android.library'
-apply from: '../config/quality.gradle'
+apply from: '../quality/quality.gradle'
 apply from: '../maven_push.gradle'
 
 android {
