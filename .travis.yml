@@ -17,18 +17,6 @@ android:
     - extra-android-m2repository
     - extra-android-support
 
-    # Specify at least one system image,
-    # if you need to run emulator(s) during your tests
-    - sys-img-armeabi-v7a-android-25
-
-before_script:
-  # Create and start emulator
-  - echo no | android create avd --force -n test -t android-21 --abi armeabi-v7a
-  - emulator -avd test -no-skin -no-audio -no-window &
-  - adb wait-for-device && sleep 300
-  - adb shell input keyevent 82 &
-
 script:
   - ./gradlew clean
-  #- ./gradlew dualcache-library:connectedAndroidTest -Ptravis --stacktrace
   - ./gradlew dualcache:check -Ptravis --stacktrace
