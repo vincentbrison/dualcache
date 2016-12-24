@@ -1,8 +1,8 @@
 package com.vincentbrison.openlibraries.android.dualcache.lib;
 
+import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.AndroidTestCase;
 import android.util.Log;
 
 import com.vincentbrison.openlibraries.android.dualcache.CacheSerializer;
@@ -23,8 +23,12 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+
 @RunWith(AndroidJUnit4.class)
-public abstract class DualCacheTest extends AndroidTestCase {
+public abstract class DualCacheTest {
 
     protected static final int RAM_MAX_SIZE = 1000;
     protected static final int DISK_MAX_SIZE = 20 * RAM_MAX_SIZE;
@@ -32,20 +36,21 @@ public abstract class DualCacheTest extends AndroidTestCase {
     protected static final int TEST_APP_VERSION = 0;
     protected DualCache<AbstractVehicule> cache;
     protected CacheSerializer<AbstractVehicule> defaultCacheSerializer;
+    private Context context;
+
+    protected Context getContext() {
+        return context;
+    }
 
     @Before
-    @Override
     public void setUp() throws Exception {
-        super.setUp();
         defaultCacheSerializer = new JsonSerializer<>(AbstractVehicule.class);
-        setContext(InstrumentationRegistry.getTargetContext());
+        context = InstrumentationRegistry.getTargetContext();
     }
 
     @After
-    @Override
     public void tearDown() throws Exception {
         cache.invalidate();
-        super.tearDown();
     }
 
     @Test
