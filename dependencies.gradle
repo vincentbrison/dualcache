@@ -10,4 +10,6 @@ ext {
     jacksonDatabindVersion = '2.4.2'
 
     androidSupportTestRunner = '0.5'
+
+    dualcacheVersion = '3.1.0'
 }
