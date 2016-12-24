@@ -9,8 +9,8 @@ import android.widget.EditText;
 
 import com.vb.openlibraries.android.dualcache.R;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 /**
  * This activity ask user input to configure the demo.
@@ -18,10 +18,10 @@ import butterknife.InjectView;
 public class SettingsActivity extends Activity {
 
     //CHECKSTYLE:OFF
-    @InjectView(R.id.activity_settings_edittext_ram_cache_size) protected EditText mEditTextSizeRam;
-    @InjectView(R.id.activity_settings_edittext_disk_cache_size) protected EditText mEditTextSizeDisk;
-    @InjectView(R.id.activity_settings_edittext_cache_id) protected EditText mEditTextIdCache;
-    @InjectView(R.id.activity_settings_button_demo) protected Button mButtonDemo;
+    @BindView(R.id.activity_settings_edittext_ram_cache_size) protected EditText mEditTextSizeRam;
+    @BindView(R.id.activity_settings_edittext_disk_cache_size) protected EditText mEditTextSizeDisk;
+    @BindView(R.id.activity_settings_edittext_cache_id) protected EditText mEditTextIdCache;
+    @BindView(R.id.activity_settings_button_demo) protected Button mButtonDemo;
     //CHECKSTYLE:ON
 
     @Override
@@ -29,7 +29,7 @@ public class SettingsActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_settings);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
 
         mButtonDemo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -37,14 +37,25 @@ public class SettingsActivity extends Activity {
                 Intent intent = new Intent(SettingsActivity.this, DemoActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
-                intent.putExtra(DemoActivity.EXTRA_DISK_CACHE_SIZE,
-                        Integer.parseInt(mEditTextSizeDisk.getText().toString()));
-                intent.putExtra(DemoActivity.EXTRA_RAM_CACHE_SIZE,
-                        Integer.parseInt(mEditTextSizeRam.getText().toString()));
+                intent.putExtra(
+                    DemoActivity.EXTRA_DISK_CACHE_SIZE,
+                    tryGetNumber(mEditTextSizeDisk, 100)
+                );
+                intent.putExtra(
+                    DemoActivity.EXTRA_RAM_CACHE_SIZE,
+                    tryGetNumber(mEditTextSizeRam, 50)
+                );
                 intent.putExtra(DemoActivity.EXTRA_ID_CACHE, mEditTextIdCache.getText().toString());
                 startActivity(intent);
             }
         });
     }
 
+    private int tryGetNumber(EditText editText, int defaultValue) {
+        try {
+            return Integer.parseInt(editText.getText().toString());
+        } catch (NumberFormatException exception) {
+            return defaultValue;
+        }
+    }
 }

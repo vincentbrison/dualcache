@@ -1,17 +1,19 @@
-# Add project specific ProGuard rules here.
-# By default, the flags in this file are appended to flags specified
-# in C:/Users/Brize/AppData/Local/Android/android-studio/sdk/tools/proguard/proguard-android.txt
-# You can edit the include path and order by changing the ProGuard
-# include property in project.properties.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# Proguard configuration for Jackson 2.x (fasterxml package instead of codehaus package)
 
-# Add any project specific keep options here:
+-keepnames class com.fasterxml.jackson.annotation.** { *; }
+-keep public class your.package.with.jackson.pojos.* {
+    public void set*(*);
+    public ** get*();
+}
+-dontwarn org.w3c.dom.bootstrap.DOMImplementationRegistry
+-dontwarn java.beans.Transient
+-dontwarn java.beans.ConstructorProperties
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript cacheinterface
-# class:
-#-keepclassmembers class fqcn.of.javascript.cacheinterface.for.webview {
-#   public *;
-#}
+# Not sure if those are needed in other configurations
+-keep class com.fasterxml.jackson.databind.ObjectMapper {
+    public <methods>;
+    protected <methods>;
+}
+-keep class com.fasterxml.jackson.databind.ObjectWriter {
+    public ** writeValueAsString(**);
+}
