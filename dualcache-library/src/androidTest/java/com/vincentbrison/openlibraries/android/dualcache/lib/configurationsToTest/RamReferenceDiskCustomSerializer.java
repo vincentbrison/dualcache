@@ -9,7 +9,7 @@ public class RamReferenceDiskCustomSerializer extends DualCacheTest {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        mCache = new Builder<>(CACHE_NAME, TEST_APP_VERSION, AbstractVehicule.class)
+        cache = new Builder<AbstractVehicule>(CACHE_NAME, TEST_APP_VERSION)
             .enableLog()
             .useReferenceInRam(RAM_MAX_SIZE, new SizeOfVehiculeForTesting())
             .useSerializerInDisk(DISK_MAX_SIZE, true, new DualCacheTest.SerializerForTesting(), getContext())

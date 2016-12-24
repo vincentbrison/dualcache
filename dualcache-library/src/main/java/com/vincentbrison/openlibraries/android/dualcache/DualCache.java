@@ -20,12 +20,6 @@ import com.jakewharton.disklrucache.DiskLruCache;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * This class intent to provide a very easy to use, reliable, highly configurable caching library
@@ -35,173 +29,89 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class DualCache<T> {
 
-    /**
-     * Define the behaviour of the RAM layer.
-     */
-    public enum DualCacheRamMode {
-        /**
-         * Means that object will be serialized with a specific serializer in RAM.
-         */
-        ENABLE_WITH_SPECIFIC_SERIALIZER,
+    private static final int VALUES_PER_CACHE_ENTRY = 1;
 
-        /**
-         * Means that only references to objects will be stored in the RAM layer.
-         */
-        ENABLE_WITH_REFERENCE,
-
-        /**
-         * The RAM layer is not used.
-         */
-        DISABLE
-    }
-
-    /**
-     * Define the behaviour of the disk layer.
-     */
-    public enum DualCacheDiskMode {
-        /**
-         * Means that object will be serialized with a specific serializer in disk.
-         */
-        ENABLE_WITH_SPECIFIC_SERIALIZER,
-
-        /**
-         * The disk layer is not used.
-         */
-        DISABLE
-    }
-
-    /**
-     * Defined the sub folder from {@link android.content.Context#getCacheDir()} used to store all
-     * the data generated from the use of this library.
-     */
-    protected static final String CACHE_FILE_PREFIX = "dualcache";
-
-    private static final String LOG_PREFIX = "Entry for ";
-
-    /**
-     * Unique ID which define a cache.
-     */
-    private String mId;
-
-    /**
-     * RAM cache.
-     */
-    private RamLruCache mRamCacheLru;
-
-    /**
-     * Disk cache.
-     */
-    private DiskLruCache mDiskLruCache;
-
-    /**
-     * Define the class store in this cache.
-     */
-    private Class<T> mClazz;
-
-    /**
-     * Hold the max size in bytes of the disk cache.
-     */
-    private int mDiskCacheSizeInBytes;
-
-    /**
-     * Define the folder in which the disk cache will save its files.
-     */
-    private File mDiskCacheFolder;
-
-    /**
-     * Define the app version of the application (allow you to automatically invalidate data
-     * from different app version on disk).
-     */
-    private int mAppVersion;
-
-    /**
-     * By default the RAM layer use JSON serialization to store cached object.
-     */
-    private DualCacheRamMode mRamMode;
-
-    /**
-     * By default the disk layer use JSON serialization to store cached object.
-     */
-    private DualCacheDiskMode mDiskMode;
-
-    /**
-     * The handler used when the ram cache is enable with
-     * {@link DualCache
-     * .DualCacheRAMMode#ENABLE_WITH_REFERENCE}
-     */
-    private SizeOf<T> mHandlerSizeOf;
-
-    private CacheSerializer<T> mDiskSerializer;
-
-    private CacheSerializer<T> mRamSerializer;
-
-    private final ConcurrentMap<String, Lock> mEditionLocks = new ConcurrentHashMap<>();
-    private ReadWriteLock mInvalidationReadWriteLock = new ReentrantReadWriteLock();
+    private final RamLruCache ramCacheLru;
+    private DiskLruCache diskLruCache;
+    private final int maxDiskSizeBytes;
+    private final File diskCacheFolder;
+    private final int appVersion;
+    private final DualCacheRamMode ramMode;
+    private final DualCacheDiskMode diskMode;
+    private final CacheSerializer<T> diskSerializer;
+    private final CacheSerializer<T> ramSerializer;
+    private final DualCacheLock dualCacheLock = new DualCacheLock();
     private final Logger logger;
+    private final LoggerHelper loggerHelper;
 
-    /**
-     * Constructor which only set global parameter of the cache.
-     *
-     * @param id         is the id of the cache.
-     * @param appVersion is the app version of the app. (Data in disk cache will be invalidate if
-     *                   their app version is inferior than this app version.
-     * @param clazz      is the Class of object to store in cache.
-     * @param logger
-     */
-    DualCache(String id, int appVersion, Class clazz, Logger logger) {
-        mId = id;
-        mAppVersion = appVersion;
-        mClazz = clazz;
+    DualCache(
+        int appVersion,
+        Logger logger,
+        DualCacheRamMode ramMode,
+        CacheSerializer<T> ramSerializer,
+        int maxRamSizeBytes,
+        SizeOf<T> sizeOf,
+        DualCacheDiskMode diskMode,
+        CacheSerializer<T> diskSerializer,
+        int maxDiskSizeBytes,
+        File diskFolder
+    ) {
+        this.appVersion = appVersion;
+        this.ramMode = ramMode;
+        this.ramSerializer = ramSerializer;
+        this.diskMode = diskMode;
+        this.diskSerializer = diskSerializer;
+        this.diskCacheFolder = diskFolder;
         this.logger = logger;
-    }
+        this.loggerHelper = new LoggerHelper(logger);
 
-    protected int getAppVersion() {
-        return mAppVersion;
-    }
+        switch (ramMode) {
+            case ENABLE_WITH_SPECIFIC_SERIALIZER:
+                this.ramCacheLru = new StringLruCache(maxRamSizeBytes);
+                break;
+            case ENABLE_WITH_REFERENCE:
+                this.ramCacheLru = new ReferenceLruCache<>(maxRamSizeBytes, sizeOf);
+                break;
+            default:
+                this.ramCacheLru = null;
+        }
 
-    protected String getCacheId() {
-        return mId;
-    }
-
-    protected void setDiskLruCache(DiskLruCache diskLruCache) {
-        mDiskLruCache = diskLruCache;
-    }
-
-    protected void setRAMSerializer(CacheSerializer<T> ramSerializer) {
-        mRamSerializer = ramSerializer;
-    }
-
-    protected void setDiskSerializer(CacheSerializer<T> diskSerializer) {
-        mDiskSerializer = diskSerializer;
-    }
-
-    protected void setRamCacheLru(RamLruCache ramLruCache) {
-        mRamCacheLru = ramLruCache;
-    }
-
-    /**
-     * Return the size used in bytes of the RAM cache.
-     *
-     * @return the size used in bytes of the RAM cache.
-     */
-    public long getRamSize() {
-        if (mRamCacheLru == null) {
-            return -1;
-        } else {
-            return mRamCacheLru.size();
+        switch (diskMode) {
+            case ENABLE_WITH_SPECIFIC_SERIALIZER:
+                this.maxDiskSizeBytes = maxDiskSizeBytes;
+                try {
+                    openDiskLruCache(diskFolder);
+                } catch (IOException e) {
+                    logger.logError(e);
+                }
+                break;
+            default:
+                this.maxDiskSizeBytes = 0;
         }
     }
 
-    /**
-     * Return the size used in bytes of the disk cache.
-     *
-     * @return the size used in bytes of the disk cache.
-     */
-    public long getDiskSize() {
-        if (mDiskLruCache == null) {
+    private void openDiskLruCache(File diskFolder) throws IOException {
+        this.diskLruCache = DiskLruCache.open(
+            diskFolder,
+            this.appVersion,
+            VALUES_PER_CACHE_ENTRY,
+            this.maxDiskSizeBytes
+        );
+    }
+
+    public long getRamUsedInBytes() {
+        if (ramCacheLru == null) {
             return -1;
         } else {
-            return mDiskLruCache.size();
+            return ramCacheLru.size();
+        }
+    }
+
+    public long getDiskUsedInBytes() {
+        if (diskLruCache == null) {
+            return -1;
+        } else {
+            return diskLruCache.size();
         }
 
     }
@@ -212,28 +122,7 @@ public class DualCache<T> {
      * @return the way objects are cached in RAM layer.
      */
     public DualCacheRamMode getRAMMode() {
-        return mRamMode;
-    }
-
-    /**
-     * Set the way objects are stored in the RAM layer.
-     *
-     * @param ramMode is the value to set.
-     */
-    protected void setRamMode(DualCacheRamMode ramMode) {
-        this.mRamMode = ramMode;
-    }
-
-    protected void setDiskCacheSizeInBytes(int diskCacheSizeInBytes) {
-        mDiskCacheSizeInBytes = diskCacheSizeInBytes;
-    }
-
-    public File getDiskCacheFolder() {
-        return mDiskCacheFolder;
-    }
-
-    public void setDiskCacheFolder(File folder) {
-        mDiskCacheFolder = folder;
+        return ramMode;
     }
 
     /**
@@ -242,7 +131,7 @@ public class DualCache<T> {
      * @return the way objects are cached in disk layer.
      */
     public DualCacheDiskMode getDiskMode() {
-        return mDiskMode;
+        return diskMode;
     }
 
     /**
@@ -254,33 +143,31 @@ public class DualCache<T> {
     public void put(String key, T object) {
         // Synchronize put on each entry. Gives concurrent editions on different entries, and atomic
         // modification on the same entry.
-        if (mRamMode.equals(DualCacheRamMode.ENABLE_WITH_REFERENCE)) {
-            mRamCacheLru.put(key, object);
+        if (ramMode.equals(DualCacheRamMode.ENABLE_WITH_REFERENCE)) {
+            ramCacheLru.put(key, object);
         }
 
         String ramSerialized = null;
-        if (mRamMode.equals(DualCacheRamMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
-            ramSerialized = mRamSerializer.toString(object);
-            mRamCacheLru.put(key, ramSerialized);
+        if (ramMode.equals(DualCacheRamMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
+            ramSerialized = ramSerializer.toString(object);
+            ramCacheLru.put(key, ramSerialized);
         }
 
-        if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
+        if (diskMode.equals(DualCacheDiskMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
             try {
-                mInvalidationReadWriteLock.readLock().lock();
-                getLockForGivenEntry(key).lock();
-                DiskLruCache.Editor editor = mDiskLruCache.edit(key);
-                if (mRamSerializer == mDiskSerializer) {
+                dualCacheLock.lockDiskEntryWrite(key);
+                DiskLruCache.Editor editor = diskLruCache.edit(key);
+                if (ramSerializer == diskSerializer) {
                     // Optimization if using same serializer
-                    editor.set(0, new String(ramSerialized));
+                    editor.set(0, ramSerialized);
                 } else {
-                    editor.set(0, new String(mDiskSerializer.toString(object)));
+                    editor.set(0, diskSerializer.toString(object));
                 }
                 editor.commit();
             } catch (IOException e) {
                 logger.logError(e);
             } finally {
-                getLockForGivenEntry(key).unlock();
-                mInvalidationReadWriteLock.readLock().unlock();
+                dualCacheLock.unLockDiskEntryWrite(key);
             }
         }
     }
@@ -300,36 +187,34 @@ public class DualCache<T> {
         DiskLruCache.Snapshot snapshotObject = null;
 
         // Try to get the object from RAM.
-        boolean isRamSerialized = mRamMode.equals(DualCacheRamMode.ENABLE_WITH_SPECIFIC_SERIALIZER);
-        boolean isRamReferenced = mRamMode.equals(DualCacheRamMode.ENABLE_WITH_REFERENCE);
+        boolean isRamSerialized = ramMode.equals(DualCacheRamMode.ENABLE_WITH_SPECIFIC_SERIALIZER);
+        boolean isRamReferenced = ramMode.equals(DualCacheRamMode.ENABLE_WITH_REFERENCE);
         if (isRamSerialized || isRamReferenced) {
-            ramResult = mRamCacheLru.get(key);
+            ramResult = ramCacheLru.get(key);
         }
 
         if (ramResult == null) {
             // Try to get the cached object from disk.
-            logEntryForKeyIsNotInRam(key);
-            if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
+            loggerHelper.logEntryForKeyIsNotInRam(key);
+            if (diskMode.equals(DualCacheDiskMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
                 try {
-                    mInvalidationReadWriteLock.readLock().lock();
-                    getLockForGivenEntry(key).lock();
-                    snapshotObject = mDiskLruCache.get(key);
+                    dualCacheLock.lockDiskEntryWrite(key);
+                    snapshotObject = diskLruCache.get(key);
                 } catch (IOException e) {
                     logger.logError(e);
                 } finally {
-                    getLockForGivenEntry(key).unlock();
-                    mInvalidationReadWriteLock.readLock().unlock();
+                    dualCacheLock.unLockDiskEntryWrite(key);
                 }
 
                 if (snapshotObject != null) {
-                    logEntryForKeyIsOnDisk(key);
+                    loggerHelper.logEntryForKeyIsOnDisk(key);
                     try {
                         diskResult = snapshotObject.getString(0);
                     } catch (IOException e) {
                         logger.logError(e);
                     }
                 } else {
-                    logEntryForKeyIsNotOnDisk(key);
+                    loggerHelper.logEntryForKeyIsNotOnDisk(key);
                 }
             }
 
@@ -337,43 +222,33 @@ public class DualCache<T> {
 
             if (diskResult != null) {
                 // Load object, no need to check disk configuration since diskresult != null.
-                if (objectFromStringDisk == null) {
-                    objectFromStringDisk = mDiskSerializer.fromString(diskResult);
-                }
+                objectFromStringDisk = diskSerializer.fromString(diskResult);
 
                 // Refresh object in ram.
-                if (mRamMode.equals(DualCacheRamMode.ENABLE_WITH_REFERENCE)) {
-                    if (mDiskMode.equals(DualCacheDiskMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
-                        mRamCacheLru.put(key, objectFromStringDisk);
+                if (ramMode.equals(DualCacheRamMode.ENABLE_WITH_REFERENCE)) {
+                    if (diskMode.equals(DualCacheDiskMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
+                        ramCacheLru.put(key, objectFromStringDisk);
                     }
-                } else if (mRamMode.equals(DualCacheRamMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
-                    if (mDiskSerializer == mRamSerializer) {
-                        mRamCacheLru.put(key, diskResult);
+                } else if (ramMode.equals(DualCacheRamMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
+                    if (diskSerializer == ramSerializer) {
+                        ramCacheLru.put(key, diskResult);
                     } else {
-                        mRamCacheLru.put(key, mRamSerializer.toString(objectFromStringDisk));
+                        ramCacheLru.put(key, ramSerializer.toString(objectFromStringDisk));
                     }
                 }
                 return objectFromStringDisk;
             }
         } else {
-            logEntryForKeyIsInRam(key);
-            if (mRamMode.equals(DualCacheRamMode.ENABLE_WITH_REFERENCE)) {
+            loggerHelper.logEntryForKeyIsInRam(key);
+            if (ramMode.equals(DualCacheRamMode.ENABLE_WITH_REFERENCE)) {
                 return (T) ramResult;
-            } else if (mRamMode.equals(DualCacheRamMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
-                return mRamSerializer.fromString((String) ramResult);
+            } else if (ramMode.equals(DualCacheRamMode.ENABLE_WITH_SPECIFIC_SERIALIZER)) {
+                return ramSerializer.fromString((String) ramResult);
             }
         }
 
         // No data is available.
         return null;
-    }
-
-    // Let concurrent modification on different keys.
-    private Lock getLockForGivenEntry(String key) {
-        if (!mEditionLocks.containsKey(key)) {
-            mEditionLocks.putIfAbsent(key, new ReentrantLock());
-        }
-        return mEditionLocks.get(key);
     }
 
     /**
@@ -382,19 +257,17 @@ public class DualCache<T> {
      * @param key is the key of the object.
      */
     public void delete(String key) {
-        if (!mRamMode.equals(DualCacheRamMode.DISABLE)) {
-            mRamCacheLru.remove(key);
+        if (!ramMode.equals(DualCacheRamMode.DISABLE)) {
+            ramCacheLru.remove(key);
         }
-        if (!mDiskMode.equals(DualCacheDiskMode.DISABLE)) {
+        if (!diskMode.equals(DualCacheDiskMode.DISABLE)) {
             try {
-                mInvalidationReadWriteLock.readLock().lock();
-                getLockForGivenEntry(key).lock();
-                mDiskLruCache.remove(key);
+                dualCacheLock.lockDiskEntryWrite(key);
+                diskLruCache.remove(key);
             } catch (IOException e) {
                 logger.logError(e);
             } finally {
-                getLockForGivenEntry(key).unlock();
-                mInvalidationReadWriteLock.readLock().unlock();
+                dualCacheLock.unLockDiskEntryWrite(key);
             }
         }
     }
@@ -411,8 +284,8 @@ public class DualCache<T> {
      * Remove all objects from RAM.
      */
     public void invalidateRAM() {
-        if (!mRamMode.equals(DualCacheRamMode.DISABLE)) {
-            mRamCacheLru.evictAll();
+        if (!ramMode.equals(DualCacheRamMode.DISABLE)) {
+            ramCacheLru.evictAll();
         }
     }
 
@@ -420,47 +293,38 @@ public class DualCache<T> {
      * Remove all objects from Disk.
      */
     public void invalidateDisk() {
-        if (!mDiskMode.equals(DualCacheDiskMode.DISABLE)) {
+        if (!diskMode.equals(DualCacheDiskMode.DISABLE)) {
             try {
-                mInvalidationReadWriteLock.writeLock().lock();
-                mDiskLruCache.delete();
-                mDiskLruCache =
-                    DiskLruCache.open(mDiskCacheFolder, mAppVersion, 1, mDiskCacheSizeInBytes);
+                dualCacheLock.lockFullDiskWrite();
+                diskLruCache.delete();
+                openDiskLruCache(diskCacheFolder);
             } catch (IOException e) {
                 logger.logError(e);
             } finally {
-                mInvalidationReadWriteLock.writeLock().unlock();
+                dualCacheLock.unLockFullDiskWrite();
             }
         }
     }
 
     /**
-     * Set the way objects are stored in the disk layer.
-     *
-     * @param diskMode is the value to set.
+     * Test if an object is present in cache.
+     * @param key is the key of the object.
+     * @return true if the object is present in cache, false otherwise.
      */
-    public void setDiskMode(DualCacheDiskMode diskMode) {
-        this.mDiskMode = diskMode;
-    }
-
-    // Logging helpers
-    private void logEntrySavedForKey(String key) {
-        logger.logInfo(LOG_PREFIX + key + " is saved in cache.");
-    }
-
-    private void logEntryForKeyIsInRam(String key) {
-        logger.logInfo(LOG_PREFIX + key + " is in RAM.");
-    }
-
-    private void logEntryForKeyIsNotInRam(String key) {
-        logger.logInfo(LOG_PREFIX + key + " is not in RAM.");
-    }
-
-    private void logEntryForKeyIsOnDisk(String key) {
-        logger.logInfo(LOG_PREFIX + key + " is on disk.");
-    }
-
-    private void logEntryForKeyIsNotOnDisk(String key) {
-        logger.logInfo(LOG_PREFIX + key + " is not on disk.");
+    public boolean contains(String key) {
+        if (!ramMode.equals(DualCacheRamMode.DISABLE) && ramCacheLru.snapshot().containsKey(key)) {
+            return true;
+        }
+        try {
+            dualCacheLock.lockDiskEntryWrite(key);
+            if (!diskMode.equals(DualCacheDiskMode.DISABLE) && diskLruCache.get(key) != null) {
+                return true;
+            }
+        } catch (IOException e) {
+            logger.logError(e);
+        } finally {
+            dualCacheLock.unLockDiskEntryWrite(key);
+        }
+        return false;
     }
 }

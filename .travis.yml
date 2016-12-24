@@ -7,10 +7,10 @@ android:
     # - tools
 
     # The BuildTools version used by your project
-    - build-tools-21.1.2
+    - build-tools-25.0.1
 
     # The SDK version used to compile your project
-    - android-23
+    - android-25
 
     # Additional components
     - extra-google-m2repository
@@ -19,7 +19,7 @@ android:
 
     # Specify at least one system image,
     # if you need to run emulator(s) during your tests
-    - sys-img-armeabi-v7a-android-21
+    - sys-img-armeabi-v7a-android-25
 
 before_script:
   # Create and start emulator
@@ -30,5 +30,5 @@ before_script:
 
 script:
   - ./gradlew clean
-  - ./gradlew dualcache-library:connectedAndroidTest -Ptravis --stacktrace
-  #- ./gradlew dualcache:check -Ptravis --stacktrace
+  #- ./gradlew dualcache-library:connectedAndroidTest -Ptravis --stacktrace
+  - ./gradlew dualcache:check -Ptravis --stacktrace

@@ -1,25 +1,30 @@
 package com.vincentbrison.openlibraries.android.dualcache.lib;
 
+import android.content.Context;
 import android.support.test.InstrumentationRegistry;
-import android.test.AndroidTestCase;
+import android.support.test.runner.AndroidJUnit4;
 
+import com.vincentbrison.openlibraries.android.dualcache.Builder;
 import com.vincentbrison.openlibraries.android.dualcache.CacheSerializer;
 import com.vincentbrison.openlibraries.android.dualcache.DualCache;
-import com.vincentbrison.openlibraries.android.dualcache.Builder;
 import com.vincentbrison.openlibraries.android.dualcache.JsonSerializer;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertFalse;
+
 /**
  * Test issue 11.
  */
-public class TestIssue11 extends AndroidTestCase {
+@RunWith(AndroidJUnit4.class)
+public class TestIssue11 {
     private static final int CACHE_SIZE = 10 * 1024 * 1024; // 10 MB
     private static final int CACHE_RAM_ENTRIES = 25;
     protected static final String CACHE_NAME = "test";
@@ -27,13 +32,11 @@ public class TestIssue11 extends AndroidTestCase {
     protected DualCache<String> mCache;
 
     @Before
-    @Override
     public void setUp() throws Exception {
-        super.setUp();
-        setContext(InstrumentationRegistry.getTargetContext());
-        File cacheDir = new File(mContext.getCacheDir(), CACHE_NAME);
+        Context context = InstrumentationRegistry.getTargetContext();
+        File cacheDir = new File(context.getCacheDir(), CACHE_NAME);
         CacheSerializer<String> jsonSerializer = new JsonSerializer<>(String.class);
-        mCache = new Builder<>(CACHE_NAME, 0, String.class)
+        mCache = new Builder<String>(CACHE_NAME, 0)
             .enableLog()
             .useSerializerInRam(CACHE_RAM_ENTRIES, jsonSerializer)
             .useSerializerInDisk(CACHE_SIZE, cacheDir, jsonSerializer)
@@ -41,10 +44,8 @@ public class TestIssue11 extends AndroidTestCase {
     }
 
     @After
-    @Override
     public void tearDown() throws Exception {
         mCache.invalidate();
-        super.tearDown();
     }
 
     @Test

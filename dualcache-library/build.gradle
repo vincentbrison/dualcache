@@ -1,16 +1,17 @@
+import com.android.builder.core.BuilderConstants
+
 apply plugin: 'com.android.library'
 apply from: '../config/quality.gradle'
 apply from: '../maven_push.gradle'
 
 android {
-
-    compileSdkVersion 23
-    buildToolsVersion '21.1.2'
+    compileSdkVersion project.compileSdkVersion
+    buildToolsVersion project.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 9
-        targetSdkVersion 23
-        versionCode 1
+        minSdkVersion project.minSdkVersion
+        targetSdkVersion project.targetSdkVersion
+        versionCode Integer.parseInt(project.VERSION_CODE)
         versionName project.VERSION_NAME
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -26,15 +27,15 @@ android {
 
 dependencies {
     compile project (':dualcache-serializerinterface')
-    compile 'com.jakewharton:disklrucache:2.0.2'
+    compile "com.jakewharton:disklrucache:${project.diskLruVersion}"
 
-    androidTestCompile 'com.android.support.test:runner:0.3'
+    androidTestCompile "com.android.support.test:runner:${project.androidSupportTestRunner}"
     androidTestCompile project (':dualcache-jsonserializer')
 }
 
 android.libraryVariants.all { variant ->
     def name = variant.buildType.name
-    if (name.equals(com.android.builder.core.BuilderConstants.DEBUG)) {
+    if (name.equals(BuilderConstants.DEBUG)) {
         return; // Skip debug builds.
     }
     def task = project.tasks.create "jar${name.capitalize()}", Jar
