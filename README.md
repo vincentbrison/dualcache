@@ -63,7 +63,7 @@ What's new in 3.0.0
 ===================
 - Only one dependency to [DiskLruCache](https://github.com/JakeWharton/DiskLruCache) because apk size matters.
 - Non coupled serializer, with cleaner implementation. Previously `default` json serializer
-is now a specific serializer which is available at `com.vincentbrison.openlibraries.android:dualcache-jsonserializer:3.0.0`.
+is now a specific serializer which is available at `com.vincentbrison.openlibraries.android:dualcache-jsonserializer:3.1.1`.
 - Internal optimizations for better performances.
 - All the configuration is now done through `Builder`.
 - Better access modifiers to fully hide internal classes.
@@ -93,9 +93,9 @@ android {
 }
 
 dependencies {
-    compile 'com.vincentbrison.openlibraries.android:dualcache:3.0.0'
+    compile 'com.vincentbrison.openlibraries.android:dualcache:3.1.1'
 
-    //compile 'com.vincentbrison.openlibraries.android:dualcache-jsonserializer:3.0.0' // If you
+    //compile 'com.vincentbrison.openlibraries.android:dualcache-jsonserializer:3.1.1' // If you
     // want a ready to use json serializer
 }
 ```
