@@ -18,6 +18,7 @@ package com.vincentbrison.openlibraries.android.dualcache;
 
 import com.jakewharton.disklrucache.DiskLruCache;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 
@@ -27,7 +28,7 @@ import java.io.IOException;
  *
  * @param <T> is the Class of object to cache.
  */
-public class DualCache<T> {
+public class DualCache<T> implements Closeable {
 
     private static final int VALUES_PER_CACHE_ENTRY = 1;
 
@@ -326,5 +327,17 @@ public class DualCache<T> {
             dualCacheLock.unLockDiskEntryWrite(key);
         }
         return false;
+    }
+
+    /**
+     * Closes the underlying Disk LRU Cache. (if one is in use)
+     * @throws IOException if an I/O error occurs
+     * @see DiskLruCache#close()
+     */
+    @Override
+    public void close() throws IOException {
+        if (diskLruCache != null) {
+            diskLruCache.close();
+        }
     }
 }
