@@ -1,3 +1,7 @@
+Deprecated
+==========
+This library is now deprecated in favor of [Store](https://github.com/NYTimes/Store) which fulfill all the goal of this library.
+
 Android dualcache
 =================
 [![API](https://img.shields.io/badge/API-9%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=9)
